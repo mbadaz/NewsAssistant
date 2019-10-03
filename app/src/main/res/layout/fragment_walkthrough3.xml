@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/background_light">
+
+    <TextView
+        android:id="@+id/txt_walkthrough_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:text="News Sources"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="#2B2B2B"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txt_walkthrough_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/walkthrough3_subtitle"
+        android:textColor="#58585B"
+        app:layout_constraintStart_toStartOf="@+id/txt_walkthrough_title"
+        app:layout_constraintTop_toBottomOf="@+id/txt_walkthrough_title" />
+
+    <TextView
+        android:id="@+id/txt_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:clickable="true"
+        android:text="FINISH"
+        android:textColor="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="@+id/tab_circle2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tab_circle2" />
+
+    <View
+        android:id="@+id/tab_circle1"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/logo_circle2"
+        app:layout_constraintEnd_toStartOf="@+id/tab_circle2"
+        app:layout_constraintTop_toTopOf="@+id/tab_circle2" />
+
+    <View
+        android:id="@+id/tab_circle2"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/logo_circle2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/tab_circle3"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/logo_circle2"
+        app:layout_constraintStart_toEndOf="@+id/tab_circle2"
+        app:layout_constraintTop_toTopOf="@+id/tab_circle2" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_walkthrough_categories"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="32dp"
+        android:background="@android:color/background_light"
+        app:layout_constraintBottom_toTopOf="@+id/tab_circle2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txt_walkthrough_subtitle"
+        app:layout_constraintVertical_bias="0.0"
+        tools:listitem="@layout/item_favourites">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

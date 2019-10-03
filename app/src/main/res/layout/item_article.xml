@@ -70,6 +70,7 @@
         android:id="@+id/txt_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
         android:textColor="@color/colorPrimary"
         android:textSize="14sp"

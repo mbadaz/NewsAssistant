@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_item_feed"
+        android:title="News Feed" />
+    <item
+        android:id="@+id/menu_item_saved"
+        android:icon="@drawable/ic_archive_grey_1"
+        android:title="Saved"
+        app:showAsAction="always|withText" />
+    <item
+        android:id="@+id/menu_item_favourites"
+        android:icon="@drawable/ic_favorite_grey_1"
+        android:title="Favourites"
+        app:showAsAction="always|withText" />
+</menu>

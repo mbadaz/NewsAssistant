@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">News Assistant</string>
+    <string name="welcome_message">Let\'s take a few setup steps to help News Assistant find just the right news for you.</string>
+    <string name="walkthrough_subtitle">What news categories are you interested in?</string>
+    <string name="walkthrough3_subtitle">What news sources do you prefer?</string>
 </resources>
