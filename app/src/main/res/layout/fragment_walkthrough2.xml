@@ -7,7 +7,7 @@
     android:background="@android:color/background_light">
 
     <TextView
-        android:id="@+id/txt_skip2"
+        android:id="@+id/txt_skip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -50,14 +50,18 @@
         app:layout_constraintTop_toBottomOf="@+id/txt_walkthrough_subtitle">
 
         <TableLayout
+            android:id="@+id/tableLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:padding="16dp" />
 
         <ListView
+            android:id="@+id/list_walkthrough_category"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="2"
+            android:entries="@array/categories"
             tools:listitem="@layout/item_category_layout" />
 
     </LinearLayout>

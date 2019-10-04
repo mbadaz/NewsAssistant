@@ -9,5 +9,5 @@ public class Article {
     public String description;
     public String url;
     public String urlToImage;
-    public Date publishedAt;
+    public String publishedAt;
 }

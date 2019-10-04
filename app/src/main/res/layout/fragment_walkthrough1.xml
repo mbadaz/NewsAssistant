@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/walkthrough_background"
-    android:padding="64dp">
+    android:padding="64dp"
+    tools:context=".fragments.FragmentWalkthrough1">
 
     <TextView
         android:id="@+id/txt_skip"
