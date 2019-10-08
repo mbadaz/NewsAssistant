@@ -1,36 +1,46 @@
 package com.mbadasoft.newsassistant.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.MarginLayoutParamsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.CheckBox;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.mbadasoft.newsassistant.MainActivity;
 import com.mbadasoft.newsassistant.R;
+import com.mbadasoft.newsassistant.WalkthroughActivityViewModel;
+import com.mbadasoft.newsassistant.adapters.SourcesAdapter;
+import com.mbadasoft.newsassistant.models.Source;
+import com.mbadasoft.newsassistant.models.SourcesResult;
 
-public class FragmentWalkthrough1 extends Fragment implements AdapterView.OnItemClickListener {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+import java.util.ArrayList;
+
+public class FragmentWalkthrough1 extends Fragment implements AdapterView.OnItemClickListener,
+        Observer<SourcesResult>, SourcesAdapter.OnCheckBoxClickListener {
+    private static final String TAG = FragmentWalkthrough1.class.getSimpleName();
     private static final String ARG_PARAM1 = "param1";
     private int mParam1;
     private OnFragmentInteractionListener mListener;
+    private WalkthroughActivityViewModel viewModel;
     private TableLayout tableLayout;
-    private ListView catgoriesListView;
-    private TextView textFinish;
+    TableRow tableRow;
+    private RecyclerView recyclerView;
+    private SourcesAdapter sourcesAdapter;
 
     public FragmentWalkthrough1() {
         // Required empty public constructor
@@ -56,14 +66,14 @@ public class FragmentWalkthrough1 extends Fragment implements AdapterView.OnItem
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
+        viewModel = ViewModelProviders.of(getActivity()).get(WalkthroughActivityViewModel.class);
         switch (mParam1){
-            case 1:
-                return inflater.inflate(R.layout.fragment_walkthrough1, container, false);
             case 2:
                 return inflater.inflate(R.layout.fragment_walkthrough2, container, false);
             case 3:
                 return inflater.inflate(R.layout.fragment_walkthrough3, container, false);
+            case 1:
             default:
                 return inflater.inflate(R.layout.fragment_walkthrough1, container, false);
         }
@@ -78,25 +88,36 @@ public class FragmentWalkthrough1 extends Fragment implements AdapterView.OnItem
                 break;
             case 2:
                 tableLayout = view.findViewById(R.id.tableLayout);
-                catgoriesListView = view.findViewById(R.id.list_walkthrough_category);
-                catgoriesListView.setOnItemClickListener(this);
                 break;
             case 3:
+                recyclerView = view.findViewById(R.id.rv_walkthrough);
+                LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
+                recyclerView.setLayoutManager(layoutManager);
+                sourcesAdapter = new SourcesAdapter();
+                sourcesAdapter.setCheckBoxClickListener(this);
+                recyclerView.setAdapter(sourcesAdapter);
                 break;
         }
+    }
 
-        textFinish = view.findViewById(R.id.txt_skip);
-        textFinish.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), MainActivity.class);
-            startActivity(intent);
-            getActivity().finish();
-        });
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (mParam1 == 3) {
+            viewModel.getAvailableSources().observe(this,this );
+        }
+
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         String itemTitle = parent.getItemAtPosition(position).toString();
-        TableRow tableRow = new TableRow(view.getContext());
+        addItemToTable(view, itemTitle);
+    }
+
+    private void  addItemToTable(View view, String itemTitle) {
+
+        tableRow = new TableRow(view.getContext());
         TextView child = new TextView(view.getContext());
         child.setText(itemTitle);
         child.setPadding(12, 12, 12, 12);
@@ -142,17 +163,23 @@ public class FragmentWalkthrough1 extends Fragment implements AdapterView.OnItem
         mListener = null;
     }
 
+    @Override
+    public void onChanged(SourcesResult sourcesResult) {
+        if (sourcesResult.status.equals("ok")) {
+            sourcesAdapter.addData(sourcesResult.sources);
+            Log.d(TAG, "UPDATED UI WITH SOURCES DATA: \n" + sourcesResult.sources);
+        }
+    }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+    @Override
+    public void onCheckBoxClicked(CheckBox checkBox, Source source) {
+        if (checkBox.isChecked()) {
+            viewModel.addSourceToSelection(source);
+        } else {
+            viewModel.removeSourceFromSelection(source);
+        }
+    }
+
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);

@@ -22,21 +22,30 @@ import com.mbadasoft.newsassistant.R;
 import com.mbadasoft.newsassistant.adapters.ArticlesAdapter;
 import com.mbadasoft.newsassistant.models.ArticlesResult;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class FragmentMyNews extends Fragment {
-
     private MainActivityViewModel mViewModel;
     private ArticlesAdapter adapter;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
-    private String args;
+    private Map<String, String> args = new HashMap<>();
 
 
-    public static FragmentMyNews newInstance(String args) {
+    public static FragmentMyNews newInstance(Map<String, ?> args) {
         Bundle bundle = new Bundle();
-        bundle.putString("TYPE", args);
+        if (args != null) {
+            for (String key : args.keySet()) {
+                bundle.putString(key, (String) args.get(key));
+            }
+        }
+
         FragmentMyNews fragmentMyNews = new FragmentMyNews();
         fragmentMyNews.setArguments(bundle);
         return fragmentMyNews;
@@ -45,8 +54,14 @@ public class FragmentMyNews extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            args = getArguments().getString("TYPE");
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            for (String key : bundle.keySet()) {
+                String value = bundle.getString(key);
+                if (value != null) {
+                    args.put(key, value);
+                }
+            }
         }
     }
 
@@ -65,7 +80,7 @@ public class FragmentMyNews extends Fragment {
         adapter = new ArticlesAdapter();
         recyclerView.setAdapter(adapter);
         mViewModel = ViewModelProviders.of(getActivity()).get(MainActivityViewModel.class);
-        mViewModel.getArticles().observe(this, articlesResult -> {
+        mViewModel.getArticles(args).observe(this, articlesResult -> {
             if (articlesResult.status.equals("ok")) {
                 adapter.addData(articlesResult.articles);
                 progressBar.setVisibility(View.INVISIBLE);
