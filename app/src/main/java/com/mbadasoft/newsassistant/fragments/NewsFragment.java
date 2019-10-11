@@ -1,9 +1,7 @@
 package com.mbadasoft.newsassistant.fragments;
 
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,35 +18,25 @@ import android.widget.ProgressBar;
 import com.mbadasoft.newsassistant.MainActivityViewModel;
 import com.mbadasoft.newsassistant.R;
 import com.mbadasoft.newsassistant.adapters.ArticlesAdapter;
-import com.mbadasoft.newsassistant.models.ArticlesResult;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
-public class FragmentMyNews extends Fragment {
+public class NewsFragment extends Fragment {
+    public static final String FRAGMENT_ID = "Fragment Id";
     private MainActivityViewModel mViewModel;
     private ArticlesAdapter adapter;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
-    private Map<String, String> args = new HashMap<>();
+    private String args;
 
 
-    public static FragmentMyNews newInstance(Map<String, ?> args) {
+    public static NewsFragment newInstance(String arg) {
         Bundle bundle = new Bundle();
-        if (args != null) {
-            for (String key : args.keySet()) {
-                bundle.putString(key, (String) args.get(key));
-            }
-        }
-
-        FragmentMyNews fragmentMyNews = new FragmentMyNews();
-        fragmentMyNews.setArguments(bundle);
-        return fragmentMyNews;
+        bundle.putString(FRAGMENT_ID, arg);
+        NewsFragment newsFragment = new NewsFragment();
+        newsFragment.setArguments(bundle);
+        return newsFragment;
     }
 
     @Override
@@ -56,12 +44,7 @@ public class FragmentMyNews extends Fragment {
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
         if (bundle != null) {
-            for (String key : bundle.keySet()) {
-                String value = bundle.getString(key);
-                if (value != null) {
-                    args.put(key, value);
-                }
-            }
+            args = bundle.getString(FRAGMENT_ID);
         }
     }
 
@@ -87,4 +70,16 @@ public class FragmentMyNews extends Fragment {
             }
         });
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+
 }

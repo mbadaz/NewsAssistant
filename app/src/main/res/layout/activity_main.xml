@@ -28,7 +28,7 @@
         android:layout_alignBottom="@+id/main_fragment_container"
         android:background="@color/colorBackground_light"
         app:itemIconTint="@color/colorPrimary"
-        app:itemTextColor="@color/colorPrimaryDark"
+        app:itemTextColor="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/menu_bottom_nav" />
 

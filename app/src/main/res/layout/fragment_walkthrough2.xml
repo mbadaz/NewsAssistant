@@ -7,18 +7,6 @@
     android:background="@android:color/background_light">
 
     <TextView
-        android:id="@+id/txt_skip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:clickable="true"
-        android:text="SKIP"
-        android:textColor="@color/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="@+id/tab_circle2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tab_circle2" />
-
-    <TextView
         android:id="@+id/txt_walkthrough_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -44,55 +32,35 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="32dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/tab_circle2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_walkthrough_subtitle">
 
-        <TableLayout
-            android:id="@+id/tableLayout"
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:padding="16dp" />
+            android:layout_weight="3"
+            android:background="@color/colorBackground_light">
+            <TableLayout
+                android:id="@+id/tableLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:shrinkColumns="*" />
+        </ScrollView>
 
         <ListView
             android:id="@+id/list_walkthrough_category"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="2"
+            android:layout_marginTop="8dp"
+            android:layout_weight="5"
             android:entries="@array/categories"
             tools:listitem="@layout/item_category_layout" />
 
     </LinearLayout>
-
-    <View
-        android:id="@+id/tab_circle3"
-        android:layout_width="10dp"
-        android:layout_height="10dp"
-        android:layout_marginStart="8dp"
-        android:background="@drawable/logo_circle2"
-        app:layout_constraintStart_toEndOf="@+id/tab_circle2"
-        app:layout_constraintTop_toTopOf="@+id/tab_circle2" />
-
-    <View
-        android:id="@+id/tab_circle1"
-        android:layout_width="10dp"
-        android:layout_height="10dp"
-        android:layout_marginEnd="8dp"
-        android:background="@drawable/logo_circle2"
-        app:layout_constraintEnd_toStartOf="@+id/tab_circle2"
-        app:layout_constraintTop_toTopOf="@+id/tab_circle2" />
-
-    <View
-        android:id="@+id/tab_circle2"
-        android:layout_width="10dp"
-        android:layout_height="10dp"
-        android:layout_marginBottom="32dp"
-        android:background="@drawable/logo_circle2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

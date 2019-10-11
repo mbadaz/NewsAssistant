@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:layout_marginTop="8dp"
     app:cardBackgroundColor="@android:color/background_light"
     app:cardCornerRadius="4dp"
     app:contentPadding="8dp">
@@ -36,7 +37,7 @@
             tools:text="@tools:sample/lorem/random" />
 
         <TextView
-            android:id="@+id/item_source_details"
+            android:id="@+id/txt_source_details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"

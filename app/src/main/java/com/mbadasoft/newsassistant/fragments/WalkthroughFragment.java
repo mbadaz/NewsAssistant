@@ -13,11 +13,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -28,11 +31,9 @@ import com.mbadasoft.newsassistant.adapters.SourcesAdapter;
 import com.mbadasoft.newsassistant.models.Source;
 import com.mbadasoft.newsassistant.models.SourcesResult;
 
-import java.util.ArrayList;
-
-public class FragmentWalkthrough1 extends Fragment implements AdapterView.OnItemClickListener,
+public class WalkthroughFragment extends Fragment implements AdapterView.OnItemClickListener,
         Observer<SourcesResult>, SourcesAdapter.OnCheckBoxClickListener {
-    private static final String TAG = FragmentWalkthrough1.class.getSimpleName();
+    private static final String TAG = WalkthroughFragment.class.getSimpleName();
     private static final String ARG_PARAM1 = "param1";
     private int mParam1;
     private OnFragmentInteractionListener mListener;
@@ -41,14 +42,16 @@ public class FragmentWalkthrough1 extends Fragment implements AdapterView.OnItem
     TableRow tableRow;
     private RecyclerView recyclerView;
     private SourcesAdapter sourcesAdapter;
+    private ListView categoriesList;
+    private int counter = 0;
 
-    public FragmentWalkthrough1() {
+    public WalkthroughFragment() {
         // Required empty public constructor
     }
 
 
-    public static FragmentWalkthrough1 newInstance(int param1) {
-        FragmentWalkthrough1 fragment = new FragmentWalkthrough1();
+    public static WalkthroughFragment newInstance(int param1) {
+        WalkthroughFragment fragment = new WalkthroughFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_PARAM1, param1);
         fragment.setArguments(args);
@@ -88,6 +91,8 @@ public class FragmentWalkthrough1 extends Fragment implements AdapterView.OnItem
                 break;
             case 2:
                 tableLayout = view.findViewById(R.id.tableLayout);
+                categoriesList = view.findViewById(R.id.list_walkthrough_category);
+                categoriesList.setOnItemClickListener(this);
                 break;
             case 3:
                 recyclerView = view.findViewById(R.id.rv_walkthrough);
@@ -116,27 +121,35 @@ public class FragmentWalkthrough1 extends Fragment implements AdapterView.OnItem
     }
 
     private void  addItemToTable(View view, String itemTitle) {
+        if (counter == 3 || counter == 0) {
+            tableRow = new TableRow(view.getContext());
+            TableLayout.LayoutParams params = new TableLayout.LayoutParams();
+            params.bottomMargin = 8;
+            params.rightMargin = 8;
+            params.leftMargin = 8;
+            params.topMargin = 8;
+            params.width = TableLayout.LayoutParams.MATCH_PARENT;
+            tableRow.setLayoutParams(params);
+            tableRow.setMeasureWithLargestChildEnabled(true);
+            tableLayout.addView(tableRow);
+            counter = 0;
+        }
 
-        tableRow = new TableRow(view.getContext());
         TextView child = new TextView(view.getContext());
         child.setText(itemTitle);
-        child.setPadding(12, 12, 12, 12);
-        TableLayout.LayoutParams parrams = new TableLayout.LayoutParams();
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.bottomMargin = 8;
-        params.rightMargin = 8;
-        params.leftMargin = 8;
-        params.topMargin = 8;
-        params.width = TableLayout.LayoutParams.WRAP_CONTENT;
+
+        TableRow.LayoutParams params = new TableRow.LayoutParams();
+        params.setMarginEnd(8);
+        params.setMarginStart(8);
+        params.gravity = Gravity.CENTER;
+        params.width = TableRow.LayoutParams.MATCH_PARENT;
         child.setLayoutParams(params);
-        child.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        child.setPadding(20, 12, 20, 12);
+        child.setBackground(getResources().getDrawable(R.drawable.item_category_background));
         child.setTextColor(getResources().getColor(R.color.colorBackground_light));
-        //tableRow.addView(child);
-        tableRow.setLayoutParams(params);
-        tableRow.setMeasureWithLargestChildEnabled(false);
-        tableRow.setClipChildren(true);
-        tableRow.setLayoutMode(TableLayout.LayoutParams.WRAP_CONTENT);
-        tableLayout.addView(child, TableLayout.LayoutParams.WRAP_CONTENT);
+
+        tableRow.addView(child);
+        counter++;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

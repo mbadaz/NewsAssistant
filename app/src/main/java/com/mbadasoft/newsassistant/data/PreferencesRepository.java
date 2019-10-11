@@ -1,15 +1,14 @@
 package com.mbadasoft.newsassistant.data;
 
+import android.util.SparseIntArray;
+
+import com.mbadasoft.newsassistant.models.Source;
+
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 public interface PreferencesRepository {
 
-    Map<String, ?> getPreferredCategories();
-    Map<String, ?> getPreferredSources();
-    Map<String, ?> getAppPreferences();
-    void savePreferredSource(String value);
-    void savePreferredCategory(String value);
-    void saveisFirstTimeLogin(boolean value);
-    void saveEnableExternalBroweser(boolean value);
-    void saveArticlesLoadingLimit(int value);
+    public void loadPreferences();
 }

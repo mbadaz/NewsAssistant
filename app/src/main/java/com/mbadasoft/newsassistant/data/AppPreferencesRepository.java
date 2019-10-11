@@ -3,25 +3,21 @@ package com.mbadasoft.newsassistant.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class AppPreferencesRepository implements PreferencesRepository {
 
     public static final String ARTICLES_LOADING_LIMIT = "ArticlesLoadingLimit";
     public static final String ENABLE_EXTERNAL_BROWSER = "EnableExternalBrowser";
     public static final String IS_FIRST_TIME_LOGIN = "IsFirstTimeLogin";
-    private SharedPreferences categoryPreferences;
-    private SharedPreferences sourcesPreferences;
+    public static final String SOURCES = "Sources";
     private SharedPreferences appPreferences;
     private static AppPreferencesRepository INSTANCE = null;
-    private Map<String, ?> appPrefs;
-    private Map<String, ?> categoryPrefs;
-    private Map<String, ?> sourcePrefs;
-
+    private Map<String, ?> userPrefs = new HashMap<>();
 
     private AppPreferencesRepository(Context context) {
-        sourcesPreferences = context.getSharedPreferences("source", Context.MODE_PRIVATE);
-        categoryPreferences = context.getSharedPreferences("categories", Context.MODE_PRIVATE);
         appPreferences = context.getSharedPreferences("app", Context.MODE_PRIVATE);
     }
 
@@ -33,58 +29,59 @@ public class AppPreferencesRepository implements PreferencesRepository {
         return INSTANCE;
     }
 
-    private void loadPreferences() {
+    @Override
+    public void loadPreferences() {
         Thread thread = new Thread(() -> {
-            appPrefs = appPreferences.getAll();
-            categoryPrefs = categoryPreferences.getAll();
-            sourcePrefs = sourcesPreferences.getAll();
+            userPrefs = appPreferences.getAll();
         });
         thread.start();
     }
 
-    @Override
-    public Map<String, ?> getAppPreferences() {
-        return appPrefs;
+    public Set<String> getPreferredSources() {
+        return (Set<String>) userPrefs.get(SOURCES);
     }
 
-    @Override
-    public Map<String, ?> getPreferredCategories() {
-        return categoryPrefs;
+    public void savePreferredSources(Set<String> sources) {
+        SharedPreferences.Editor editor = appPreferences.edit();
+        editor.putStringSet(SOURCES, sources);
+        editor.apply();
     }
 
-    @Override
-    public Map<String, ?> getPreferredSources() {
-        return sourcePrefs;
+    public boolean getIsFirstTimeLogin(){
+        return userPrefs.containsKey(IS_FIRST_TIME_LOGIN);
     }
 
-    @Override
-    public void savePreferredSource(String source) {
-
-    }
-
-    @Override
-    public void savePreferredCategory(String category) {
-
-    }
-
-    @Override
     public void saveisFirstTimeLogin(boolean value) {
         SharedPreferences.Editor editor = appPreferences.edit();
         editor.putBoolean(IS_FIRST_TIME_LOGIN, value);
         editor.apply();
     }
 
-    @Override
-    public void saveEnableExternalBroweser(boolean value) {
+    public void setEnableExternalBrowser(boolean value) {
         SharedPreferences.Editor editor = appPreferences.edit();
         editor.putBoolean(ENABLE_EXTERNAL_BROWSER, value);
         editor.apply();
     }
 
-    @Override
-    public void saveArticlesLoadingLimit(int value) {
+    public boolean isExternalBrowserEnabled() {
+        if(userPrefs.containsKey(ENABLE_EXTERNAL_BROWSER)){
+            return (Boolean) userPrefs.get(ENABLE_EXTERNAL_BROWSER);
+        }else {
+            return false;
+        }
+    }
+
+    public void setArticlesLoadingLimit(int value) {
         SharedPreferences.Editor editor = appPreferences.edit();
         editor.putInt(ARTICLES_LOADING_LIMIT, value);
         editor.apply();
+    }
+
+    public int getArticlesLoadingLimit() {
+        if (userPrefs.containsKey(ARTICLES_LOADING_LIMIT)) {
+            return (Integer) userPrefs.get(ARTICLES_LOADING_LIMIT);
+        } else {
+            return 15;
+        }
     }
 }

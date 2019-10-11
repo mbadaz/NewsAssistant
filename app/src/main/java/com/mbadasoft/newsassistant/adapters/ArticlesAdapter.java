@@ -71,8 +71,10 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.Articl
             description.setText(article.description);
             source.setText(article.source.name);
             publishedAt.setText(DateParsingUtils.parseDate(article.publishedAt));
-            Picasso.get().load(article.urlToImage).
-                    placeholder(R.drawable.ic_launcher_background).into(image);
+            if (!article.urlToImage.isEmpty()) {
+                Picasso.get().load(article.urlToImage).
+                        placeholder(R.drawable.ic_launcher_background).into(image);
+            }
         }
     }
 }

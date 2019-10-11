@@ -7,24 +7,14 @@ import androidx.viewpager.widget.ViewPager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.mbadasoft.newsassistant.R;
 import com.mbadasoft.newsassistant.adapters.WalkThroughViewPagerAdapter;
-import com.mbadasoft.newsassistant.fragments.FragmentWalkthrough1;
-import com.mbadasoft.newsassistant.models.Source;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ActivityWalkThrough extends AppCompatActivity implements View.OnClickListener {
+public class WalkThroughActivity extends AppCompatActivity implements View.OnClickListener {
     @BindView(R.id.viewpager_walkthrough) ViewPager viewPager;
     @BindView(R.id.tab_circle) View circleIndicator1;
     @BindView(R.id.tab_circle2) View circleIndicator2;
@@ -42,12 +32,13 @@ public class ActivityWalkThrough extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_walk_through);
         ButterKnife.bind(this);
         viewModel = ViewModelProviders.of(this).get(WalkthroughActivityViewModel.class);
-        if (viewModel.IsFirstTimeLogin()) {
+        if (!viewModel.IsFirstTimeLogin()) {
+            viewModel.setIsFirstTimeLogin(false);
+        } else {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
-        } else {
-            viewModel.setIsFirstTimeLogin(true);
+
         }
 
         viewPager.setAdapter(adapter);
@@ -104,21 +95,15 @@ public class ActivityWalkThrough extends AppCompatActivity implements View.OnCli
                 finish();
                 break;
             case R.id.txt_finish:
-                saveUserSelections();
-                Intent intent1 = new Intent(this, MainActivity.class);
-                startActivity(intent1);
-                finish();
+                saveUserData();
                 break;
         }
     }
 
-    private void saveUserSelections() {
-        FragmentWalkthrough1 child = (FragmentWalkthrough1) adapter.getItem(currentPosition);
-        switch (currentPosition) {
-            case 2:
-                Map<Integer, Source> sourceHashMap = child.getSelectedSources();
-                viewModel.saveSelectedSources(sourceHashMap);
-        }
-
+    private void saveUserData() {
+        viewModel.saveUserData();
+//        Intent intent1 = new Intent(this, MainActivity.class);
+//        startActivity(intent1);
+//        finish();
     }
 }

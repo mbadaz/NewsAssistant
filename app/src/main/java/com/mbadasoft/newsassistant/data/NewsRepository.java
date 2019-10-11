@@ -8,9 +8,11 @@ import com.mbadasoft.newsassistant.models.ArticlesResult;
 import com.mbadasoft.newsassistant.models.Source;
 import com.mbadasoft.newsassistant.models.SourcesResult;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface NewsRepository {
     LiveData<SourcesResult> getSources();
-    LiveData<ArticlesResult> getArticles();
+    LiveData<ArticlesResult> getArticles(Map<String, Object> args, String endpoint);
 }
