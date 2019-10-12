@@ -185,8 +185,10 @@ public class WalkthroughFragment extends Fragment implements AdapterView.OnItemC
     public void onCheckBoxClicked(CheckBox checkBox, Source source) {
         if (checkBox.isChecked()) {
             viewModel.addSourceToSelection(source);
+            source.setChecked(true);
         } else {
             viewModel.removeSourceFromSelection(source);
+            source.setChecked(false);
         }
     }
 

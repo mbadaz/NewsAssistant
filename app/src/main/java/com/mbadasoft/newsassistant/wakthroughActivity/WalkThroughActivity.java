@@ -103,8 +103,8 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
 
     private void saveUserData() {
         viewModel.saveUserData();
-//        Intent intent1 = new Intent(this, NewsActivity.class);
-//        startActivity(intent1);
-//        finish();
+        Intent intent1 = new Intent(this, NewsActivity.class);
+        startActivity(intent1);
+        finish();
     }
 }

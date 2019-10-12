@@ -52,6 +52,7 @@ public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesV
         holder.checkBox.setOnClickListener(v -> {
             checkBoxClickListener.onCheckBoxClicked((CheckBox)v, source);
         });
+        holder.checkBox.setChecked(source.isChecked());
 
     }
 
