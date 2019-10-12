@@ -1,4 +1,4 @@
-package com.mbadasoft.newsassistant.fragments;
+package com.mbadasoft.newsassistant.wakthroughActivity;
 
 import android.content.Context;
 import android.net.Uri;
@@ -19,15 +19,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.mbadasoft.newsassistant.R;
-import com.mbadasoft.newsassistant.WalkthroughActivityViewModel;
-import com.mbadasoft.newsassistant.adapters.SourcesAdapter;
 import com.mbadasoft.newsassistant.models.Source;
 import com.mbadasoft.newsassistant.models.SourcesResult;
 

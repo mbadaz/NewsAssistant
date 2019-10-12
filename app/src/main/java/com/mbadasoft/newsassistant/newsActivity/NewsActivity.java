@@ -1,33 +1,28 @@
-package com.mbadasoft.newsassistant;
+package com.mbadasoft.newsassistant.newsActivity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 
-import android.content.res.ColorStateList;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.mbadasoft.newsassistant.fragments.NewsFragment;
-
-import java.util.Map;
+import com.mbadasoft.newsassistant.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
-    private static final String TAG = MainActivity.class.getSimpleName();
+public class NewsActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+    private static final String TAG = NewsActivity.class.getSimpleName();
     public static final String MY_NEWS = "My News";
     public static final String HEADLINES = "Headlines";
     public static final String SAVED = "Saved";
 
-    MainActivityViewModel viewModel;
+    NewsActivityViewModel viewModel;
 
     @BindView(R.id.main_fragment_container)
     FrameLayout frameLayout;
@@ -42,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
+        viewModel = ViewModelProviders.of(this).get(NewsActivityViewModel.class);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
         bottomNavigationView.setSelectedItemId(R.id.menu_item_your_news);
     }

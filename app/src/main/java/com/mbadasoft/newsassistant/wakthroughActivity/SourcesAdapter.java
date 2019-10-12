@@ -1,4 +1,4 @@
-package com.mbadasoft.newsassistant.adapters;
+package com.mbadasoft.newsassistant.wakthroughActivity;
 
 import android.view.LayoutInflater;
 import android.view.View;

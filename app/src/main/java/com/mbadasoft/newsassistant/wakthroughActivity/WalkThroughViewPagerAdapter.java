@@ -1,10 +1,8 @@
-package com.mbadasoft.newsassistant.adapters;
+package com.mbadasoft.newsassistant.wakthroughActivity;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
-
-import com.mbadasoft.newsassistant.fragments.WalkthroughFragment;
 
 public class WalkThroughViewPagerAdapter extends FragmentStatePagerAdapter {
 

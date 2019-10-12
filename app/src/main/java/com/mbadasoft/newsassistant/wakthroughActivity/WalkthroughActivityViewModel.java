@@ -1,4 +1,4 @@
-package com.mbadasoft.newsassistant;
+package com.mbadasoft.newsassistant.wakthroughActivity;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -8,9 +8,8 @@ import com.mbadasoft.newsassistant.data.AppNewsRepository;
 import com.mbadasoft.newsassistant.data.AppPreferencesRepository;
 import com.mbadasoft.newsassistant.models.Source;
 import com.mbadasoft.newsassistant.models.SourcesResult;
-import java.util.ArrayList;
+
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class WalkthroughActivityViewModel extends AndroidViewModel {

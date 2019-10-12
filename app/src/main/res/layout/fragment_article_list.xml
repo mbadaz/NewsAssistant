@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:context=".fragments.NewsFragment">
+        tools:context=".newsActivity.NewsFragment">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_articles_list"

@@ -1,4 +1,4 @@
-package com.mbadasoft.newsassistant;
+package com.mbadasoft.newsassistant.wakthroughActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
@@ -9,7 +9,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import com.mbadasoft.newsassistant.adapters.WalkThroughViewPagerAdapter;
+import com.mbadasoft.newsassistant.newsActivity.NewsActivity;
+import com.mbadasoft.newsassistant.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,7 +36,7 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
         if (!viewModel.IsFirstTimeLogin()) {
             viewModel.setIsFirstTimeLogin(false);
         } else {
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, NewsActivity.class);
             startActivity(intent);
             finish();
 
@@ -90,7 +91,7 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.txt_skip:
-                Intent intent = new Intent(this, MainActivity.class);
+                Intent intent = new Intent(this, NewsActivity.class);
                 startActivity(intent);
                 finish();
                 break;
@@ -102,7 +103,7 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
 
     private void saveUserData() {
         viewModel.saveUserData();
-//        Intent intent1 = new Intent(this, MainActivity.class);
+//        Intent intent1 = new Intent(this, NewsActivity.class);
 //        startActivity(intent1);
 //        finish();
     }

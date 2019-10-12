@@ -12,9 +12,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity android:name=".newsActivity.NewsActivity"
             android:theme="@style/WalkThroughTheme"></activity>
-        <activity android:name=".WalkThroughActivity"
+        <activity android:name=".wakthroughActivity.WalkThroughActivity"
             android:theme="@style/WalkThroughTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

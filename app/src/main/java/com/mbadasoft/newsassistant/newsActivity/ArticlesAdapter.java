@@ -1,4 +1,4 @@
-package com.mbadasoft.newsassistant.adapters;
+package com.mbadasoft.newsassistant.newsActivity;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mbadasoft.newsassistant.R;
 import com.mbadasoft.newsassistant.models.Article;
-import com.mbadasoft.newsassistant.models.Source;
 import com.mbadasoft.newsassistant.utils.DateParsingUtils;
 import com.squareup.picasso.Picasso;
 

@@ -1,4 +1,4 @@
-package com.mbadasoft.newsassistant.adapters;
+package com.mbadasoft.newsassistant.wakthroughActivity;
 
 import android.content.Context;
 import android.widget.ArrayAdapter;

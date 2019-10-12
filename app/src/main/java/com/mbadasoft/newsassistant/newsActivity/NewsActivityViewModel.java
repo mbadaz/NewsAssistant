@@ -1,4 +1,4 @@
-package com.mbadasoft.newsassistant;
+package com.mbadasoft.newsassistant.newsActivity;
 
 import android.app.Application;
 import android.util.Log;
@@ -13,15 +13,15 @@ import com.mbadasoft.newsassistant.models.ArticlesResult;
 import com.mbadasoft.newsassistant.models.SourcesResult;
 import java.util.HashMap;
 import java.util.Map;
-import static com.mbadasoft.newsassistant.MainActivity.*;
+import static com.mbadasoft.newsassistant.newsActivity.NewsActivity.*;
 
-public class MainActivityViewModel extends AndroidViewModel {
-    private static final String TAG = MainActivityViewModel.class.getSimpleName();
+public class NewsActivityViewModel extends AndroidViewModel {
+    private static final String TAG = NewsActivityViewModel.class.getSimpleName();
     private AppNewsRepository newsRepository;
     private AppPreferencesRepository preferencesRepository;
     private Map<String, Object> userPreferences = new HashMap<>();
 
-    public MainActivityViewModel(@NonNull Application application) {
+    public NewsActivityViewModel(@NonNull Application application) {
         super(application);
         newsRepository = AppNewsRepository.getInstance(application);
         preferencesRepository = AppPreferencesRepository.getInstance(application);

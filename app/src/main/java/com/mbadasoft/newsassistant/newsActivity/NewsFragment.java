@@ -1,4 +1,4 @@
-package com.mbadasoft.newsassistant.fragments;
+package com.mbadasoft.newsassistant.newsActivity;
 
 import androidx.lifecycle.ViewModelProviders;
 
@@ -15,16 +15,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
-import com.mbadasoft.newsassistant.MainActivityViewModel;
 import com.mbadasoft.newsassistant.R;
-import com.mbadasoft.newsassistant.adapters.ArticlesAdapter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class NewsFragment extends Fragment {
     public static final String FRAGMENT_ID = "Fragment Id";
-    private MainActivityViewModel mViewModel;
+    private NewsActivityViewModel mViewModel;
     private ArticlesAdapter adapter;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
@@ -62,7 +57,7 @@ public class NewsFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new ArticlesAdapter();
         recyclerView.setAdapter(adapter);
-        mViewModel = ViewModelProviders.of(getActivity()).get(MainActivityViewModel.class);
+        mViewModel = ViewModelProviders.of(getActivity()).get(NewsActivityViewModel.class);
         mViewModel.getArticles(args).observe(this, articlesResult -> {
             if (articlesResult.status.equals("ok")) {
                 adapter.addData(articlesResult.articles);
