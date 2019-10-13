@@ -31,6 +31,7 @@ public class NewsActivityViewModel extends AndroidViewModel {
     private void loadUserPrefs() {
         userPreferences.put("Sources", preferencesRepository.getPreferredSources());
         userPreferences.put("Load_limit", preferencesRepository.getArticlesLoadingLimit());
+        userPreferences.put("categories", preferencesRepository.getPreferredCategories());
     }
 
     public LiveData<SourcesResult> getSources() {
@@ -41,10 +42,10 @@ public class NewsActivityViewModel extends AndroidViewModel {
         switch (args) {
             case MY_NEWS:
                 Log.d(TAG, "Loading" + MY_NEWS);
-                return newsRepository.getArticles(userPreferences, ApiInfo.EVERYTHING_API_ENDPOINT);
+                return newsRepository.getArticles(userPreferences, ApiInfo.HEADLINES_API_ENDPOINT);
             case HEADLINES:
                 Log.d(TAG, "Loading" + HEADLINES);
-                return newsRepository.getArticles(userPreferences, ApiInfo.HEADLINES_API_ENDPOINT);
+                return newsRepository.getArticles(userPreferences, ApiInfo.EVERYTHING_API_ENDPOINT );
             default:
                 Log.d(TAG, "Loading" + SAVED);
                 return newsRepository.getArticles(null, ApiInfo.LOCAL);

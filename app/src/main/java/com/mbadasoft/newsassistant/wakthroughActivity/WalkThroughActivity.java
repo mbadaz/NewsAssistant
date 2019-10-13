@@ -1,6 +1,7 @@
 package com.mbadasoft.newsassistant.wakthroughActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 
@@ -25,7 +26,7 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     WalkthroughActivityViewModel viewModel;
 
     private int currentPosition = 0;
-    private final WalkThroughViewPagerAdapter adapter = new WalkThroughViewPagerAdapter(getSupportFragmentManager());
+    private static WalkThroughViewPagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,7 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_walk_through);
         ButterKnife.bind(this);
         viewModel = ViewModelProviders.of(this).get(WalkthroughActivityViewModel.class);
+
         if (!viewModel.IsFirstTimeLogin()) {
             viewModel.setIsFirstTimeLogin(false);
         } else {
@@ -41,7 +43,7 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
             finish();
 
         }
-
+        adapter = new WalkThroughViewPagerAdapter(getSupportFragmentManager(), initializeFragments());
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -63,6 +65,14 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
 
         txtFinish.setOnClickListener(this);
         txtSkip.setOnClickListener(this);
+    }
+
+    private Fragment[] initializeFragments() {
+        Fragment[] fragments = new Fragment[3];
+        fragments[0] = new WalkthroughFragment1();
+        fragments[1] = new WalkthroughFragment2();
+        fragments[2] = new WalkthroughFragment3();
+        return fragments;
     }
 
     private void updatePositionIndicators(int position) {

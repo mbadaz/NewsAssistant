@@ -13,6 +13,7 @@ public class AppPreferencesRepository implements PreferencesRepository {
     public static final String ENABLE_EXTERNAL_BROWSER = "EnableExternalBrowser";
     public static final String IS_FIRST_TIME_LOGIN = "IsFirstTimeLogin";
     public static final String SOURCES = "Sources";
+    public static final String CATEGORIES = "categories";
     private SharedPreferences appPreferences;
     private static AppPreferencesRepository INSTANCE = null;
     private Map<String, ?> userPrefs = new HashMap<>();
@@ -42,9 +43,15 @@ public class AppPreferencesRepository implements PreferencesRepository {
     }
 
     public void savePreferredSources(Set<String> sources) {
-        SharedPreferences.Editor editor = appPreferences.edit();
-        editor.putStringSet(SOURCES, sources);
-        editor.apply();
+        appPreferences.edit().putStringSet(SOURCES, sources).apply();
+    }
+
+    public void savePreferredCategories(Set<String> categories) {
+        appPreferences.edit().putStringSet(CATEGORIES, categories).apply();
+    }
+
+    public Set<String> getPreferredCategories() {
+        return (Set<String>) userPrefs.get(CATEGORIES);
     }
 
     public boolean getIsFirstTimeLogin(){
@@ -52,15 +59,11 @@ public class AppPreferencesRepository implements PreferencesRepository {
     }
 
     public void saveisFirstTimeLogin(boolean value) {
-        SharedPreferences.Editor editor = appPreferences.edit();
-        editor.putBoolean(IS_FIRST_TIME_LOGIN, value);
-        editor.apply();
+        appPreferences.edit().putBoolean(IS_FIRST_TIME_LOGIN, value).apply();
     }
 
     public void setEnableExternalBrowser(boolean value) {
-        SharedPreferences.Editor editor = appPreferences.edit();
-        editor.putBoolean(ENABLE_EXTERNAL_BROWSER, value);
-        editor.apply();
+        appPreferences.edit().putBoolean(ENABLE_EXTERNAL_BROWSER, value).apply();
     }
 
     public boolean isExternalBrowserEnabled() {
@@ -72,9 +75,7 @@ public class AppPreferencesRepository implements PreferencesRepository {
     }
 
     public void setArticlesLoadingLimit(int value) {
-        SharedPreferences.Editor editor = appPreferences.edit();
-        editor.putInt(ARTICLES_LOADING_LIMIT, value);
-        editor.apply();
+        appPreferences.edit().putInt(ARTICLES_LOADING_LIMIT, value).apply();
     }
 
     public int getArticlesLoadingLimit() {

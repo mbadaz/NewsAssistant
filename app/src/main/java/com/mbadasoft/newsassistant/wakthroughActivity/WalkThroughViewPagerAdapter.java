@@ -5,18 +5,20 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
 public class WalkThroughViewPagerAdapter extends FragmentStatePagerAdapter {
+    Fragment[] fragments;
 
-    public WalkThroughViewPagerAdapter(FragmentManager fm) {
+    public WalkThroughViewPagerAdapter(FragmentManager fm, Fragment[] fragments) {
         super(fm);
+        this.fragments = fragments;
     }
 
     @Override
     public Fragment getItem(int position) {
-        return WalkthroughFragment.newInstance(position+1);
+        return fragments[position];
     }
 
     @Override
     public int getCount() {
-        return 3;
+        return fragments.length;
     }
 }

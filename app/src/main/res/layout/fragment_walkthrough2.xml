@@ -37,6 +37,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_walkthrough_subtitle">
+        <LinearLayout
+            android:id="@+id/linearLayout_row1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"/>
+        <LinearLayout
+            android:id="@+id/linearLayout_row2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"/>
+        <LinearLayout
+            android:id="@+id/linearLayout_row3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"/>
 
         <ScrollView
             android:layout_width="match_parent"
@@ -57,7 +72,6 @@
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
             android:layout_weight="5"
-            android:entries="@array/categories"
             tools:listitem="@layout/item_category_layout" />
 
     </LinearLayout>

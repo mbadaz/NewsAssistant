@@ -3,15 +3,6 @@ package com.mbadasoft.newsassistant.wakthroughActivity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -24,13 +15,21 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.mbadasoft.newsassistant.R;
 import com.mbadasoft.newsassistant.models.Source;
 import com.mbadasoft.newsassistant.models.SourcesResult;
 
-public class WalkthroughFragment extends Fragment implements AdapterView.OnItemClickListener,
+public class WalkthroughFragment3 extends Fragment implements AdapterView.OnItemClickListener,
         Observer<SourcesResult>, SourcesAdapter.OnCheckBoxClickListener {
-    private static final String TAG = WalkthroughFragment.class.getSimpleName();
+    private static final String TAG = WalkthroughFragment3.class.getSimpleName();
     private static final String ARG_PARAM1 = "param1";
     private int mParam1;
     private OnFragmentInteractionListener mListener;
@@ -42,13 +41,13 @@ public class WalkthroughFragment extends Fragment implements AdapterView.OnItemC
     private ListView categoriesList;
     private int counter = 0;
 
-    public WalkthroughFragment() {
+    public WalkthroughFragment3() {
         // Required empty public constructor
     }
 
 
-    public static WalkthroughFragment newInstance(int param1) {
-        WalkthroughFragment fragment = new WalkthroughFragment();
+    public static WalkthroughFragment3 newInstance(int param1) {
+        WalkthroughFragment3 fragment = new WalkthroughFragment3();
         Bundle args = new Bundle();
         args.putInt(ARG_PARAM1, param1);
         fragment.setArguments(args);

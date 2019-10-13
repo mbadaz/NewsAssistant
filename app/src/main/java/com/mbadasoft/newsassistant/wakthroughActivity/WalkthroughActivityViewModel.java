@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import com.mbadasoft.newsassistant.data.AppNewsRepository;
 import com.mbadasoft.newsassistant.data.AppPreferencesRepository;
+import com.mbadasoft.newsassistant.models.Category;
 import com.mbadasoft.newsassistant.models.Source;
 import com.mbadasoft.newsassistant.models.SourcesResult;
 
@@ -17,6 +18,7 @@ public class WalkthroughActivityViewModel extends AndroidViewModel {
     private AppNewsRepository newsRepository;
     private AppPreferencesRepository preferencesRepository;
     private Set<String> selectedSources = new HashSet<>();
+    private Set<String> selectedCategories = new HashSet<>();
 
     public WalkthroughActivityViewModel(@NonNull Application application) {
         super(application);
@@ -40,6 +42,10 @@ public class WalkthroughActivityViewModel extends AndroidViewModel {
         if (!selectedSources.isEmpty()) {
             preferencesRepository.savePreferredSources(selectedSources);
         }
+
+        if (!selectedCategories.isEmpty()) {
+            preferencesRepository.savePreferredCategories(selectedCategories);
+        }
     }
 
     public void addSourceToSelection(Source source) {
@@ -50,4 +56,16 @@ public class WalkthroughActivityViewModel extends AndroidViewModel {
         selectedSources.remove(source.id);
     }
 
+    public void addCategoryToSelection(Category category) {
+        selectedCategories.add(category.title);
+    }
+
+    public void removeCategoryToSelected(Category category) {
+        selectedCategories.remove(category.title);
+
+    }
+
+    public Set<String> getSelectedCategories() {
+        return selectedCategories;
+    }
 }
