@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.mbadasoft.newsassistant.R;
 import com.mbadasoft.newsassistant.models.Article;
 import com.mbadasoft.newsassistant.utils.DateParsingUtils;
@@ -37,6 +38,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.Articl
     @Override
     public void onBindViewHolder(@NonNull ArticlesViewHolder holder, int position) {
         holder.bind(articles.get(position));
+
     }
 
     @Override
@@ -70,10 +72,15 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.Articl
             description.setText(article.description);
             source.setText(article.source.name);
             publishedAt.setText(DateParsingUtils.parseDate(article.publishedAt));
-            if (!article.urlToImage.isEmpty()) {
-                Picasso.get().load(article.urlToImage).
-                        placeholder(R.drawable.ic_launcher_background).into(image);
+            if (article.urlToImage != null) {
+                Glide.with(image).
+                        load(article.urlToImage).
+                        placeholder(image.getContext().getResources().getDrawable(R.drawable.circle_blue)).
+                        into(image);
+            } else {
+                image.setImageDrawable(image.getContext().getResources().getDrawable(R.drawable.circle_blue));
             }
+
         }
     }
 }

@@ -64,7 +64,7 @@ public class WalkthroughFragment2 extends Fragment implements AdapterView.OnItem
             adapter = new CategoriesAdapter(context, categories);
         }
 
-        viewModel = ViewModelProviders.of(this).get(WalkthroughActivityViewModel.class);
+        viewModel = ViewModelProviders.of(getActivity()).get(WalkthroughActivityViewModel.class);
     }
 
 

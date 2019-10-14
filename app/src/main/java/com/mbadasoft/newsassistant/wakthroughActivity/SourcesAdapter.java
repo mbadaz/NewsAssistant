@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.Filter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,15 +18,17 @@ import java.util.List;
 
 public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesViewHolder> {
     private List<Source> sources;
+    private List<Source> filteredSources;
     private OnCheckBoxClickListener checkBoxClickListener;
 
-    public SourcesAdapter() {
+    SourcesAdapter() {
         sources = new ArrayList<>();
+        filteredSources = new ArrayList<>();
     }
 
-    public void addData(List<Source> sources) {
+    void addData(List<Source> sources) {
         this.sources.addAll(sources);
-        notifyDataSetChanged();
+        getFilter().filter("");
     }
 
     @NonNull
@@ -38,12 +41,12 @@ public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesV
 
     @Override
     public int getItemCount() {
-        return sources.size();
+        return filteredSources.size();
     }
 
     @Override
     public void onBindViewHolder(@NonNull SourcesViewHolder holder, int position) {
-        Source source = sources.get(position);
+        Source source = filteredSources.get(position);
         String detail = source.country.concat(" | ").
                 concat(source.language).concat(" | ").concat(source.category);
         holder.title.setText(source.name);
@@ -56,13 +59,13 @@ public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesV
 
     }
 
-    public class SourcesViewHolder extends RecyclerView.ViewHolder {
-        public TextView title;
-        public TextView description;
-        public TextView detail;
-        public CheckBox checkBox;
+    class SourcesViewHolder extends RecyclerView.ViewHolder {
+        TextView title;
+        TextView description;
+        TextView detail;
+        CheckBox checkBox;
 
-        public SourcesViewHolder(@NonNull View itemView) {
+        SourcesViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.txt_item_source_title);
             description = itemView.findViewById(R.id.txt_item_source_description);
@@ -71,12 +74,40 @@ public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesV
         }
     }
 
-    public void setCheckBoxClickListener(OnCheckBoxClickListener checkBoxClickListener) {
+    void setCheckBoxClickListener(OnCheckBoxClickListener checkBoxClickListener) {
         this.checkBoxClickListener = checkBoxClickListener;
     }
 
     public interface OnCheckBoxClickListener {
         void onCheckBoxClicked(CheckBox checkBox, Source source);
+    }
+
+    Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String filterString = constraint.toString();
+                if (filterString.isEmpty()) {
+                    filteredSources = sources;
+                } else {
+                    filteredSources = new ArrayList<>();
+                    for (Source source : sources) {
+                        if (source.name.toLowerCase().contains(filterString.toLowerCase())) {
+                            filteredSources.add(source);
+                        }
+                    }
+                }
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = filteredSources;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                    filteredSources = (ArrayList<Source>) results.values;
+                    notifyDataSetChanged();
+            }
+        };
     }
 
 

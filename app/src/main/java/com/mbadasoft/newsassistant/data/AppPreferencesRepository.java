@@ -55,7 +55,8 @@ public class AppPreferencesRepository implements PreferencesRepository {
     }
 
     public boolean getIsFirstTimeLogin(){
-        return userPrefs.containsKey(IS_FIRST_TIME_LOGIN);
+
+        return appPreferences.getBoolean(IS_FIRST_TIME_LOGIN, true);
     }
 
     public void saveisFirstTimeLogin(boolean value) {
