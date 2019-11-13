@@ -1,55 +1,27 @@
 package com.mbadasoft.newsassistant.newsActivity;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import com.mbadasoft.newsassistant.data.ApiInfo;
 import com.mbadasoft.newsassistant.data.AppNewsRepository;
 import com.mbadasoft.newsassistant.data.AppPreferencesRepository;
+import com.mbadasoft.newsassistant.data.DataController;
 import com.mbadasoft.newsassistant.models.ArticlesResult;
-import com.mbadasoft.newsassistant.models.SourcesResult;
-import java.util.HashMap;
-import java.util.Map;
-import static com.mbadasoft.newsassistant.newsActivity.NewsActivity.*;
 
 public class NewsActivityViewModel extends AndroidViewModel {
     private static final String TAG = NewsActivityViewModel.class.getSimpleName();
-    private AppNewsRepository newsRepository;
-    private AppPreferencesRepository preferencesRepository;
-    private Map<String, Object> userPreferences = new HashMap<>();
+    private DataController dataController;
 
     public NewsActivityViewModel(@NonNull Application application) {
         super(application);
-        newsRepository = AppNewsRepository.getInstance(application);
-        preferencesRepository = AppPreferencesRepository.getInstance(application);
-        loadUserPrefs();
+        dataController = new DataController(new AppNewsRepository(application), new AppPreferencesRepository(application));
     }
 
-    private void loadUserPrefs() {
-        userPreferences.put("Sources", preferencesRepository.getPreferredSources());
-        userPreferences.put("Load_limit", preferencesRepository.getArticlesLoadingLimit());
-        userPreferences.put("categories", preferencesRepository.getPreferredCategories());
-    }
 
-    public LiveData<SourcesResult> getSources() {
-        return newsRepository.getSources();
-    }
-
-    public LiveData<ArticlesResult> getArticles(String args) {
-        switch (args) {
-            case MY_NEWS:
-                Log.d(TAG, "Loading" + MY_NEWS);
-                return newsRepository.getArticles(userPreferences, ApiInfo.HEADLINES_API_ENDPOINT);
-            case HEADLINES:
-                Log.d(TAG, "Loading" + HEADLINES);
-                return newsRepository.getArticles(userPreferences, ApiInfo.EVERYTHING_API_ENDPOINT );
-            default:
-                Log.d(TAG, "Loading" + SAVED);
-                return newsRepository.getArticles(null, ApiInfo.LOCAL);
-        }
+    public LiveData<ArticlesResult> getArticles(String fragmentId) {
+        return dataController.getArticles(fragmentId);
     }
 
 

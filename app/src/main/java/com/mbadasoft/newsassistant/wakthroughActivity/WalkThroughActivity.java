@@ -35,7 +35,7 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
         ButterKnife.bind(this);
         viewModel = ViewModelProviders.of(this).get(WalkthroughActivityViewModel.class);
 
-        if (!viewModel.IsFirstTimeLogin()) {
+        if (viewModel.IsFirstTimeLogin()) {
             viewModel.setIsFirstTimeLogin(false);
         } else {
             Intent intent = new Intent(this, NewsActivity.class);

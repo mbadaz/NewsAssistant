@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import com.mbadasoft.newsassistant.data.AppNewsRepository;
 import com.mbadasoft.newsassistant.data.AppPreferencesRepository;
+import com.mbadasoft.newsassistant.data.DataController;
 import com.mbadasoft.newsassistant.models.Category;
 import com.mbadasoft.newsassistant.models.Source;
 import com.mbadasoft.newsassistant.models.SourcesResult;
@@ -15,52 +16,48 @@ import java.util.Set;
 
 public class WalkthroughActivityViewModel extends AndroidViewModel {
 
-    private AppNewsRepository newsRepository;
-    private AppPreferencesRepository preferencesRepository;
     private Set<String> selectedSources = new HashSet<>();
     private Set<String> selectedCategories = new HashSet<>();
 
+    private DataController dataController;
+
     public WalkthroughActivityViewModel(@NonNull Application application) {
         super(application);
-        newsRepository = AppNewsRepository.getInstance(application);
-        preferencesRepository = AppPreferencesRepository.getInstance(application);
+        dataController = new DataController(
+                new AppNewsRepository(application),
+                new AppPreferencesRepository(application));
     }
 
-    public LiveData<SourcesResult> getAvailableSources() {
-        return newsRepository.getSources();
+    LiveData<SourcesResult> getAvailableSources() {
+        return dataController.getSources();
     }
 
-    public boolean IsFirstTimeLogin() {
-        return preferencesRepository.getIsFirstTimeLogin();
+    boolean IsFirstTimeLogin() {
+        return dataController.IsFirstTimeLogin();
     }
 
-    public void setIsFirstTimeLogin(boolean value) {
-        preferencesRepository.saveisFirstTimeLogin(value);
+    void setIsFirstTimeLogin(boolean value) {
+        dataController.setIsFirstTimeLogin(value);
     }
 
-    public void saveUserData() {
-        if (!selectedSources.isEmpty()) {
-            preferencesRepository.savePreferredSources(selectedSources);
-        }
-
-        if (!selectedCategories.isEmpty()) {
-            preferencesRepository.savePreferredCategories(selectedCategories);
-        }
+    void saveUserData() {
+        dataController.savePreferredSources(selectedSources);
+        dataController.savePreferredCategories(selectedCategories);
     }
 
-    public void addSourceToSelection(Source source) {
+    void addSourceToSelection(Source source) {
         selectedSources.add(source.id);
     }
 
-    public void removeSourceFromSelection(Source source) {
+    void removeSourceFromSelection(Source source) {
         selectedSources.remove(source.id);
     }
 
-    public void addCategoryToSelection(Category category) {
+    void addCategoryToSelection(Category category) {
         selectedCategories.add(category.title);
     }
 
-    public void removeCategoryToSelected(Category category) {
+    void removeCategoryToSelected(Category category) {
         selectedCategories.remove(category.title);
 
     }

@@ -3,7 +3,7 @@
     <string name="welcome_message">Let\'s take a few setup steps to help News Assistant find just the right news for you.</string>
     <string name="walkthrough_subtitle">What news categories are you interested in?</string>
     <string name="walkthrough3_subtitle">What news sources do you prefer?</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="nav_menuItem_myNews">My News</string>
+    <string name="nav_menuItem_Headlines">Headlines</string>
+    <string name="nav_menuItem_Saved">Saved</string>
 </resources>

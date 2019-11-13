@@ -9,26 +9,18 @@ import java.util.Set;
 
 public class AppPreferencesRepository implements PreferencesRepository {
 
-    public static final String ARTICLES_LOADING_LIMIT = "ArticlesLoadingLimit";
-    public static final String ENABLE_EXTERNAL_BROWSER = "EnableExternalBrowser";
-    public static final String IS_FIRST_TIME_LOGIN = "IsFirstTimeLogin";
-    public static final String SOURCES = "Sources";
-    public static final String CATEGORIES = "categories";
+    private static final String ARTICLES_LOADING_LIMIT = "ArticlesLoadingLimit";
+    private static final String ENABLE_EXTERNAL_BROWSER = "EnableExternalBrowser";
+    private static final String IS_FIRST_TIME_LOGIN = "IsFirstTimeLogin";
+    private static final String SOURCES = "Sources";
+    private static final String CATEGORIES = "Categories";
     private SharedPreferences appPreferences;
-    private static AppPreferencesRepository INSTANCE = null;
     private Map<String, ?> userPrefs = new HashMap<>();
 
-    private AppPreferencesRepository(Context context) {
+    public AppPreferencesRepository(Context context) {
         appPreferences = context.getSharedPreferences("app", Context.MODE_PRIVATE);
     }
 
-    public static AppPreferencesRepository getInstance(Context context) {
-        if (INSTANCE == null) {
-            INSTANCE = new AppPreferencesRepository(context);
-            INSTANCE.loadPreferences();
-        }
-        return INSTANCE;
-    }
 
     @Override
     public void loadPreferences() {
@@ -43,7 +35,7 @@ public class AppPreferencesRepository implements PreferencesRepository {
     }
 
     public void savePreferredSources(Set<String> sources) {
-        appPreferences.edit().putStringSet(SOURCES, sources).apply();
+        appPreferences.edit().putStringSet(SOURCES, sources).commit();
     }
 
     public void savePreferredCategories(Set<String> categories) {

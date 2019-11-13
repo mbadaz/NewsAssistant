@@ -3,17 +3,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/menu_item_your_news"
+        android:id="@+id/navMenuItemMyNews"
         android:icon="@drawable/ic_favorite_grey_1"
-        android:title="My News" />
+        android:title="@string/nav_menuItem_myNews"
+        />
     <item
-        android:id="@+id/menu_item_headlines"
+        android:id="@+id/navMenuItemFollowed"
         android:icon="@drawable/ic_format_list_bulleted"
-        android:title="Top Stories"
-        app:showAsAction="always|withText" />
+        android:title="@string/nav_menuItem_Headlines"
+        />
     <item
-        android:id="@+id/menu_item_saved"
+        android:id="@+id/navMenuItemSaved"
         android:icon="@drawable/ic_archive_grey_1"
-        android:title="Saved"
-        app:showAsAction="always|withText" />
+        android:title="@string/nav_menuItem_Saved"
+        />
 </menu>

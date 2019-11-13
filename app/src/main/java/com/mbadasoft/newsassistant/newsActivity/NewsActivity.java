@@ -18,9 +18,9 @@ import butterknife.ButterKnife;
 
 public class NewsActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = NewsActivity.class.getSimpleName();
-    public static final String MY_NEWS = "My News";
-    public static final String HEADLINES = "Headlines";
-    public static final String SAVED = "Saved";
+    public static final String MY_NEWS_FRAGMENT = "My News";
+    public static final String FOLLOWED_STORIES_FRAGMENT = "Followed";
+    public static final String SAVED_STORIES_FRAGMENT = "Saved";
 
     NewsActivityViewModel viewModel;
 
@@ -39,21 +39,21 @@ public class NewsActivity extends AppCompatActivity implements BottomNavigationV
         ButterKnife.bind(this);
         viewModel = ViewModelProviders.of(this).get(NewsActivityViewModel.class);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
-        bottomNavigationView.setSelectedItemId(R.id.menu_item_your_news);
+        bottomNavigationView.setSelectedItemId(R.id.navMenuItemMyNews);
     }
 
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()) {
-            case R.id.menu_item_your_news:
-                openFragement(NewsFragment.newInstance(MY_NEWS));
+            case R.id.navMenuItemMyNews:
+                openFragement(NewsFragment.newInstance(MY_NEWS_FRAGMENT));
                 break;
-            case R.id.menu_item_headlines:
-                openFragement(NewsFragment.newInstance(HEADLINES));
+            case R.id.navMenuItemFollowed:
+                openFragement(NewsFragment.newInstance(FOLLOWED_STORIES_FRAGMENT));
                 break;
-            case R.id.menu_item_saved:
-                openFragement(NewsFragment.newInstance(SAVED));
+            case R.id.navMenuItemSaved:
+                openFragement(NewsFragment.newInstance(SAVED_STORIES_FRAGMENT));
         }
         return true;
     }

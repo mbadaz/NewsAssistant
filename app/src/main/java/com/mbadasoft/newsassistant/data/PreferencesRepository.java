@@ -10,5 +10,25 @@ import java.util.Set;
 
 public interface PreferencesRepository {
 
-    public void loadPreferences();
+   void loadPreferences();
+
+    Set<String> getPreferredSources();
+
+    void savePreferredSources(Set<String> sources);
+
+    void savePreferredCategories(Set<String> categories);
+
+    Set<String> getPreferredCategories();
+
+    boolean getIsFirstTimeLogin();
+
+    void saveisFirstTimeLogin(boolean value);
+
+    void setEnableExternalBrowser(boolean value);
+
+    boolean isExternalBrowserEnabled();
+
+    void setArticlesLoadingLimit(int value);
+
+    int getArticlesLoadingLimit();
 }

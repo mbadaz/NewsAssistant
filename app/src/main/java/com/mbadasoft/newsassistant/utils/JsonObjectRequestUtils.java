@@ -18,17 +18,36 @@ public class JsonObjectRequestUtils {
     private static final String TAG = JsonObjectRequestUtils.class.getSimpleName();
 
     public static JsonObjectRequest createJsonObjectRequest
-            (String path, Map<String, ?> args, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) {
-        Uri.Builder builder =  Uri.parse("https://newsapi.org")
+            (String path, Map<String, Object> args, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) {
+
+        Uri.Builder builder =  Uri.parse(ApiInfo.BASE_URL)
                 .buildUpon()
                 .appendPath("v2")
                 .appendPath(path);
 
-        if (ApiInfo.HEADLINES_API_ENDPOINT.equals(path)) {
-            builder.appendQueryParameter("sources", buildArgsArray((Set<String>)args.get("Sources")) + "");
+        if (path.equals(ApiInfo.SOURCES_API_ENDPOINT)) {
+            return new JsonObjectRequest(Request.Method.GET,
+                    builder.toString(),
+                    null,
+                    listener,
+                    errorListener) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("X-Api-Key", "df66e036a5e14417b37c2cb31d5034f3");
+                    return headers;
+                }
+            };
+        }
 
-        } else if (ApiInfo.EVERYTHING_API_ENDPOINT.equals(path)) {
-            builder.appendQueryParameter("qInTitle", "Arsenal");
+        if (args.containsKey("Categories") && args.get("Categories") != null) {
+            builder.appendQueryParameter("categories",
+                    buildArgsArray((Set<String>)args.get("Categories")) + "");
+        }
+
+        if (args.containsKey("Sources") && args.get("Sources") != null) {
+            builder.appendQueryParameter("categories",
+                    buildArgsArray((Set<String>)args.get("Sources")) + "");
         }
 
         Uri uri = builder.build();
