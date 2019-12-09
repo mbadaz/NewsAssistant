@@ -25,3 +25,9 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+ext{
+    glideVersion = '4.10.0'
+    daggerVersion = '2.24'
+
+}

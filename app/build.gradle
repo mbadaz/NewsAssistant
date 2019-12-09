@@ -54,11 +54,16 @@ android {
                 events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
             }
         }
+        returnDefaultValues = true
     }
 
     compileOptions {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
     }
 }
 
@@ -80,6 +85,9 @@ dependencies {
     implementation 'com.jakewharton:butterknife:10.2.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.0'
     implementation 'com.android.volley:volley:1.1.1'
-    implementation 'com.github.bumptech.glide:glide:4.9.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+    implementation "com.github.bumptech.glide:glide:$rootProject.ext.glideVersion"
+    annotationProcessor "com.github.bumptech.glide:compiler:$rootProject.ext.glideVersion"
+    implementation "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
+    annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
+    implementation "com.hynnet:httpclient:4.5.1"
 }

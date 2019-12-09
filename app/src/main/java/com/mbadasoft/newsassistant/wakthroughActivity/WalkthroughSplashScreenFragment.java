@@ -8,10 +8,10 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import com.mbadasoft.newsassistant.R;
 
-public class WalkthroughFragment1 extends Fragment {
-    private static final String TAG = WalkthroughFragment1.class.getSimpleName();
+public class WalkthroughSplashScreenFragment extends Fragment {
+    private static final String TAG = WalkthroughSplashScreenFragment.class.getSimpleName();
 
-    public WalkthroughFragment1() {
+    public WalkthroughSplashScreenFragment() {
         // Required empty public constructor
     }
 

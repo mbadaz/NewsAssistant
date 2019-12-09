@@ -4,6 +4,8 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModel;
+
 import com.mbadasoft.newsassistant.data.AppNewsRepository;
 import com.mbadasoft.newsassistant.data.AppPreferencesRepository;
 import com.mbadasoft.newsassistant.data.DataController;
@@ -14,18 +16,18 @@ import com.mbadasoft.newsassistant.models.SourcesResult;
 import java.util.HashSet;
 import java.util.Set;
 
-public class WalkthroughActivityViewModel extends AndroidViewModel {
+import javax.inject.Inject;
+
+public class WalkthroughActivityViewModel extends ViewModel {
 
     private Set<String> selectedSources = new HashSet<>();
     private Set<String> selectedCategories = new HashSet<>();
 
-    private DataController dataController;
+    private final DataController dataController;
 
-    public WalkthroughActivityViewModel(@NonNull Application application) {
-        super(application);
-        dataController = new DataController(
-                new AppNewsRepository(application),
-                new AppPreferencesRepository(application));
+    @Inject
+    public WalkthroughActivityViewModel(DataController dataController) {
+        this.dataController = dataController;
     }
 
     LiveData<SourcesResult> getAvailableSources() {

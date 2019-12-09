@@ -28,53 +28,36 @@
         app:layout_constraintStart_toStartOf="@+id/txt_walkthrough_title"
         app:layout_constraintTop_toBottomOf="@+id/txt_walkthrough_title" />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txt_walkthrough_subtitle">
-        <LinearLayout
-            android:id="@+id/linearLayout_row1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"/>
-        <LinearLayout
-            android:id="@+id/linearLayout_row2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"/>
-        <LinearLayout
-            android:id="@+id/linearLayout_row3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"/>
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:background="@color/colorBackground_light"
+        tools:layout_editor_absoluteY="121dp">
 
-        <ScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="3"
-            android:background="@color/colorBackground_light">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical">
+
             <TableLayout
                 android:id="@+id/tableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:shrinkColumns="*" />
-        </ScrollView>
 
-        <ListView
-            android:id="@+id/list_walkthrough_category"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="8dp"
-            android:layout_weight="5"
-            tools:listitem="@layout/item_category_layout" />
+            <ListView
+                android:id="@+id/list_walkthrough_category"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="8dp"
+                android:layout_weight="5"
+                tools:listitem="@layout/item_category_layout" />
 
-    </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

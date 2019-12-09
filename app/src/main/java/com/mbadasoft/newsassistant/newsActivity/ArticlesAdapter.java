@@ -47,8 +47,14 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.Articl
     }
 
     public void addData(List<Article> data) {
-        articles.addAll(data);
-        notifyDataSetChanged();
+        if (articles.isEmpty()) {
+            articles.addAll(data);
+            notifyDataSetChanged();
+        } else {
+            int count = articles.size();
+            articles.addAll(data);
+            notifyItemRangeInserted(count-1, data.size());
+        }
     }
 
     public class ArticlesViewHolder extends RecyclerView.ViewHolder{

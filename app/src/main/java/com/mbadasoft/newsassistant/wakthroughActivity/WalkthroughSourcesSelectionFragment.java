@@ -21,20 +21,28 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.mbadasoft.newsassistant.MyApplication;
 import com.mbadasoft.newsassistant.R;
+import com.mbadasoft.newsassistant.dependencyInjection.ViewModelsFactory;
 import com.mbadasoft.newsassistant.models.Source;
 import com.mbadasoft.newsassistant.models.SourcesResult;
 
-public class WalkthroughFragment3 extends Fragment implements
+import javax.inject.Inject;
+
+public class WalkthroughSourcesSelectionFragment extends Fragment implements
         Observer<SourcesResult>, SourcesAdapter.OnCheckBoxClickListener, SearchView.OnQueryTextListener {
-    private static final String TAG = WalkthroughFragment3.class.getSimpleName();
+    private static final String TAG = WalkthroughSourcesSelectionFragment.class.getSimpleName();
     private Toolbar toolbar;
+
     private WalkthroughActivityViewModel viewModel;
+    @Inject
+    public ViewModelsFactory viewModelsFactory;
     private RecyclerView recyclerView;
     private SourcesAdapter sourcesAdapter;
     private SearchView searchView;
 
-    public WalkthroughFragment3() {
+    public WalkthroughSourcesSelectionFragment() {
         // Required empty public constructor
     }
 
@@ -42,7 +50,8 @@ public class WalkthroughFragment3 extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setHasOptionsMenu(true);
-        viewModel = ViewModelProviders.of(getActivity()).get(WalkthroughActivityViewModel.class);
+        ((MyApplication)getActivity().getApplication()).getAppComponent().inject(this);
+        viewModel = ViewModelProviders.of(getActivity(),  viewModelsFactory).get(WalkthroughActivityViewModel.class);
     }
 
     @Override

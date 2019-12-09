@@ -19,6 +19,7 @@ public class AppPreferencesRepository implements PreferencesRepository {
 
     public AppPreferencesRepository(Context context) {
         appPreferences = context.getSharedPreferences("app", Context.MODE_PRIVATE);
+        appPreferences.registerOnSharedPreferenceChangeListener((sharedPreferences, key) -> loadPreferences());
     }
 
 
@@ -28,6 +29,11 @@ public class AppPreferencesRepository implements PreferencesRepository {
             userPrefs = appPreferences.getAll();
         });
         thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public Set<String> getPreferredSources() {
@@ -39,7 +45,7 @@ public class AppPreferencesRepository implements PreferencesRepository {
     }
 
     public void savePreferredCategories(Set<String> categories) {
-        appPreferences.edit().putStringSet(CATEGORIES, categories).apply();
+        appPreferences.edit().putStringSet(CATEGORIES, categories).commit();
     }
 
     public Set<String> getPreferredCategories() {

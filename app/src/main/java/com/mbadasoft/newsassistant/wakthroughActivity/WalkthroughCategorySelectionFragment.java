@@ -16,7 +16,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+
+import com.mbadasoft.newsassistant.MyApplication;
 import com.mbadasoft.newsassistant.R;
+import com.mbadasoft.newsassistant.dependencyInjection.ViewModelsFactory;
 import com.mbadasoft.newsassistant.models.Category;
 
 import java.util.ArrayList;
@@ -24,12 +27,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class WalkthroughFragment2 extends Fragment implements AdapterView.OnItemClickListener {
-    private static final String TAG = WalkthroughFragment2.class.getSimpleName();
-    private WalkthroughActivityViewModel viewModel;
+public class WalkthroughCategorySelectionFragment extends Fragment implements AdapterView.OnItemClickListener {
+    private static final String TAG = WalkthroughCategorySelectionFragment.class.getSimpleName();
+
+
+    public WalkthroughActivityViewModel viewModel;
+    @Inject
+    public ViewModelsFactory viewModelsFactory;
     @BindView(R.id.tableLayout) TableLayout tableLayout;
     @BindView(R.id.list_walkthrough_category) ListView categoriesList;
     @BindView(R.id.linearLayout_row1) LinearLayout row1LinearLayout;
@@ -42,10 +51,9 @@ public class WalkthroughFragment2 extends Fragment implements AdapterView.OnItem
     private List<Category> categories = new ArrayList<>();
     private Map<String, CategoryTagViewHolder> viewMap = new HashMap<>();
 
-    public WalkthroughFragment2() {
+    public WalkthroughCategorySelectionFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,7 +72,9 @@ public class WalkthroughFragment2 extends Fragment implements AdapterView.OnItem
             adapter = new CategoriesAdapter(context, categories);
         }
 
-        viewModel = ViewModelProviders.of(getActivity()).get(WalkthroughActivityViewModel.class);
+        ((MyApplication)getActivity().getApplication()).getAppComponent().inject(this);
+
+        viewModel = ViewModelProviders.of(getActivity(), viewModelsFactory).get(WalkthroughActivityViewModel.class);
     }
 
 

@@ -10,8 +10,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.mbadasoft.newsassistant.MyApplication;
+import com.mbadasoft.newsassistant.dependencyInjection.ViewModelsFactory;
 import com.mbadasoft.newsassistant.newsActivity.NewsActivity;
 import com.mbadasoft.newsassistant.R;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -23,7 +27,11 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     @BindView(R.id.tab_circle3) View circleIndicator3;
     @BindView(R.id.txt_finish) TextView txtFinish;
     @BindView(R.id.txt_skip) TextView txtSkip;
-    WalkthroughActivityViewModel viewModel;
+
+
+    private WalkthroughActivityViewModel viewModel;
+    @Inject
+    public ViewModelsFactory viewModelsFactory;
 
     private int currentPosition = 0;
     private static WalkThroughViewPagerAdapter adapter;
@@ -33,7 +41,9 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_walk_through);
         ButterKnife.bind(this);
-        viewModel = ViewModelProviders.of(this).get(WalkthroughActivityViewModel.class);
+        ((MyApplication)getApplication()).getAppComponent().inject(this);
+
+        viewModel = ViewModelProviders.of(this, viewModelsFactory).get(WalkthroughActivityViewModel.class);
 
         if (viewModel.IsFirstTimeLogin()) {
             viewModel.setIsFirstTimeLogin(false);
@@ -69,9 +79,9 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
 
     private Fragment[] initializeFragments() {
         Fragment[] fragments = new Fragment[3];
-        fragments[0] = new WalkthroughFragment1();
-        fragments[1] = new WalkthroughFragment2();
-        fragments[2] = new WalkthroughFragment3();
+        fragments[0] = new WalkthroughSplashScreenFragment();
+        fragments[1] = new WalkthroughCategorySelectionFragment();
+        fragments[2] = new WalkthroughSourcesSelectionFragment();
         return fragments;
     }
 

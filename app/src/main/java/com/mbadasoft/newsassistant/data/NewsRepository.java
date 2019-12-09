@@ -14,5 +14,7 @@ import java.util.Map;
 
 public interface NewsRepository {
     LiveData<SourcesResult> getSources();
-    LiveData<ArticlesResult> getArticles(String id, Map<String, Object> args);
+    void getArticles(String id, Map<String, Object> args);
+
+    void setUpdatesListener(UpdatesListener listener);
 }

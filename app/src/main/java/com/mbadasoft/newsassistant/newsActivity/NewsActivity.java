@@ -9,20 +9,29 @@ import androidx.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.mbadasoft.newsassistant.MyApplication;
 import com.mbadasoft.newsassistant.R;
+import com.mbadasoft.newsassistant.data.Constants;
+import com.mbadasoft.newsassistant.dependencyInjection.ViewModelsFactory;
+import com.mbadasoft.newsassistant.wakthroughActivity.WalkthroughActivityViewModel;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.mbadasoft.newsassistant.data.Constants.FOLLOWED_STORIES_FRAGMENT;
+import static com.mbadasoft.newsassistant.data.Constants.MY_NEWS_FRAGMENT;
+import static com.mbadasoft.newsassistant.data.Constants.SAVED_STORIES_FRAGMENT;
+
 public class NewsActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = NewsActivity.class.getSimpleName();
-    public static final String MY_NEWS_FRAGMENT = "My News";
-    public static final String FOLLOWED_STORIES_FRAGMENT = "Followed";
-    public static final String SAVED_STORIES_FRAGMENT = "Saved";
-
-    NewsActivityViewModel viewModel;
+    private NewsActivityViewModel viewModel;
+    @Inject
+    public ViewModelsFactory viewModelsFactory;
 
     @BindView(R.id.main_fragment_container)
     FrameLayout frameLayout;
@@ -37,7 +46,8 @@ public class NewsActivity extends AppCompatActivity implements BottomNavigationV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        viewModel = ViewModelProviders.of(this).get(NewsActivityViewModel.class);
+        ((MyApplication)getApplication()).getAppComponent().inject(this);
+        viewModel = ViewModelProviders.of(this,viewModelsFactory).get(NewsActivityViewModel.class);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
         bottomNavigationView.setSelectedItemId(R.id.navMenuItemMyNews);
     }

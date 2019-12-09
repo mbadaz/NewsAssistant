@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:background="@drawable/walkthrough_background"
         android:padding="64dp"
-        tools:context=".wakthroughActivity.WalkthroughFragment1">
+        tools:context=".wakthroughActivity.WalkthroughSplashScreenFragment">
 
         <FrameLayout
             android:id="@+id/view_logo_circle"

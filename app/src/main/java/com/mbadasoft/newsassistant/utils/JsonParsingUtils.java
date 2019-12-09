@@ -17,45 +17,44 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class JsonParsingUtils {
     public static final String TAG = JsonParsingUtils.class.getSimpleName();
 
-    public static ArticlesResult parseArticlesJson(JSONObject json) {
+    public static List<Article> parseArticlesJson(JSONObject json) {
         Moshi moshi = new Moshi.Builder().build();
         Type type = Types.newParameterizedType(List.class, Article.class);
         JsonAdapter<List<Article>> jsonAdapter = moshi.adapter(type);
-        ArticlesResult articlesResult = new ArticlesResult();
+        List<Article> articles = new ArrayList<>();
 
         try {
             JSONArray jsonArray = json.getJSONArray("articles");
-            articlesResult.articles = jsonAdapter.fromJson(jsonArray.toString());
-            articlesResult.status = json.getString("status");
-            Log.d(TAG, "PARSED ARTICLE JSON DATA: \n" + articlesResult.articles.toString());
+            articles = jsonAdapter.fromJson(jsonArray.toString());
+            Log.d(TAG, "PARSED ARTICLE JSON DATA: \n" + articles.toString());
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
 
-        return articlesResult;
+        return articles;
     }
 
-    public static SourcesResult parseSourcesJson(JSONObject json) {
+    public static List<Source> parseSourcesJson(JSONObject json) {
         Moshi moshi = new Moshi.Builder().add(Date.class, new Rfc3339DateJsonAdapter()).build();
         Type type = Types.newParameterizedType(List.class, Source.class);
         JsonAdapter<List<Source>> jsonAdapter = moshi.adapter(type);
-        SourcesResult sourcesResult = new SourcesResult();
+        List<Source> sources = new ArrayList<>();
 
         try {
             JSONArray jsonArray = json.getJSONArray("sources");
-            sourcesResult.sources = jsonAdapter.fromJson(jsonArray.toString());
-            sourcesResult.status = json.getString("status");
-            Log.d(TAG, "PARSED SOURCES DATA: \n" + sourcesResult.sources.toString());
+            sources = jsonAdapter.fromJson(jsonArray.toString());
+            Log.d(TAG, "PARSED SOURCES DATA: \n" + sources.toString());
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
 
-        return sourcesResult;
+        return sources;
     }
 }
