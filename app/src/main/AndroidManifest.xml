@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mbadasoft.newsassistant">
+    package="com.mambure.newsassistant">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -12,19 +12,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name=".MyApplication">
-        <activity android:name=".newsActivity.NewsActivity"
-            android:theme="@style/WalkThroughTheme"></activity>
-        <activity android:name=".wakthroughActivity.WalkThroughActivity"
+        android:name="com.mambure.newsassistant.MyApplication">
+        <uses-library android:name="org.apache.http.legacy" android:required="false" />
+        <activity android:name="com.mambure.newsassistant.newsActivity.NewsActivity"
+            android:theme="@style/AppTheme">
+
+        </activity>
+
+        <activity android:name="com.mambure.newsassistant.wakthroughActivity.WalkThroughActivity"
             android:theme="@style/WalkThroughTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.tag.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
-
-    <uses-permission android:name="android.permission.INTERNET" />
-
 </manifest>

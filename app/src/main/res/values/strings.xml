@@ -6,4 +6,7 @@
     <string name="nav_menuItem_myNews">My News</string>
     <string name="nav_menuItem_Headlines">Headlines</string>
     <string name="nav_menuItem_Saved">Saved</string>
+    <string name="title_languages_walkthrough">Languages</string>
+    <string name="languages_walkthrough_subtitle">You are looking for news in which languages?</string>
+    <string name="walkthrough_categories_title">News Categories</string>
 </resources>

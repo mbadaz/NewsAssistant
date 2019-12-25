@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.mbadasoft.newsassistant"
+        applicationId "com.mambure.newsassistant"
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
@@ -89,5 +89,5 @@ dependencies {
     annotationProcessor "com.github.bumptech.glide:compiler:$rootProject.ext.glideVersion"
     implementation "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
     annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
-    implementation "com.hynnet:httpclient:4.5.1"
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.0-beta4'
 }
