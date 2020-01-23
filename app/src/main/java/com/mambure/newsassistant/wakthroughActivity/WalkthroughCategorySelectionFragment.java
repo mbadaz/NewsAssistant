@@ -35,7 +35,7 @@ public class WalkthroughCategorySelectionFragment extends Fragment implements Ad
     private static final String TAG = WalkthroughCategorySelectionFragment.class.getSimpleName();
 
 
-    public WalkthroughActivityViewModel viewModel;
+    private WalkthroughActivityViewModel viewModel;
     @Inject
     public ViewModelsFactory viewModelsFactory;
     @BindView(R.id.tableLayout) TableLayout tableLayout;

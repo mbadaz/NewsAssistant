@@ -9,4 +9,6 @@
     <string name="title_languages_walkthrough">Languages</string>
     <string name="languages_walkthrough_subtitle">You are looking for news in which languages?</string>
     <string name="walkthrough_categories_title">News Categories</string>
+    <string name="label_walkthrough_activity_next">NEXT</string>
+    <string name="label_walkthrough_activity_finish">FINISH</string>
 </resources>

@@ -2,7 +2,9 @@ package com.mambure.newsassistant.models;
 
 import androidx.annotation.Nullable;
 
-public class Source {
+import io.realm.RealmObject;
+
+public class Source extends RealmObject {
     public String id;
     public String name;
     public String description;
@@ -24,4 +26,6 @@ public class Source {
     public boolean isChecked() {
         return checked;
     }
+
+
 }

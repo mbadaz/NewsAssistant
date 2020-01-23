@@ -4,11 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 
+import com.mambure.newsassistant.models.Source;
+
 import org.apache.hc.core5.net.URIBuilder;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,10 +20,13 @@ import static com.mambure.newsassistant.data.Constants.*;
 
 public class HttpRequestsBuilder {
 
-    public static List<String> createRequests(@NonNull String path, @Nullable Map<String, ?> args) throws URISyntaxException {
+    public static List<String> createRequests(@NonNull String path, @Nullable Map<String, Object> args) throws URISyntaxException {
         ArrayList<URI> uris = new ArrayList<>();
         URIBuilder builder1 = new URIBuilder();
-        builder1.setPath(BASE_URL + path);
+        builder1.setScheme("https");
+        builder1.setHost(BASE_URL);
+        builder1.setPath(path);
+
         uris.add(builder1.build());
 
         if (args == null) {
@@ -32,9 +38,14 @@ public class HttpRequestsBuilder {
 
         // TODO remove code specific to the news.org API's requirements to make class generally applicable
         if (queryParams.contains(SOURCES_QUERY_PARAM)) {
+            List<Source> sources = (List<Source>) args.get(SOURCES_QUERY_PARAM);
+            Set<String> sourcesSet = new HashSet<>();
+            for (Source source: sources) {
+                sourcesSet.add(source.id);
+            }
             uris = createUrisFromQueryArgs(
                     SOURCES_QUERY_PARAM,
-                    createQueryParamList((Set<String>) args.get(SOURCES_QUERY_PARAM)),
+                    createQueryParamList(sourcesSet),
                     uris
             );
             queryParams.remove(SOURCES_QUERY_PARAM);

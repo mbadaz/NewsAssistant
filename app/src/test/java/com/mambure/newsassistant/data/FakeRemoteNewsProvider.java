@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.mambure.newsassistant.models.Article;
+import com.mambure.newsassistant.models.ArticlesResult;
 import com.mambure.newsassistant.models.Source;
 import com.mambure.newsassistant.models.SourcesResult;
 import com.mambure.newsassistant.utils.HttpRequestsBuilder;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class MockRemoteNewsRepository implements NewsRepository {
+public class FakeRemoteNewsProvider implements NewsProvider {
 
     public MutableLiveData<SourcesResult> sourcesResult = new MutableLiveData<>();
     private UpdatesListener listener;
@@ -22,20 +23,21 @@ public class MockRemoteNewsRepository implements NewsRepository {
     @Override
     public LiveData<SourcesResult> getSources() {
         simulateSourceResponse();
-        return sourcesResult;
+        return null;
     }
 
     @Override
-    public void getArticles(String id, Map<String, Object> args) {
-
+    public LiveData<ArticlesResult> getArticles(String id, Map<String, Object> args) {
         try {
             simulateArticlesResponse(
-                    (int) (args.get(Constants.PAGE_SIZE_QUERY_PARAM)),
+                    (int) (Object) (args.get(Constants.PAGE_SIZE_QUERY_PARAM)),
                     HttpRequestsBuilder.createRequests("path", args).size()
             );
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+
+        return null;
     }
 
     @Override
@@ -45,13 +47,6 @@ public class MockRemoteNewsRepository implements NewsRepository {
 
     private void simulateSourceResponse() {
         List<Source> sources = new ArrayList<>();
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         for (int x = 1; x <= 15; x++) {
             Source source = new Source();
             source.category = "Source " + x + "category";
@@ -66,9 +61,13 @@ public class MockRemoteNewsRepository implements NewsRepository {
 
     private void simulateArticlesResponse(int pageSize, int requestUrls) {
         for (int x = 1; x <= requestUrls; x++) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             listener.onArticlesUpdate(createMockArticles(pageSize));
         }
-
     }
 
     private List<Article> createMockArticles(int pageSize) {

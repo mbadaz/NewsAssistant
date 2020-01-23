@@ -2,7 +2,7 @@ package com.mambure.newsassistant.dependencyInjection;
 
 import androidx.lifecycle.ViewModel;
 
-import com.mambure.newsassistant.data.DataController;
+import com.mambure.newsassistant.data.DefaultRepository;
 import com.mambure.newsassistant.newsActivity.NewsActivityViewModel;
 import com.mambure.newsassistant.wakthroughActivity.WalkthroughActivityViewModel;
 
@@ -20,7 +20,7 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoMap;
 
-@Module(includes = DataControllerModule.class)
+@Module(includes = DataRepositoryModule.class)
 public class ViewModelsModule {
 
     @Target(ElementType.METHOD)
@@ -34,16 +34,16 @@ public class ViewModelsModule {
     @Singleton
     @IntoMap
     @ViewModelKey(WalkthroughActivityViewModel.class)
-    ViewModel provideWalkhroughVieModel(DataController dataController) {
-        return new WalkthroughActivityViewModel(dataController);
+    ViewModel provideWalkhroughVieModel(DefaultRepository dataDefaultRepository) {
+        return new WalkthroughActivityViewModel(dataDefaultRepository);
     }
 
     @Provides
     @Singleton
     @IntoMap
     @ViewModelKey(NewsActivityViewModel.class)
-    ViewModel provideNewsActivityViewModel(DataController dataController) {
-        return new NewsActivityViewModel(dataController);
+    ViewModel provideNewsActivityViewModel(DefaultRepository dataDefaultRepository) {
+        return new NewsActivityViewModel(dataDefaultRepository);
     }
 
     @Provides

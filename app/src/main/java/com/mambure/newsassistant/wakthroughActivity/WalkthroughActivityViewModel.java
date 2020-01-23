@@ -3,7 +3,7 @@ package com.mambure.newsassistant.wakthroughActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.mambure.newsassistant.data.DataController;
+import com.mambure.newsassistant.data.DefaultRepository;
 import com.mambure.newsassistant.models.Tag;
 import com.mambure.newsassistant.models.Source;
 import com.mambure.newsassistant.models.SourcesResult;
@@ -15,41 +15,41 @@ import javax.inject.Inject;
 
 public class WalkthroughActivityViewModel extends ViewModel {
 
-    private Set<String> selectedSources = new HashSet<>();
+    private Set<Source> selectedSources = new HashSet<>();
     private Set<String> selectedCategories = new HashSet<>();
     private Set<String> selectedLanguages = new HashSet<>();
 
-    private final DataController dataController;
+    private final DefaultRepository dataDefaultRepository;
 
     @Inject
-    public WalkthroughActivityViewModel(DataController dataController) {
-        this.dataController = dataController;
+    public WalkthroughActivityViewModel(DefaultRepository dataDefaultRepository) {
+        this.dataDefaultRepository = dataDefaultRepository;
     }
 
     LiveData<SourcesResult> getAvailableSources() {
-        return dataController.getSources();
+        return dataDefaultRepository.getSources();
     }
 
     boolean IsFirstTimeLogin() {
-        return dataController.IsFirstTimeLogin();
+        return dataDefaultRepository.getIsFirstTimeLaunch();
     }
 
     void setIsFirstTimeLogin(boolean value) {
-        dataController.setIsFirstTimeLogin(value);
+        dataDefaultRepository.isFirstTimeLaunch(value);
     }
 
     void saveUserData() {
-        dataController.savePreferredSources(selectedSources);
-        dataController.savePreferredCategories(selectedCategories);
-        dataController.savePreferredLanguages(selectedLanguages);
+        dataDefaultRepository.savePreferredSources(selectedSources);
+        dataDefaultRepository.savePreferredCategories(selectedCategories);
+        dataDefaultRepository.savePreferredLanguages(selectedLanguages);
     }
 
     void addSourceToSelection(Source source) {
-        selectedSources.add(source.id);
+        selectedSources.add(source);
     }
 
     void removeSourceFromSelection(Source source) {
-        selectedSources.remove(source.id);
+        selectedSources.remove(source);
     }
 
     void addCategoryToSelection(Tag tag) {

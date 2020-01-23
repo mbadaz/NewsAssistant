@@ -1,6 +1,6 @@
 package com.mambure.newsassistant.dependencyinjection;
 
-import com.mambure.newsassistant.data.DataController;
+import com.mambure.newsassistant.data.DataRepository;
 import com.mambure.newsassistant.data.MockRemoteNewsRepository;
 import com.mambure.newsassistant.data.MockSettingsRepository;
 
@@ -10,12 +10,12 @@ import dagger.Module;
 import dagger.Provides;
 
 @Module
-public class DataControllerModule {
+public class DataRepositoryModule {
 
     @Provides
     @Singleton
-    public static DataController provideDataController() {
-        return new DataController(
+    public static DataRepository provideDataRepository() {
+        return new DataRepository(
                 new MockRemoteNewsRepository(),
                 new MockSettingsRepository()
         );

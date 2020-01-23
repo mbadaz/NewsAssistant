@@ -8,6 +8,7 @@ import android.widget.Filter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mambure.newsassistant.R;
@@ -19,7 +20,7 @@ import java.util.List;
 public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesViewHolder> {
     private List<Source> sources;
     private List<Source> filteredSources;
-    private OnCheckBoxClickListener checkBoxClickListener;
+    private OnItemClickListener itemClickListener;
 
     SourcesAdapter() {
         sources = new ArrayList<>();
@@ -52,10 +53,17 @@ public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesV
         holder.title.setText(source.name);
         holder.description.setText(source.description);
         holder.detail.setText(detail);
-        holder.checkBox.setOnClickListener(v -> {
-            checkBoxClickListener.onCheckBoxClicked((CheckBox)v, source);
-        });
         holder.checkBox.setChecked(source.isChecked());
+        holder.position = position;
+        holder.layout.setOnClickListener(v -> {
+            if (holder.checkBox.isChecked()) {
+                holder.checkBox.setChecked(false);
+            }else {
+                holder.checkBox.setChecked(true);
+                itemClickListener.onItemClick(source);
+            }
+
+        });
 
     }
 
@@ -64,6 +72,8 @@ public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesV
         TextView description;
         TextView detail;
         CheckBox checkBox;
+        ConstraintLayout layout;
+        public int position;
 
         SourcesViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -71,15 +81,17 @@ public class SourcesAdapter extends RecyclerView.Adapter<SourcesAdapter.SourcesV
             description = itemView.findViewById(R.id.txt_item_source_description);
             detail = itemView.findViewById(R.id.txt_source_details);
             checkBox = itemView.findViewById(R.id.item_source_check);
+            layout = itemView.findViewById(R.id.item_source_root);
         }
+
     }
 
-    void setCheckBoxClickListener(OnCheckBoxClickListener checkBoxClickListener) {
-        this.checkBoxClickListener = checkBoxClickListener;
+    void setItemClickListener(OnItemClickListener listener) {
+        this.itemClickListener = listener;
     }
 
-    public interface OnCheckBoxClickListener {
-        void onCheckBoxClicked(CheckBox checkBox, Source source);
+    public interface OnItemClickListener {
+        void onItemClick(Source source);
     }
 
     Filter getFilter() {

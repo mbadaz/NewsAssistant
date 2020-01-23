@@ -1,21 +1,19 @@
 package com.mambure.newsassistant.data;
 
-import java.util.Map;
+import com.mambure.newsassistant.models.Article;
+import com.mambure.newsassistant.models.Source;
+
 import java.util.Set;
 
-public interface SettingsRepository {
+public interface DataRepository extends NewsProvider {
 
-    Map<String, ?> getUserPrefs();
-
-    void loadPreferences();
-
-    Set<String> getPreferredSources();
-
-    void savePreferredSources(Set<String> sources);
+    void savePreferredSources(Set<Source> sources);
 
     void savePreferredCategories(Set<String> categories);
 
     void savePreferredLanguages(Set<String> languages);
+
+    void saveArticle(Article article);
 
     Set<String> getPreferredLanguages();
 
@@ -32,4 +30,5 @@ public interface SettingsRepository {
     void setArticlesLoadingLimit(int value);
 
     int getArticlesLoadingLimit();
+
 }

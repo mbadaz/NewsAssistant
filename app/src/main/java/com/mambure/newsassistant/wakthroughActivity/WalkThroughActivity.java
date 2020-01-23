@@ -2,6 +2,7 @@ package com.mambure.newsassistant.wakthroughActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 
@@ -19,15 +20,16 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class WalkThroughActivity extends AppCompatActivity implements View.OnClickListener {
+public class WalkThroughActivity extends AppCompatActivity {
     @BindView(R.id.viewpager_walkthrough) ViewPager viewPager;
     @BindView(R.id.tab_circle) View circleIndicator1;
     @BindView(R.id.tab_circle2) View circleIndicator2;
     @BindView(R.id.tab_circle3) View circleIndicator3;
     @BindView(R.id.tab_circle4) View circleIndicator4;
     View highlightedCircleIndicator;
-    @BindView(R.id.txt_finish) TextView txtFinish;
+    @BindView(R.id.txt_finish) TextView txtNext;
     @BindView(R.id.txt_skip) TextView txtSkip;
 
 
@@ -68,6 +70,11 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
             public void onPageSelected(int position) {
                 currentPosition = position;
                 updatePositionIndicators(position);
+                if (isCurrentLastItem(currentPosition)) {
+                    txtNext.setText(R.string.label_walkthrough_activity_finish);
+                } else if (isCurrentLastItem(currentPosition + 1)) {
+                    txtNext.setText(R.string.label_walkthrough_activity_next);
+                }
             }
 
             @Override
@@ -76,9 +83,6 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
-        txtFinish.setOnClickListener(this);
-        txtFinish.setVisibility(View.INVISIBLE);
-        txtSkip.setOnClickListener(this);
     }
 
     private Fragment[] initializeFragments() {
@@ -100,38 +104,42 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
             case 0:
                 circleIndicator1.setBackground(getResources().getDrawable(R.drawable.circle_accent));
                 highlightedCircleIndicator = circleIndicator1;
-                txtFinish.setVisibility(View.INVISIBLE);
                 break;
             case 1:
                 circleIndicator2.setBackground(getResources().getDrawable(R.drawable.circle_accent));
                 highlightedCircleIndicator = circleIndicator2;
-                txtFinish.setVisibility(View.INVISIBLE);
                 break;
             case 2:
                 circleIndicator3.setBackground(getResources().getDrawable(R.drawable.circle_accent));
                 highlightedCircleIndicator = circleIndicator3;
-                txtFinish.setVisibility(View.INVISIBLE);
                 break;
             case 3:
                 circleIndicator4.setBackground(getResources().getDrawable(R.drawable.circle_accent));
                 highlightedCircleIndicator = circleIndicator4;
-                txtFinish.setVisibility(View.VISIBLE);
+                txtNext.setVisibility(View.VISIBLE);
 
         }
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.txt_skip:
-                Intent intent = new Intent(this, NewsActivity.class);
-                startActivity(intent);
-                finish();
-                break;
-            case R.id.txt_finish:
-                saveUserData();
-                break;
+    @OnClick(R.id.txt_finish)
+    public void onNextClick() {
+        if (!isCurrentLastItem(currentPosition)) {
+            viewPager.setCurrentItem(currentPosition + 1, true);
+            return;
         }
+
+        saveUserData();
+    }
+
+    @OnClick(R.id.txt_skip)
+    public void onSkipClick() {
+        Intent intent = new Intent(this, NewsActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private boolean isCurrentLastItem(int currentPos) {
+        return currentPos == adapter.fragments.length - 1;
     }
 
     private void saveUserData() {

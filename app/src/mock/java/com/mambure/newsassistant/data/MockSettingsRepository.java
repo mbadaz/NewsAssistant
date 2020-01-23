@@ -7,16 +7,15 @@ import java.util.Set;
 
 public class MockSettingsRepository implements SettingsRepository {
 
-    private Map<String, ?> userPrefs = new HashMap<>();
+    private Map<String, Object> userPrefs = new HashMap<>();
     private Set<String> preferredSources = new HashSet<>();
     private Set<String> preferredCategories = new HashSet<>();
     private Set<String> preferredLanguages = new HashSet<>();
-    private boolean isFirstTimeLaunch = false;
+    private boolean isFirstTimeLaunch = true;
     private int articleLoadLimit = 10;
     private boolean useExternalBrowser = false;
 
-
-    public Map<String, ?> getUserPrefs() {
+    public Map<String, Object> getApiPrefs() {
         return userPrefs;
     }
 

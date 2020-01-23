@@ -9,7 +9,7 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_walkthrough"
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
+        android:layout_height="45dp"
         android:background="@color/colorPrimary"
         app:titleTextColor="@color/colorBackground_light"/>
 

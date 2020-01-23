@@ -1,9 +1,12 @@
 package com.mambure.newsassistant.newsActivity;
 
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,12 +20,23 @@ import com.mambure.newsassistant.utils.DateParsingUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.OnClick;
+
 public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ArticlesViewHolder> {
 
+    public interface ItemMenuClickListener {
+        void onItemMenuClick(Article article);
+    }
+
     List<Article> articles;
+    ItemMenuClickListener listener;
 
     public ArticlesAdapter() {
         articles = new ArrayList<>();
+    }
+
+    public void setItemMenuClickListener(ItemMenuClickListener listener) {
+        this.listener = listener;
     }
 
     @NonNull
@@ -56,12 +70,13 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.Articl
         }
     }
 
-    public class ArticlesViewHolder extends RecyclerView.ViewHolder{
+    public class ArticlesViewHolder extends RecyclerView.ViewHolder {
         TextView title;
         TextView description;
         TextView source;
         TextView publishedAt;
         ImageView image;
+        ImageView menu;
 
         public ArticlesViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -70,6 +85,8 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.Articl
             source = itemView.findViewById(R.id.txt_source);
             publishedAt = itemView.findViewById(R.id.txt_date);
             image = itemView.findViewById(R.id.img_article);
+            menu = itemView.findViewById(R.id.article_item_menu);
+
         }
 
         public void bind(Article article) {
@@ -86,6 +103,21 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.Articl
                 image.setImageDrawable(image.getContext().getResources().getDrawable(R.drawable.circle_blue));
             }
 
+            menu.setOnClickListener(v -> {
+                PopupMenu popupMenu = new PopupMenu(v.getContext(), v, Gravity.BOTTOM);
+                popupMenu.inflate(R.menu.menu_article);
+                popupMenu.setOnMenuItemClickListener(item -> {
+                    switch (item.getItemId()) {
+                        case R.id.articleMenuSave:
+                            listener.onItemMenuClick(article);
+                    }
+                    return true;
+                });
+
+                popupMenu.show();
+            });
+
         }
+
     }
 }

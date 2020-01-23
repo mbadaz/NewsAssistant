@@ -18,10 +18,11 @@ import android.widget.ProgressBar;
 import com.mambure.newsassistant.MyApplication;
 import com.mambure.newsassistant.R;
 import com.mambure.newsassistant.dependencyInjection.ViewModelsFactory;
+import com.mambure.newsassistant.models.Article;
 
 import javax.inject.Inject;
 
-public class NewsFragment extends Fragment {
+public class NewsFragment extends Fragment implements ArticlesAdapter.ItemMenuClickListener {
     public static final String FRAGMENT_ID = "Fragment Id";
 
 
@@ -71,10 +72,11 @@ public class NewsFragment extends Fragment {
         recyclerView = getView().findViewById(R.id.rv_articles_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new ArticlesAdapter();
+        adapter.setItemMenuClickListener(this);
         recyclerView.setAdapter(adapter);
-        mViewModel.getArticles(args).observe(this, articles -> {
-            if (!articles.isEmpty()) {
-                adapter.addData(articles);
+        mViewModel.getArticles(args).observe(this, articlesResult -> {
+            if (articlesResult.status.equals("ok")) {
+                adapter.addData(articlesResult.articles);
                 progressBar.setVisibility(View.INVISIBLE);
             }
         });
@@ -91,4 +93,8 @@ public class NewsFragment extends Fragment {
     }
 
 
+    @Override
+    public void onItemMenuClick(Article article) {
+        mViewModel.saveArticle(article);
+    }
 }

@@ -1,6 +1,7 @@
 package com.mambure.newsassistant.wakthroughActivity;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,12 +9,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -31,7 +33,7 @@ import com.mambure.newsassistant.models.SourcesResult;
 import javax.inject.Inject;
 
 public class WalkthroughSourcesSelectionFragment extends Fragment implements
-        Observer<SourcesResult>, SourcesAdapter.OnCheckBoxClickListener, SearchView.OnQueryTextListener {
+        Observer<SourcesResult>, SourcesAdapter.OnItemClickListener, SearchView.OnQueryTextListener {
     private static final String TAG = WalkthroughSourcesSelectionFragment.class.getSimpleName();
     private Toolbar toolbar;
 
@@ -60,18 +62,22 @@ public class WalkthroughSourcesSelectionFragment extends Fragment implements
         return inflater.inflate(R.layout.sources_fragment_walkthrough, container, false);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         toolbar = view.findViewById(R.id.toolbar_walkthrough);
-        ((WalkThroughActivity)getActivity()).setSupportActionBar(toolbar);
+
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+
         recyclerView = view.findViewById(R.id.rv_walkthrough);
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(layoutManager);
         sourcesAdapter = new SourcesAdapter();
-        sourcesAdapter.setCheckBoxClickListener(this);
+        sourcesAdapter.setItemClickListener(this);
         recyclerView.setAdapter(sourcesAdapter);
     }
+
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
@@ -101,8 +107,8 @@ public class WalkthroughSourcesSelectionFragment extends Fragment implements
     }
 
     @Override
-    public void onCheckBoxClicked(CheckBox checkBox, Source source) {
-        if (checkBox.isChecked()) {
+    public void onItemClick(Source source) {
+        if (!source.isChecked()) {
             viewModel.addSourceToSelection(source);
             source.setChecked(true);
         } else {

@@ -17,6 +17,7 @@ import com.mambure.newsassistant.models.SourcesResult;
 import com.mambure.newsassistant.utils.HttpRequestsBuilder;
 import com.mambure.newsassistant.utils.JsonParsingUtils;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
@@ -25,9 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AppRemoteNewsRepository implements NewsRepository, Response.Listener<JSONObject>, Response.ErrorListener {
+public class NewsRepository implements NewsProvider, Response.Listener<JSONObject>, Response.ErrorListener {
 
-    public static final String TAG = AppRemoteNewsRepository.class.getSimpleName();
+    public static final String TAG = NewsRepository.class.getSimpleName();
     private RequestQueue requestQueue;
     private MutableLiveData<ArticlesResult> articlesResultMutableLiveData = new MutableLiveData<>();
     private MutableLiveData<SourcesResult> sourcesResultMutableLiveData = new MutableLiveData<>();
@@ -35,7 +36,7 @@ public class AppRemoteNewsRepository implements NewsRepository, Response.Listene
     private String currentId;
     private UpdatesListener updatesListener;
 
-    public AppRemoteNewsRepository(Context context) {
+    public NewsRepository(Context context) {
         requestQueue = Volley.newRequestQueue(context);
         requestQueue.addRequestFinishedListener( request -> {
             request.getCacheEntry();
@@ -63,25 +64,25 @@ public class AppRemoteNewsRepository implements NewsRepository, Response.Listene
     }
 
     @Override
-    public void getArticles(String id, Map<String, ?> args) {
+    public LiveData<ArticlesResult> getArticles(String id, Map<String, Object> args) {
 
         try {
             List<String> requestUrls = HttpRequestsBuilder.createRequests(mapFragmentToApiEndpoint(id), args);
             for (String url : requestUrls) {
 
-                if (!dataCache.containsKey(url)) {
-                    Request<JSONObject> request = requestQueue.add(
-                            createRequest(url)
-                    );
+                Request<JSONObject> request = requestQueue.add(
+                        createRequest(url)
+                );
+                request.setRequestQueue(requestQueue);
+                request.addMarker(url);
+                if (requestQueue.getCache().get(url) == null) {
 
-                    request.setRequestQueue(requestQueue);
-                    request.addMarker(url);
                     List<Article> requestResponse = new ArrayList<>();
                     //dataCache.put(url, requestResponse);
                     request.setTag(requestResponse);
 
                 } else {
-                    updatesListener.onArticlesUpdate(dataCache.get(url));
+                    
                 }
 
             }
@@ -89,14 +90,13 @@ public class AppRemoteNewsRepository implements NewsRepository, Response.Listene
             e.printStackTrace();
         }
 
+        return articlesResultMutableLiveData;
 
     }
 
 
     private void reloadCacheItem(Map<String, MutableLiveData<ArticlesResult>> requestResult, String id) {
         Request<JSONObject> request = requestQueue.add(createRequest(id));
-
-
 
     }
 
@@ -127,8 +127,17 @@ public class AppRemoteNewsRepository implements NewsRepository, Response.Listene
         if (response.has("sources")) {
             updatesListener.onSourcesUpdate(JsonParsingUtils.parseSourcesJson(response));
             Log.d(TAG, "UPDATED WITH SOURCES DATA");
+
         } else {
-            updatesListener.onArticlesUpdate(JsonParsingUtils.parseArticlesJson(response));
+            ArticlesResult articlesResult= new ArticlesResult();
+            articlesResult.articles = JsonParsingUtils.parseArticlesJson(response);
+            try {
+                articlesResult.status = response.getString("status");
+            } catch (JSONException e) {
+                e.printStackTrace();
+                articlesResult.status = "error";
+            }
+            articlesResultMutableLiveData.setValue(articlesResult);
             Log.d(TAG, "UPDATED WITH ARTICLES DATA");
         }
     }
