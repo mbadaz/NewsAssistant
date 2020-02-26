@@ -5,27 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/frameLayout"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_articles_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:context=".newsActivity.NewsFragment">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_articles_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:listitem="@layout/item_article">
-
-        </androidx.recyclerview.widget.RecyclerView>
-
-    </FrameLayout>
+        tools:listitem="@layout/item_article" />
 
     <ProgressBar
         android:id="@+id/progressbar_loading"
@@ -35,6 +23,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/frameLayout" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mbadasoft.newsassistant">
+    package="com.peruzal.newsassistant">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -12,9 +12,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".newsActivity.NewsActivity"
+        <activity android:name="com.peruzal.newsassistant.newsActivity.NewsActivity"
             android:theme="@style/WalkThroughTheme"></activity>
-        <activity android:name=".wakthroughActivity.WalkThroughActivity"
+        <activity android:name="com.peruzal.newsassistant.wakthroughActivity.WalkThroughActivity"
             android:theme="@style/WalkThroughTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
