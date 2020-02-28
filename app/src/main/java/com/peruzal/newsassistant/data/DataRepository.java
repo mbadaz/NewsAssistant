@@ -1,32 +1,39 @@
 package com.peruzal.newsassistant.data;
 
+import android.content.Context;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.Observer;
+import androidx.room.Room;
 
 import com.peruzal.newsassistant.data.local.AppDatabase;
-import com.peruzal.newsassistant.data.remote.Constants;
-import com.peruzal.newsassistant.data.remote.RemoteArticleDataSource;
+import com.peruzal.newsassistant.Constants;
+import com.peruzal.newsassistant.data.remote.NewsService;
+import com.peruzal.newsassistant.data.remote.RemoteDataSource;
 import com.peruzal.newsassistant.data.remote.SourcesDataSource;
-import com.peruzal.newsassistant.models.Article;
-import com.peruzal.newsassistant.models.ArticlesResult;
-import com.peruzal.newsassistant.models.SourcesResult;
+import com.peruzal.newsassistant.data.models.Article;
+import com.peruzal.newsassistant.data.models.ArticlesResult;
+import com.peruzal.newsassistant.data.models.SourcesResult;
 
-import java.util.List;
 import java.util.Map;
+
+import retrofit2.Retrofit;
+import retrofit2.converter.moshi.MoshiConverterFactory;
 
 public class DataRepository {
 
     private SourcesDataSource sourcesDataSource;
-    private RemoteArticleDataSource articlesDataSource;
+    private RemoteDataSource articlesDataSource;
     private MediatorLiveData<ArticlesResult> articlesStreamsMerger = new MediatorLiveData<>();
     private AppDatabase appDatabase;
 
-    public DataRepository(SourcesDataSource sourcesDataSource, RemoteArticleDataSource articlesDataSource,
-                          AppDatabase appDatabase) {
-        this.sourcesDataSource = sourcesDataSource;
-        this.articlesDataSource = articlesDataSource;
-        this.appDatabase = appDatabase;
+    public DataRepository(Context context) {
+        NewsService newsService = new Retrofit.Builder().
+                addConverterFactory(MoshiConverterFactory.create()).
+                baseUrl(Constants.BASE_URL).build().create(NewsService.class);
+        this.sourcesDataSource = new SourcesDataSource(newsService);
+        this.articlesDataSource = new RemoteDataSource(newsService);
+        this.appDatabase = Room.databaseBuilder(context, AppDatabase.class, "app-database").build();
     }
 
     public LiveData<ArticlesResult> getArticlesStream() {
@@ -37,7 +44,7 @@ public class DataRepository {
     }
 
     private void fetchArticlesFromRemote(Map<String, String> params) {
-       articlesDataSource.fetch(params);
+       articlesDataSource.fetchArticles(params);
     }
 
     private void fetchArticlesFromLocal() {
@@ -63,6 +70,14 @@ public class DataRepository {
 
     public LiveData<SourcesResult> getSourcesStream() {
         return sourcesDataSource.getDataStream();
+    }
+
+    public void saveArticle(Article article) {
+        appDatabase.articlesDAO().insert(article);
+    }
+
+    public void deleteArticle(Article article) {
+        appDatabase.articlesDAO().delete(article);
     }
 
 

@@ -1,4 +1,4 @@
-package com.peruzal.newsassistant.models;
+package com.peruzal.newsassistant.data.models;
 
 import java.util.List;
 

@@ -4,16 +4,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.peruzal.newsassistant.data.DataSource;
-import com.peruzal.newsassistant.models.Source;
-import com.peruzal.newsassistant.models.SourcesResult;
-
-import java.util.List;
+import com.peruzal.newsassistant.data.models.SourcesResult;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SourcesDataSource implements DataSource<LiveData<SourcesResult>>, Callback<List<Source>> {
+public class SourcesDataSource implements DataSource<LiveData<SourcesResult>>, Callback<SourcesResult> {
 
     private NewsService newsService;
     private MutableLiveData<SourcesResult> dataStream = new MutableLiveData<>();
@@ -32,20 +29,19 @@ public class SourcesDataSource implements DataSource<LiveData<SourcesResult>>, C
     }
 
     @Override
-    public void onResponse(Call<List<Source>> call, Response<List<Source>> response) {
-        SourcesResult sourcesResult = new SourcesResult();
+    public void onResponse(Call<SourcesResult> call, Response<SourcesResult> response) {
+
         if (response.isSuccessful()) {
-            sourcesResult.status = "ok";
-            sourcesResult.sources = response.body();
-            dataStream.postValue(sourcesResult);
+            dataStream.postValue(response.body());
         }else {
+            SourcesResult sourcesResult = new SourcesResult();
             sourcesResult.status = "error";
             dataStream.postValue(sourcesResult);
         }
     }
 
     @Override
-    public void onFailure(Call<List<Source>> call, Throwable t) {
+    public void onFailure(Call<SourcesResult> call, Throwable t) {
         SourcesResult sourcesResult = new SourcesResult();
         sourcesResult.status = "error";
         dataStream.postValue(sourcesResult);

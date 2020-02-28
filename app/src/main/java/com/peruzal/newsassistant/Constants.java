@@ -1,4 +1,4 @@
-package com.peruzal.newsassistant.data.remote;
+package com.peruzal.newsassistant;
 
 public class Constants {
     public static final String BASE_URL = "https://newsapi.org/v2/";
@@ -7,5 +7,6 @@ public class Constants {
     public static final String EVERYTHING_API_ENDPOINT = "everything";
     public static final String LOCAL = "local";
     public static final String REMOTE = "remote";
-
+    public static final String SHARED_PREFERENCES = "shared preferences";
+    public static final String SOURCES = "sources";
 }

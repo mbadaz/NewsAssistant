@@ -1,38 +1,30 @@
 package com.peruzal.newsassistant.wakthroughActivity;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
 
+import com.peruzal.newsassistant.Constants;
 import com.peruzal.newsassistant.data.DataRepository;
-import com.peruzal.newsassistant.data.local.AppDatabase;
-import com.peruzal.newsassistant.data.remote.Constants;
-import com.peruzal.newsassistant.data.remote.NewsService;
-import com.peruzal.newsassistant.data.remote.RemoteArticleDataSource;
-import com.peruzal.newsassistant.data.remote.SourcesDataSource;
-import com.peruzal.newsassistant.models.SourcesResult;
+import com.peruzal.newsassistant.data.models.Source;
+import com.peruzal.newsassistant.data.models.SourcesResult;
 
-import retrofit2.Retrofit;
-import retrofit2.converter.moshi.MoshiConverterFactory;
+import java.util.HashSet;
+import java.util.Set;
 
 public class WalkthroughActivityViewModel extends AndroidViewModel {
     DataRepository dataRepository;
+    SharedPreferences sharedPreferences;
+    Set<String> preferredSources = new HashSet<>();
 
     public WalkthroughActivityViewModel(@NonNull Application application) {
         super(application);
-        Retrofit retrofit = new Retrofit.Builder().
-                addConverterFactory(MoshiConverterFactory.create()).
-                baseUrl(Constants.BASE_URL).build();
-        NewsService newsService = retrofit.create(NewsService.class);
-        dataRepository = new DataRepository(
-                new SourcesDataSource(newsService),
-                new RemoteArticleDataSource(newsService),
-                Room.databaseBuilder(application, AppDatabase.class, "app-database").build()
-        );
+        dataRepository = new DataRepository(application);
+        sharedPreferences = application.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     public LiveData<SourcesResult> getSourcesStream() {
@@ -41,5 +33,13 @@ public class WalkthroughActivityViewModel extends AndroidViewModel {
 
     public void fetchSources() {
         dataRepository.fetchSources();
+    }
+
+    public void addPreferedSource(Source source) {
+        preferredSources.add(source.id);
+    }
+
+    public void removePreferredSource(Source source) {
+        preferredSources.remove(source.id);
     }
 }

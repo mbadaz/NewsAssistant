@@ -5,9 +5,7 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
-
-import com.peruzal.newsassistant.models.Article;
-
+import com.peruzal.newsassistant.data.models.Article;
 import java.util.List;
 
 @Dao
@@ -16,10 +14,8 @@ public interface ArticlesDAO {
     LiveData<List<Article>> getAll();
 
     @Insert
-    void insertAll(Article... articles);
+    void insert(Article articles);
 
     @Delete
     void delete(Article article);
-
-
 }

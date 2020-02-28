@@ -1,11 +1,8 @@
-package com.peruzal.newsassistant.models;
+package com.peruzal.newsassistant.data.models;
 
 import androidx.annotation.Nullable;
 
 import com.squareup.moshi.Json;
-import com.squareup.moshi.JsonClass;
-
-import retrofit2.http.Field;
 
 public class Source {
     @Json(name = "id") public String id;

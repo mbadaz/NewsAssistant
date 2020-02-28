@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.mbadasoft.newsassistant"
-        minSdkVersion 19
+        minSdkVersion 24
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -43,4 +43,5 @@ dependencies {
     implementation "androidx.room:room-runtime:2.2.4"
     annotationProcessor "androidx.room:room-compiler:2.2.4"
     implementation 'com.squareup.retrofit2:converter-moshi:2.7.1'
+    implementation "androidx.lifecycle:lifecycle-viewmodel:2.2.0"
 }
