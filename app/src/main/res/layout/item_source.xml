@@ -5,11 +5,12 @@
     android:id="@+id/root_item_favourite"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:layout_marginLeft="8dp"
     android:layout_marginTop="8dp"
-    app:cardElevation="4dp"
+    android:orientation="vertical"
     app:cardBackgroundColor="@android:color/background_light"
     app:cardCornerRadius="4dp"
+    app:cardElevation="4dp"
     app:contentPadding="8dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -44,7 +45,7 @@
             android:textColor="@color/colorPrimary"
             app:layout_constraintStart_toStartOf="@+id/txt_item_source_description"
             app:layout_constraintTop_toBottomOf="@+id/txt_item_source_description"
-            tools:text="BBC | UK | EN"/>
+            tools:text="BBC | UK | EN" />
 
         <TextView
             android:id="@+id/txt_item_source_title"
