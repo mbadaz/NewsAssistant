@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.peruzal.newsassistant.data.DataSource;
 import com.peruzal.newsassistant.data.models.SourcesResult;
 
+import javax.inject.Inject;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -15,6 +17,7 @@ public class SourcesDataSource implements DataSource<LiveData<SourcesResult>>, C
     private NewsService newsService;
     private MutableLiveData<SourcesResult> dataStream = new MutableLiveData<>();
 
+    @Inject
     public SourcesDataSource(NewsService newsService) {
         this.newsService = newsService;
     }

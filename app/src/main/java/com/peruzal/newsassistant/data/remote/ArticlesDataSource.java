@@ -9,18 +9,21 @@ import com.peruzal.newsassistant.data.models.SourcesResult;
 
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RemoteDataSource implements DataSource<LiveData<ArticlesResult>>,
+public class ArticlesDataSource implements DataSource<LiveData<ArticlesResult>>,
         Callback<ArticlesResult> {
 
     private NewsService newsService;
     private MutableLiveData<ArticlesResult> articlesStream = new MutableLiveData<>();
     private MutableLiveData<SourcesResult> sourcesStream = new MutableLiveData<>();
 
-    public RemoteDataSource(NewsService newsService) {
+    @Inject
+    public ArticlesDataSource(NewsService newsService) {
         this.newsService = newsService;
     }
 

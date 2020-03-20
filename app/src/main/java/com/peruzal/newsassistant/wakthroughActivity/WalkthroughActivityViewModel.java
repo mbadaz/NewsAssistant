@@ -1,45 +1,47 @@
 package com.peruzal.newsassistant.wakthroughActivity;
 
-import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModel;
 
-import com.peruzal.newsassistant.Constants;
 import com.peruzal.newsassistant.data.DataRepository;
 import com.peruzal.newsassistant.data.models.Source;
 import com.peruzal.newsassistant.data.models.SourcesResult;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-public class WalkthroughActivityViewModel extends AndroidViewModel {
-    DataRepository dataRepository;
-    SharedPreferences sharedPreferences;
-    Set<String> preferredSources = new HashSet<>();
+public class WalkthroughActivityViewModel extends ViewModel {
+    private DataRepository dataRepository;
+    private SharedPreferences sharedPreferences;
+    private List<Source> preferredSources = new ArrayList<>();
 
-    public WalkthroughActivityViewModel(@NonNull Application application) {
-        super(application);
-        dataRepository = new DataRepository(application);
-        sharedPreferences = application.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+    public WalkthroughActivityViewModel(DataRepository dataRepository, SharedPreferences sharedPreferences) {
+        this.dataRepository = dataRepository;
+        this.sharedPreferences = sharedPreferences;
     }
 
-    public LiveData<SourcesResult> getSourcesStream() {
+    public WalkthroughActivityViewModel() {}
+
+    LiveData<SourcesResult> getSourcesStream() {
         return dataRepository.getSourcesStream();
     }
 
-    public void fetchSources() {
+    void fetchSources() {
         dataRepository.fetchSources();
     }
 
-    public void addPreferedSource(Source source) {
-        preferredSources.add(source.id);
+    void addPreferedSource(Source source) {
+        preferredSources.add(source);
     }
 
-    public void removePreferredSource(Source source) {
-        preferredSources.remove(source.id);
+    void removePreferredSource(Source source) {
+        preferredSources.remove(source);
     }
+
+    void savePreferredSources() {
+        dataRepository.saveSources(preferredSources);
+    }
+
 }

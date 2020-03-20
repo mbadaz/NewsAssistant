@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModel;
 
 import com.peruzal.newsassistant.Constants;
 import com.peruzal.newsassistant.data.DataRepository;
@@ -21,16 +22,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 
-public class NewsActivityViewModel extends AndroidViewModel {
+import javax.inject.Inject;
+
+public class NewsActivityViewModel extends ViewModel {
     private static final String TAG = NewsActivityViewModel.class.getSimpleName();
     DataRepository dataRepository;
     SharedPreferences sharedPreferences;
     Map<String, String> preferredSources = new HashMap<>();
 
-    public NewsActivityViewModel(@NonNull Application application) {
-        super(application);
-        dataRepository = new DataRepository(application);
-        sharedPreferences = application.getSharedPreferences(Constants.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+    @Inject
+    public NewsActivityViewModel(DataRepository dataRepository, SharedPreferences sharedPreferences) {
+        this.dataRepository = dataRepository;
+        this.sharedPreferences = sharedPreferences;
     }
 
     private void loadPreferences() {

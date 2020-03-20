@@ -1,7 +1,7 @@
 package com.peruzal.newsassistant;
 
 import com.peruzal.newsassistant.data.remote.NewsService;
-import com.peruzal.newsassistant.data.remote.RemoteDataSource;
+import com.peruzal.newsassistant.data.remote.ArticlesDataSource;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,14 +18,14 @@ import retrofit2.converter.moshi.MoshiConverterFactory;
 public class DataSourcesTests {
 
     NewsService newsService;
-    RemoteDataSource articleDataSource;
+    ArticlesDataSource articleDataSource;
 
     @Before
     public void initialize() {
         newsService = new Retrofit.Builder().
                 addConverterFactory(MoshiConverterFactory.create()).
                 baseUrl(Constants.BASE_URL).build().create(NewsService.class);
-        articleDataSource = new RemoteDataSource(newsService);
+        articleDataSource = new ArticlesDataSource(newsService);
     }
 
     @Test

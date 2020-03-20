@@ -11,8 +11,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.peruzal.newsassistant.MyApplicaction;
+import com.peruzal.newsassistant.dependencyInjection.AppComponent;
+import com.peruzal.newsassistant.dependencyInjection.ViewModelsFactory;
 import com.peruzal.newsassistant.newsActivity.NewsActivity;
 import com.peruzal.newsassistant.R;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,6 +29,9 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     @BindView(R.id.tab_circle3) View circleIndicator3;
     @BindView(R.id.txt_finish) TextView txtFinish;
     @BindView(R.id.txt_skip) TextView txtSkip;
+
+    @Inject
+    ViewModelsFactory viewModelsFactory;
     WalkthroughActivityViewModel viewModel;
 
     private int currentPosition = 0;
@@ -34,12 +42,18 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_walk_through);
         ButterKnife.bind(this);
-        viewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()).create(WalkthroughActivityViewModel.class);
+
+        ((MyApplicaction) getApplication()).getComponent().inject(this);
+
+        viewModel = new ViewModelProvider(this, viewModelsFactory).get(WalkthroughActivityViewModel.class);
 
         viewModel.getSourcesStream().observe(this, sourcesResult -> Log.d(WalkThroughActivity.class.getSimpleName(), sourcesResult.sources.toString()));
         viewModel.fetchSources();
         txtFinish.setOnClickListener(this);
         txtSkip.setOnClickListener(this);
+
+        adapter = new WalkThroughViewPagerAdapter(getSupportFragmentManager(), initializeFragments());
+        viewPager.setAdapter(adapter);
     }
 
     private Fragment[] initializeFragments() {
