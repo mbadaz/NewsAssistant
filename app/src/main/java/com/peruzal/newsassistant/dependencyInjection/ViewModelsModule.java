@@ -3,7 +3,6 @@ package com.peruzal.newsassistant.dependencyInjection;
 import android.content.SharedPreferences;
 
 import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.peruzal.newsassistant.data.DataRepository;
 import com.peruzal.newsassistant.newsActivity.NewsActivityViewModel;
@@ -16,14 +15,13 @@ import java.lang.annotation.Target;
 import java.util.Map;
 
 import javax.inject.Provider;
-import javax.inject.Singleton;
 
 import dagger.MapKey;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoMap;
 
-@Module(includes = {LocalRepositoryModule.class})
+@Module(includes = {RepositoriesModule.class})
 public class ViewModelsModule {
 
     @Target(ElementType.METHOD)

@@ -4,15 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.peruzal.newsassistant.MyApplicaction;
-import com.peruzal.newsassistant.dependencyInjection.AppComponent;
+import com.peruzal.newsassistant.MyApplication;
 import com.peruzal.newsassistant.dependencyInjection.ViewModelsFactory;
 import com.peruzal.newsassistant.newsActivity.NewsActivity;
 import com.peruzal.newsassistant.R;
@@ -22,7 +19,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class WalkThroughActivity extends AppCompatActivity implements View.OnClickListener {
+public class WalkThroughActivity extends AppCompatActivity implements View.OnClickListener,  ViewPager.OnPageChangeListener{
     @BindView(R.id.viewpager_walkthrough) ViewPager viewPager;
     @BindView(R.id.tab_circle) View circleIndicator1;
     @BindView(R.id.tab_circle2) View circleIndicator2;
@@ -34,8 +31,7 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     ViewModelsFactory viewModelsFactory;
     WalkthroughActivityViewModel viewModel;
 
-    private int currentPosition = 0;
-    private static WalkThroughViewPagerAdapter adapter;
+    private WalkThroughViewPagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,17 +39,15 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_walk_through);
         ButterKnife.bind(this);
 
-        ((MyApplicaction) getApplication()).getComponent().inject(this);
+        ((MyApplication) getApplication()).getComponent().inject(this);
 
         viewModel = new ViewModelProvider(this, viewModelsFactory).get(WalkthroughActivityViewModel.class);
-
-        viewModel.getSourcesStream().observe(this, sourcesResult -> Log.d(WalkThroughActivity.class.getSimpleName(), sourcesResult.sources.toString()));
-        viewModel.fetchSources();
         txtFinish.setOnClickListener(this);
         txtSkip.setOnClickListener(this);
 
         adapter = new WalkThroughViewPagerAdapter(getSupportFragmentManager(), initializeFragments());
         viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(this);
     }
 
     private Fragment[] initializeFragments() {
@@ -67,20 +61,20 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     private void updatePositionIndicators(int position) {
         switch (position) {
             case 0:
-                circleIndicator1.setBackground(getResources().getDrawable(R.drawable.circle_accent));
-                circleIndicator2.setBackground(getResources().getDrawable(R.drawable.circle_blue));
-                circleIndicator3.setBackground(getResources().getDrawable(R.drawable.circle_blue));
+                circleIndicator1.setBackground(getResources().getDrawable(R.drawable.circle_accent,null));
+                circleIndicator2.setBackground(getResources().getDrawable(R.drawable.circle_blue, null));
+                circleIndicator3.setBackground(getResources().getDrawable(R.drawable.circle_blue, null));
                 break;
             case 1:
-                circleIndicator2.setBackground(getResources().getDrawable(R.drawable.circle_accent));
-                circleIndicator3.setBackground(getResources().getDrawable(R.drawable.circle_blue));
-                circleIndicator1.setBackground(getResources().getDrawable(R.drawable.circle_blue));
+                circleIndicator2.setBackground(getResources().getDrawable(R.drawable.circle_accent, null));
+                circleIndicator3.setBackground(getResources().getDrawable(R.drawable.circle_blue, null));
+                circleIndicator1.setBackground(getResources().getDrawable(R.drawable.circle_blue, null));
                 txtFinish.setVisibility(View.INVISIBLE);
                 break;
             case 2:
-                circleIndicator3.setBackground(getResources().getDrawable(R.drawable.circle_accent));
-                circleIndicator1.setBackground(getResources().getDrawable(R.drawable.circle_blue));
-                circleIndicator2.setBackground(getResources().getDrawable(R.drawable.circle_blue));
+                circleIndicator3.setBackground(getResources().getDrawable(R.drawable.circle_accent, null));
+                circleIndicator1.setBackground(getResources().getDrawable(R.drawable.circle_blue, null));
+                circleIndicator2.setBackground(getResources().getDrawable(R.drawable.circle_blue, null));
                 txtFinish.setVisibility(View.VISIBLE);
                 break;
         }
@@ -96,11 +90,27 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.txt_finish:
                 saveUserData();
+                intent = new Intent(this, NewsActivity.class);
+                startActivity(intent);
+                finish();
                 break;
         }
     }
 
     private void saveUserData() {
+        viewModel.savePreferredSources();
+    }
 
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        updatePositionIndicators(position);
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
     }
 }

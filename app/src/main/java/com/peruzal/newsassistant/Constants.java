@@ -9,4 +9,7 @@ public class Constants {
     public static final String REMOTE = "remote";
     public static final String SHARED_PREFERENCES = "shared preferences";
     public static final String SOURCES = "sources";
+    public static final String RESULT_OK = "ok";
+    public static final String RESULT_ERROR = "error";
+
 }

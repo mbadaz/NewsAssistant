@@ -7,13 +7,14 @@ import android.content.SharedPreferences;
 import androidx.room.Room;
 
 import com.peruzal.newsassistant.data.local.AppDatabase;
+import com.peruzal.newsassistant.wakthroughActivity.WalkthroughSourcesFragment;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
 
-@Module
+@Module(includes = {ViewModelsModule.class, NetworkModule.class})
 public class AppModule {
 
     private Application app;
@@ -31,4 +32,5 @@ public class AppModule {
     Context providesContext() {
        return app.getApplicationContext();
     }
+
 }

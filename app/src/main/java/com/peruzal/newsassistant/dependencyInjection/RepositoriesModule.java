@@ -3,11 +3,10 @@ package com.peruzal.newsassistant.dependencyInjection;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.room.Database;
 import androidx.room.Room;
-import androidx.room.RoomDatabase;
 
 import com.peruzal.newsassistant.data.local.AppDatabase;
+import com.peruzal.newsassistant.data.local.LocalRepositoryDAO;
 
 import javax.inject.Singleton;
 
@@ -15,13 +14,13 @@ import dagger.Module;
 import dagger.Provides;
 
 @Module(includes = AppModule.class)
-public class LocalRepositoryModule {
+public class RepositoriesModule {
 
     @Provides
     @Singleton
-    AppDatabase providesRoomDatabase(Context context) {
+    LocalRepositoryDAO providesLocalRepositoryDao(Context context) {
         return Room.databaseBuilder(
-                context, AppDatabase.class, "App-database.db").build();
+                context, AppDatabase.class, "App-database.db").build().localDatabaseDAO();
     }
 
     @Provides
@@ -29,4 +28,5 @@ public class LocalRepositoryModule {
     SharedPreferences providesSharedPreferences(Context context) {
         return context.getSharedPreferences("app preferences", Context.MODE_PRIVATE);
     }
+
 }

@@ -4,13 +4,12 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
 import com.peruzal.newsassistant.Constants;
-import com.peruzal.newsassistant.data.local.AppDatabase;
+import com.peruzal.newsassistant.data.local.LocalRepositoryDAO;
 import com.peruzal.newsassistant.data.models.Article;
 import com.peruzal.newsassistant.data.models.ArticlesResult;
 import com.peruzal.newsassistant.data.models.Source;
 import com.peruzal.newsassistant.data.models.SourcesResult;
-import com.peruzal.newsassistant.data.remote.ArticlesDataSource;
-import com.peruzal.newsassistant.data.remote.SourcesDataSource;
+import com.peruzal.newsassistant.data.remote.RemoteRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -19,31 +18,30 @@ import javax.inject.Inject;
 
 public class DataRepository {
 
-    private SourcesDataSource sourcesDataSource;
-    private ArticlesDataSource articlesDataSource;
-    private AppDatabase appDatabase;
+
+    private RemoteRepository newsRepository;
+    private LocalRepositoryDAO localRepositoryDAO;
     private MediatorLiveData<ArticlesResult> articlesStreamsMerger = new MediatorLiveData<>();
 
     @Inject
-    public DataRepository(SourcesDataSource sourcesDataSource, ArticlesDataSource articlesDataSource, AppDatabase appDatabase) {
-        this.sourcesDataSource = sourcesDataSource;
-        this.articlesDataSource = articlesDataSource;
-        this.appDatabase = appDatabase;
+    public DataRepository(LocalRepositoryDAO localRepositoryDAO, RemoteRepository remoteRepository) {
+        this.newsRepository = remoteRepository;
+        this.localRepositoryDAO = localRepositoryDAO;
     }
 
     public LiveData<ArticlesResult> getArticlesStream() {
         articlesStreamsMerger.addSource(
-                articlesDataSource.getDataStream(),
+                newsRepository.getArticleStream(),
                 articlesResult -> articlesStreamsMerger.postValue(articlesResult));
         return articlesStreamsMerger;
     }
 
     private void fetchArticlesFromRemote(Map<String, String> params) {
-       articlesDataSource.fetchArticles(params);
+       newsRepository.fetchArticles(params);
     }
 
     private void fetchArticlesFromLocal() {
-        articlesStreamsMerger.addSource(appDatabase.localDatabaseDAO().getAllArticles(), articles -> {
+        articlesStreamsMerger.addSource(localRepositoryDAO.getAllArticles(), articles -> {
             ArticlesResult articlesResult = new ArticlesResult();
             articlesResult.status = "ok";
             articlesResult.articles = articles;
@@ -60,28 +58,26 @@ public class DataRepository {
     }
 
     public void saveArticle(Article article) {
-        appDatabase.localDatabaseDAO().insertArticle(article);
+        localRepositoryDAO.insertArticle(article);
     }
 
     public void deleteArticle(Article article) {
-        appDatabase.localDatabaseDAO().deleteArticle(article);
+        localRepositoryDAO.deleteArticle(article);
     }
 
     public void fetchSources() {
-        sourcesDataSource.fetch();
+        newsRepository.fetchSources();
     }
 
     public LiveData<SourcesResult> getSourcesStream() {
-        return sourcesDataSource.getDataStream();
+        return newsRepository.getSourceStream();
     }
 
     public void saveSources(List<Source> sources) {
-        appDatabase.localDatabaseDAO().insertSources(sources);
+        new Thread(() -> localRepositoryDAO.insertSources(sources)).start();
     }
 
     public void deleteSource(Source source) {
-        appDatabase.localDatabaseDAO().deleteSource(source);
+        localRepositoryDAO.deleteSource(source);
     }
-
-
 }
