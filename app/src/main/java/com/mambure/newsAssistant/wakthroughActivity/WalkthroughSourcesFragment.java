@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,8 +15,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.mambure.newsAssistant.MyApplication;
 import com.mambure.newsAssistant.R;
 import com.mambure.newsAssistant.data.models.Source;
 import com.mambure.newsAssistant.dependencyInjection.ViewModelsFactory;
@@ -24,13 +26,25 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class WalkthroughSourcesFragment extends Fragment implements SourcesAdapter.OnItemClickListener {
+public class WalkthroughSourcesFragment extends Fragment implements
+        SourcesAdapter.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = WalkthroughSourcesFragment.class.getSimpleName();
     private WalkthroughActivityViewModel viewModel;
     @Inject
     public ViewModelsFactory viewModelsFactory;
+
     @BindView(R.id.rv_walkthrough)
     public RecyclerView recyclerView;
+
+    @BindView(R.id.progressBar)
+    public ProgressBar progressBar;
+
+    @BindView(R.id.txtMessage)
+    public TextView txtMessage;
+
+    @BindView(R.id.swipeRefresh)
+    public SwipeRefreshLayout swipeRefreshLayout;
+
     private SourcesAdapter sourcesAdapter;
 
     public WalkthroughSourcesFragment() {
@@ -46,9 +60,8 @@ public class WalkthroughSourcesFragment extends Fragment implements SourcesAdapt
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        ((MyApplication) getActivity().getApplication()).
-                getComponent().inject(this);
-        viewModel = new ViewModelProvider(getActivity(), viewModelsFactory).get(WalkthroughActivityViewModel.class);
+        ((WalkThroughActivity) requireActivity()).component.inject(this);
+        viewModel = new ViewModelProvider(requireActivity(), viewModelsFactory).get(WalkthroughActivityViewModel.class);
     }
 
     @Override
@@ -62,6 +75,7 @@ public class WalkthroughSourcesFragment extends Fragment implements SourcesAdapt
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        swipeRefreshLayout.setOnRefreshListener(this);
         recyclerView.setAdapter(sourcesAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
     }
@@ -73,9 +87,20 @@ public class WalkthroughSourcesFragment extends Fragment implements SourcesAdapt
             if (sourcesResult.status.equals("ok")) {
                 sourcesAdapter.addData(sourcesResult.sources);
                 Log.d(TAG, "Added: " + sourcesResult.sources.size() + " sources");
+            }else {
+                txtMessage.setVisibility(View.VISIBLE);
+                txtMessage.setText(getResources().getString(R.string.requestErrorMessage));
             }
+            progressBar.setVisibility(View.GONE);
+            swipeRefreshLayout.setRefreshing(false);
         });
         viewModel.fetchSources();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        viewModel.getSourcesStream().removeObservers(this);
     }
 
     @Override
@@ -89,9 +114,12 @@ public class WalkthroughSourcesFragment extends Fragment implements SourcesAdapt
         viewModel.addPreferedSource(source);
     }
 
+    /**
+     * Called when a swipe gesture triggers a refresh.
+     */
     @Override
-    public void onStop() {
-        super.onStop();
-        viewModel.getSourcesStream().removeObservers(this);
+    public void onRefresh() {
+        viewModel.fetchSources();
+        txtMessage.setVisibility(View.GONE);
     }
 }

@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
@@ -14,6 +15,7 @@ import com.idescout.sql.SqlScoutServer;
 import com.mambure.newsAssistant.MyApplication;
 import com.mambure.newsAssistant.R;
 import com.mambure.newsAssistant.dependencyInjection.ViewModelsFactory;
+import com.mambure.newsAssistant.dependencyInjection.WalkThroughComponent;
 import com.mambure.newsAssistant.newsActivity.NewsActivity;
 
 import javax.inject.Inject;
@@ -21,7 +23,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class WalkThroughActivity extends AppCompatActivity implements View.OnClickListener,  ViewPager.OnPageChangeListener{
+public class WalkThroughActivity extends FragmentActivity implements View.OnClickListener,  ViewPager.OnPageChangeListener{
     @BindView(R.id.viewpager_walkthrough) ViewPager viewPager;
     @BindView(R.id.tab_circle) View circleIndicator1;
     @BindView(R.id.tab_circle2) View circleIndicator2;
@@ -34,6 +36,7 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     @Inject
     ViewModelsFactory viewModelsFactory;
     WalkthroughActivityViewModel viewModel;
+    WalkThroughComponent component;
 
     private WalkThroughViewPagerAdapter adapter;
 
@@ -41,7 +44,8 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ((MyApplication) getApplication()).getComponent().inject(this);
+        component = ((MyApplication) getApplication()).getComponent().walkThroughActivityComponent().create();
+        component.inject(this);
         viewModel = new ViewModelProvider(this, viewModelsFactory).get(WalkthroughActivityViewModel.class);
 
         if(!viewModel.isFirstRun()){

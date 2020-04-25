@@ -8,7 +8,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-
+@ActivityScope
 public class ViewModelsFactory implements ViewModelProvider.Factory {
 
     private Map<Class<? extends ViewModel>, Provider<ViewModel>> providerMap;

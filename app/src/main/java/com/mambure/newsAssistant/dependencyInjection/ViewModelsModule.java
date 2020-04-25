@@ -2,6 +2,7 @@ package com.mambure.newsAssistant.dependencyInjection;
 
 import androidx.lifecycle.ViewModel;
 
+import com.mambure.newsAssistant.newsActivity.NewsActivity;
 import com.mambure.newsAssistant.newsActivity.NewsActivityViewModel;
 import com.mambure.newsAssistant.wakthroughActivity.WalkthroughActivityViewModel;
 
@@ -19,7 +20,7 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoMap;
 
-@Module
+@Module(subcomponents = {WalkThroughComponent.class, NewsActivityComponent.class})
 public class ViewModelsModule {
 
     @Target(ElementType.METHOD)
@@ -30,7 +31,6 @@ public class ViewModelsModule {
     }
 
     @Provides
-    @Singleton
     ViewModelsFactory providesViewModelsFactory(Map<Class<?extends ViewModel>, Provider<ViewModel>> providerMap) {
         return new ViewModelsFactory(providerMap);
     }

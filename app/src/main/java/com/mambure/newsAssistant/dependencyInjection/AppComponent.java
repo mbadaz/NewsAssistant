@@ -9,16 +9,11 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 
-@Component(modules = {AppModule.class, NetworkModule.class, DatabaseModule.class})
 @Singleton
+@Component(modules = {AppModule.class, WalkthroughModule.class, DataRepositoryModule.class, SharedPreferenceModule.class})
 public interface AppComponent {
+    NewsActivityComponent.Factory newsActivityComponent();
 
-    void inject(WalkThroughActivity activity);
-
-    void inject(NewsActivity activity);
-
-    void inject(WalkthroughSourcesFragment fragment);
-
-    void inject(NewsFragment fragment);
+    WalkThroughComponent.Factory walkThroughActivityComponent();
 
 }

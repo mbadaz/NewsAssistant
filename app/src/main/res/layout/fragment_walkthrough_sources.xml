@@ -10,8 +10,8 @@
         android:id="@+id/txt_walkthrough_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
         android:text="News Sources"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="#2B2B2B"
@@ -22,26 +22,53 @@
         android:id="@+id/txt_walkthrough_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:text="@string/walkthrough3_subtitle"
         android:textColor="#58585B"
         app:layout_constraintStart_toStartOf="@+id/txt_walkthrough_title"
         app:layout_constraintTop_toBottomOf="@+id/txt_walkthrough_title" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_walkthrough"
+
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:background="@color/colorBackground_light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txt_walkthrough_subtitle"
-        tools:listitem="@layout/item_source">
+        app:layout_constraintTop_toBottomOf="@+id/txt_walkthrough_subtitle">
 
-    </androidx.recyclerview.widget.RecyclerView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_walkthrough"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="24dp"
+            tools:listitem="@layout/item_source">
 
+        </androidx.recyclerview.widget.RecyclerView>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <TextView
+        android:id="@+id/txtMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/swipeRefresh"
+        app:layout_constraintEnd_toEndOf="@+id/swipeRefresh"
+        app:layout_constraintStart_toStartOf="@+id/swipeRefresh"
+        app:layout_constraintTop_toTopOf="@+id/swipeRefresh" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/swipeRefresh"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/swipeRefresh" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

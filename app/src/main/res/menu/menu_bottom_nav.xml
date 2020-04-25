@@ -12,8 +12,4 @@
         android:icon="@drawable/ic_archive_grey_1"
         android:title="Saved"
         app:showAsAction="always|withText" />
-    <item
-        android:id="@+id/menu_item_your_news"
-        android:icon="@drawable/ic_favorite_grey_1"
-        android:title="Favourites" />
 </menu>

@@ -3,7 +3,6 @@
     <string name="welcome_message">Let\'s take a few setup steps to help News Assistant find just the right news for you.</string>
     <string name="walkthrough_subtitle">What news categories are you interested in?</string>
     <string name="walkthrough3_subtitle">What news sources do you prefer?</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="requestErrorMessage">An error occurred! \nSwipe down to try again</string>
+    <string name="requestNothingToShowMessage">Nothing to show at the moment, try again</string>
 </resources>

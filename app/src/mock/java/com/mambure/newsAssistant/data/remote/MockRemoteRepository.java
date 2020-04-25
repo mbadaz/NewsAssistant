@@ -31,17 +31,18 @@ public class MockRemoteRepository implements RemoteRepository {
 
     @Override
     public void fetchSources() {
-        mockFailedRequest();
+        Thread thread = new Thread(this::mockFailedRequest);
+        thread.start();
     }
 
     private void mockFailedRequest() {
         try {
-            Thread.sleep(3000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         SourcesResult result = new SourcesResult();
         result.status = Constants.RESULT_ERROR;
-        sourcesStream.setValue(result);
+        sourcesStream.postValue(result);
     }
 }

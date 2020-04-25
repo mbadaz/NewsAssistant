@@ -2,4 +2,5 @@
 <resources>
     <dimen name="dimen_article_image">100dp</dimen>
     <dimen name="dimen_item_favourite">80dp</dimen>
+    <dimen name="dimen_bottom_navBar">48dp</dimen>
 </resources>

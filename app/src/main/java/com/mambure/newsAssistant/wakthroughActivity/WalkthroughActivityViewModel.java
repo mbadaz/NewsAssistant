@@ -35,7 +35,7 @@ public class WalkthroughActivityViewModel extends ViewModel {
     }
 
     void fetchSources() {
-        dataRepository.fetchSources();
+        dataRepository.fetchSources(Constants.REMOTE);
     }
 
     void addPreferedSource(Source source) {

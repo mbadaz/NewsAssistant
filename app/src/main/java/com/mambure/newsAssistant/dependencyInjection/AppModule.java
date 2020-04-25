@@ -6,7 +6,7 @@ import android.content.Context;
 import dagger.Module;
 import dagger.Provides;
 
-@Module(includes = {ViewModelsModule.class, NetworkModule.class, com.mambure.newsAssistant.dependencyInjection.SharedPreferenceModule.class})
+@Module
 public class AppModule {
 
     private Application app;

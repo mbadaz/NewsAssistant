@@ -1,10 +1,14 @@
 package com.mambure.newsAssistant.newsActivity;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,48 +17,104 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.mambure.newsAssistant.BaseFragment;
+import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.R;
+import com.mambure.newsAssistant.data.models.ArticlesResult;
+import com.mambure.newsAssistant.data.models.SourcesResult;
+import com.mambure.newsAssistant.dependencyInjection.ViewModelsFactory;
 
-public class NewsFragment extends Fragment {
-    public static final String FRAGMENT_ID = "Fragment Id";
+import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+public class NewsFragment extends BaseFragment implements ArticlesAdapter.OnItemClickListener{
     private NewsActivityViewModel mViewModel;
+    @Inject
+    public ViewModelsFactory viewModelsFactory;
     private ArticlesAdapter adapter;
-    private RecyclerView recyclerView;
-    private ProgressBar progressBar;
-    private String args;
-
-
-    public static NewsFragment newInstance(String arg) {
-        Bundle bundle = new Bundle();
-        bundle.putString(FRAGMENT_ID, arg);
-        NewsFragment newsFragment = new NewsFragment();
-        newsFragment.setArguments(bundle);
-        return newsFragment;
-    }
+    @BindView(R.id.rv_articles_list) public RecyclerView recyclerView;
+    private LiveData<ArticlesResult> articlesStream;
+    private LiveData<Boolean> isBusyStatus;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            args = bundle.getString(FRAGMENT_ID);
-        }
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        ((NewsActivity) requireActivity()).component.inject(this);
+        mViewModel = new ViewModelProvider(requireActivity(), viewModelsFactory).
+                get(NewsActivityViewModel.class);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_article_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_article_list,
+                container, false);
+        ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        progressBar = getView().findViewById(R.id.progressbar_loading);
-        recyclerView = getView().findViewById(R.id.rv_articles_list);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new ArticlesAdapter();
+        adapter = new ArticlesAdapter(this);
+        recyclerView.setAdapter(adapter);
+        swipeRefreshLayout.setOnRefreshListener(this);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        articlesStream = mViewModel.getArticlesStream();
+        articlesStream.observe(this, articlesResult -> {
+            if (articlesResult.status.equals(Constants.RESULT_OK)) {
+                if(articlesResult.articles.isEmpty()){
+
+                }else {
+                    adapter.addItems(articlesResult.articles);
+                    hideProgessBar();
+                }
+            } else {
+                showStatusMessage(getResources().getString(R.string.requestErrorMessage));
+            }
+
+        });
+        isBusyStatus = mViewModel.getIsBusyStatus();
+        isBusyStatus.observe(this, isBusy -> {
+            if (!isBusy) {
+                mViewModel.getArticles(args);
+            }
+        });
+        mViewModel.getSources();
+//        mViewModel.getSourcesStream().observe(this, new Observer<SourcesResult>() {
+//            @Override
+//            public void onChanged(SourcesResult sourcesResult) {
+//                if (sourcesResult.status.equals("ok")) {
+//
+//                }
+//            }
+//        });
+    }
+
+    @Override
+    public void onItemClick(int position) {
 
     }
 
-   }
+    @Override
+    public void onStop() {
+        super.onStop();
+        articlesStream.removeObservers(this);
+        isBusyStatus.removeObservers(this);
+    }
+
+    /**
+     * Called when a swipe gesture triggers a refresh.
+     */
+    @Override
+    public void onRefresh() {
+        mViewModel.getArticles(args);
+    }
+}

@@ -1,9 +1,7 @@
 package com.mambure.newsAssistant.dependencyInjection;
 
 import com.mambure.newsAssistant.Constants;
-import com.mambure.newsAssistant.data.remote.NewsRepository;
 import com.mambure.newsAssistant.data.remote.NewsService;
-import com.mambure.newsAssistant.data.remote.RemoteRepository;
 
 import javax.inject.Singleton;
 
@@ -12,8 +10,8 @@ import dagger.Provides;
 import retrofit2.Retrofit;
 import retrofit2.converter.moshi.MoshiConverterFactory;
 
-@Module
-public class NetworkModule {
+@Module(includes = {RoomDatabaseModule.class, RemoteRepositoryModule.class})
+public class DataRepositoryModule {
 
     @Provides
     @Singleton
@@ -26,8 +24,7 @@ public class NetworkModule {
                 create(NewsService.class);
     }
 
-    @Provides
-    RemoteRepository providesRemoteRepository(NewsService newsService) {
-        return new NewsRepository(newsService);
-    }
 }
+
+
+
