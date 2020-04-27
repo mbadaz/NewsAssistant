@@ -8,10 +8,13 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
 import com.idescout.sql.SqlScoutServer;
+import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.MyApplication;
 import com.mambure.newsAssistant.R;
 import com.mambure.newsAssistant.dependencyInjection.ViewModelsFactory;
@@ -30,6 +33,8 @@ public class WalkThroughActivity extends FragmentActivity implements View.OnClic
     @BindView(R.id.tab_circle3) View circleIndicator3;
     @BindView(R.id.txt_finish) TextView txtFinish;
     @BindView(R.id.txt_skip) TextView txtSkip;
+
+    private LiveData<String> saveComplete;
 
     SqlScoutServer sqlScoutServer;
 
@@ -104,8 +109,6 @@ public class WalkThroughActivity extends FragmentActivity implements View.OnClic
                 break;
             case R.id.txt_finish:
                 saveUserData();
-                lauchNewsActivity();
-                finish();
                 break;
         }
     }
@@ -117,7 +120,16 @@ public class WalkThroughActivity extends FragmentActivity implements View.OnClic
     }
 
     private void saveUserData() {
-        viewModel.savePreferredSources();
+        saveComplete = viewModel.savePreferredSources();
+        if (saveComplete != null) {
+            saveComplete.observe(this, s -> {
+                if (s.equals(Constants.RESULT_OK)) {
+                    lauchNewsActivity();
+                }
+            });
+            return;
+        }
+        lauchNewsActivity();
     }
 
     @Override

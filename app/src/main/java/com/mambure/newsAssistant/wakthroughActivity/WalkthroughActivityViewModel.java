@@ -3,6 +3,7 @@ package com.mambure.newsAssistant.wakthroughActivity;
 import android.content.SharedPreferences;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.mambure.newsAssistant.Constants;
@@ -15,12 +16,21 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.CompletableObserver;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 import static com.mambure.newsAssistant.Constants.SharedPrefsKeys.IS_FIRST_RUN;
 
 public class WalkthroughActivityViewModel extends ViewModel {
     private DataRepository dataRepository;
     private SharedPreferences sharedPreferences;
     private List<Source> preferredSources = new ArrayList<>();
+    private MutableLiveData<SourcesResult> sourcesStream = new MutableLiveData<>();
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+
 
     @Inject
     public WalkthroughActivityViewModel(DataRepository dataRepository, SharedPreferences sharedPreferences) {
@@ -31,11 +41,17 @@ public class WalkthroughActivityViewModel extends ViewModel {
     public WalkthroughActivityViewModel() {}
 
     LiveData<SourcesResult> getSourcesStream() {
-        return dataRepository.getSourcesStream();
+        return sourcesStream;
     }
 
     void fetchSources() {
-        dataRepository.fetchSources(Constants.REMOTE);
+       compositeDisposable.add(
+               dataRepository.fetchSourcesFromRemote().
+                       subscribeOn(Schedulers.io()).
+                       subscribe(sourcesResult -> {
+                           sourcesStream.postValue(sourcesResult);
+                       })
+       );
     }
 
     void addPreferedSource(Source source) {
@@ -46,8 +62,32 @@ public class WalkthroughActivityViewModel extends ViewModel {
         preferredSources.remove(source);
     }
 
-    void savePreferredSources() {
-        dataRepository.saveSources(preferredSources);
+    LiveData<String> savePreferredSources() {
+        if (preferredSources.isEmpty()) {
+            return null;
+        }
+
+        MutableLiveData<String> liveData = new MutableLiveData<>();
+        dataRepository.saveSources(preferredSources).
+                subscribeOn(Schedulers.io()).
+                subscribe(new CompletableObserver() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        compositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        liveData.postValue(Constants.RESULT_OK);
+
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        liveData.postValue(Constants.RESULT_ERROR);
+                    }
+                });
+        return liveData;
     }
 
     boolean isFirstRun() {
@@ -57,5 +97,6 @@ public class WalkthroughActivityViewModel extends ViewModel {
     void setIsFirstRun(boolean status) {
         sharedPreferences.edit().putBoolean(IS_FIRST_RUN, status).apply();
     }
+
 
 }

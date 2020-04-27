@@ -5,9 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,13 +13,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 
 import com.mambure.newsAssistant.BaseFragment;
 import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.R;
 import com.mambure.newsAssistant.data.models.ArticlesResult;
-import com.mambure.newsAssistant.data.models.SourcesResult;
 import com.mambure.newsAssistant.dependencyInjection.ViewModelsFactory;
 
 import javax.inject.Inject;
@@ -70,32 +66,18 @@ public class NewsFragment extends BaseFragment implements ArticlesAdapter.OnItem
         articlesStream = mViewModel.getArticlesStream();
         articlesStream.observe(this, articlesResult -> {
             if (articlesResult.status.equals(Constants.RESULT_OK)) {
-                if(articlesResult.articles.isEmpty()){
-
-                }else {
+                if(articlesResult.articles != null && !articlesResult.articles.isEmpty()){
                     adapter.addItems(articlesResult.articles);
                     hideProgessBar();
+
+                }else {
                 }
             } else {
                 showStatusMessage(getResources().getString(R.string.requestErrorMessage));
             }
 
         });
-        isBusyStatus = mViewModel.getIsBusyStatus();
-        isBusyStatus.observe(this, isBusy -> {
-            if (!isBusy) {
-                mViewModel.getArticles(args);
-            }
-        });
-        mViewModel.getSources();
-//        mViewModel.getSourcesStream().observe(this, new Observer<SourcesResult>() {
-//            @Override
-//            public void onChanged(SourcesResult sourcesResult) {
-//                if (sourcesResult.status.equals("ok")) {
-//
-//                }
-//            }
-//        });
+        mViewModel.getArticles(source);
     }
 
     @Override
@@ -106,8 +88,10 @@ public class NewsFragment extends BaseFragment implements ArticlesAdapter.OnItem
     @Override
     public void onStop() {
         super.onStop();
-        articlesStream.removeObservers(this);
-        isBusyStatus.removeObservers(this);
+        mViewModel.cleanUp();
+        if(articlesStream != null) articlesStream.removeObservers(this);
+        if (isBusyStatus != null)isBusyStatus.removeObservers(this);
+
     }
 
     /**
@@ -115,6 +99,6 @@ public class NewsFragment extends BaseFragment implements ArticlesAdapter.OnItem
      */
     @Override
     public void onRefresh() {
-        mViewModel.getArticles(args);
+        mViewModel.getArticles(source);
     }
 }

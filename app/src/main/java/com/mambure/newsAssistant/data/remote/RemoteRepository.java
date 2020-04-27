@@ -7,10 +7,12 @@ import com.mambure.newsAssistant.data.models.SourcesResult;
 
 import java.util.Map;
 
-public interface RemoteRepository {
-    LiveData<ArticlesResult> getArticleStream();
+import io.reactivex.rxjava3.core.Observable;
 
-    LiveData<SourcesResult> getSourceStream();
+public interface RemoteRepository {
+    Observable<ArticlesResult> getArticleStream();
+
+    Observable<SourcesResult> getSourceStream();
 
     void fetchArticles(Map<String, String> params);
 

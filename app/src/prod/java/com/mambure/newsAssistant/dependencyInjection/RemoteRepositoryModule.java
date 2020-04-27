@@ -14,6 +14,6 @@ public class RemoteRepositoryModule {
     @Provides
     @Singleton
     public static RemoteRepository providesRemoteRepository(NewsService newsService) {
-        return new NewsRepository(newsService);
+        return new NewsRepository();
     }
 }

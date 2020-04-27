@@ -1,32 +1,38 @@
 package com.mambure.newsAssistant.data.local;
 
-import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+
 import com.mambure.newsAssistant.data.models.Article;
 import com.mambure.newsAssistant.data.models.Source;
 
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+
+
 @Dao
 public interface LocalRepositoryDAO {
     @Query("SELECT * FROM articles")
-    LiveData<List<Article>> getAllArticles();
+    Flowable<List<Article>> getAllArticles();
 
     @Insert
-    void insertArticle(Article articles);
+    Single<Long> insertArticle(Article articles);
 
     @Delete
-    void deleteArticle(Article article);
+    Completable deleteArticle(Article article);
 
     @Query("SELECT * FROM sources")
-    LiveData<List<Source>> getAllSources();
+    Flowable<List<Source>> getAllSources();
 
     @Insert
-    void insertSources(List<Source> sources);
+    Completable insertSources(List<Source> sources);
 
     @Delete
-    void deleteSource(Source source);
+    Completable deleteSource(Source source);
+
 }

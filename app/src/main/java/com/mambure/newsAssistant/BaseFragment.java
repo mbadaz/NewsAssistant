@@ -1,42 +1,25 @@
 package com.mambure.newsAssistant;
 
-import android.content.Context;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.mambure.newsAssistant.data.models.Source;
-import com.mambure.newsAssistant.dependencyInjection.ViewModelsFactory;
 import com.mambure.newsAssistant.newsActivity.NewsFragment;
-import com.mambure.newsAssistant.wakthroughActivity.SourcesAdapter;
-import com.mambure.newsAssistant.wakthroughActivity.WalkThroughActivity;
-import com.mambure.newsAssistant.wakthroughActivity.WalkthroughActivityViewModel;
-import com.mambure.newsAssistant.wakthroughActivity.WalkthroughSourcesFragment;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public abstract class BaseFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final String SOURCE = "Fragment Id";
-    protected String args;
+    protected String source;
 
     @BindView(R.id.progressBar)
     public ProgressBar progressBar;
@@ -60,7 +43,7 @@ public abstract class BaseFragment extends Fragment implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
         if (bundle != null) {
-            args = bundle.getString(SOURCE);
+            source = bundle.getString(SOURCE);
         }
     }
 

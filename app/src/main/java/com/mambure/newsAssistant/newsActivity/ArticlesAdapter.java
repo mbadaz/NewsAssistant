@@ -33,6 +33,9 @@ public class ArticlesAdapter extends
     }
 
     public void addItems(List<Article> items) {
+        if (items == null) {
+            return;
+        }
         if (list.isEmpty()) {
             list = items;
             notifyDataSetChanged();
@@ -41,6 +44,7 @@ public class ArticlesAdapter extends
             notifyItemRangeInserted(list.size(), items.size());
         }
         Log.d(TAG, "Added " + items.size() + " to the adapter");
+
     }
 
 
