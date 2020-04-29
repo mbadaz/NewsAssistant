@@ -1,6 +1,7 @@
 package com.mambure.newsAssistant.newsActivity;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,10 @@ import com.bumptech.glide.Glide;
 import com.mambure.newsAssistant.R;
 import com.mambure.newsAssistant.data.models.Article;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +53,7 @@ public class ArticlesAdapter extends
     }
 
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
         // Todo Butterknife bindings
         @BindView(R.id.txt_title) TextView title;
         @BindView(R.id.txt_description) TextView description;
@@ -67,7 +72,7 @@ public class ArticlesAdapter extends
             title.setText(model.title);
             description.setText(model.description);
             source.setText(model.source.name);
-            date.setText(model.publishedAt);
+            date.setText(formatTime(model.publishedAt));
             Glide.with(itemView).load(model.urlToImage).centerCrop().override(100).into(image);
         }
     }
@@ -93,5 +98,16 @@ public class ArticlesAdapter extends
 
     public interface OnItemClickListener {
         void onItemClick(int position);
+    }
+
+    private String formatTime(String time) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MMM-dd HH:mm");
+            Instant instant = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time));
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+            return localDateTime.format(dateTimeFormatter);
+        }
+
+        return "";
     }
 }

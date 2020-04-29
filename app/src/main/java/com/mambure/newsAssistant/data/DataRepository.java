@@ -63,7 +63,6 @@ public class DataRepository {
         final Map<String, String> params2 = new HashMap<>(params);
         params2.put(Constants.SOURCES, ParsingUtils.createStringList(preferredSources));
         return newsRepository.getArticles(params2);
-
     }
 
     public Flowable<List<Article>> fetchArticlesFromLocal() {

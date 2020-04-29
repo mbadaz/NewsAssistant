@@ -17,7 +17,7 @@ public class ViewModelsFactory implements ViewModelProvider.Factory {
     public ViewModelsFactory(Map<Class<? extends ViewModel>, Provider<ViewModel>> providerMap) {
         this.providerMap = providerMap;
     }
-
+    @SuppressWarnings("unchecked")
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {

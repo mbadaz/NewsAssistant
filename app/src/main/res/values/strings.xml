@@ -5,4 +5,7 @@
     <string name="walkthrough3_subtitle">What news sources do you prefer?</string>
     <string name="requestErrorMessage">An error occurred! \nSwipe down to try again</string>
     <string name="requestNothingToShowMessage">Nothing to show at the moment, try again</string>
+    <string name="menu_search">Search</string>
+    <string name="sourceSearchViewHint">Search source</string>
+    <string name="news_sources_fragment_title">News Sources</string>
 </resources>

@@ -9,6 +9,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         debug {
@@ -65,12 +66,12 @@ dependencies {
     // Testing dependencies
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
     debugImplementation 'androidx.fragment:fragment-testing:1.2.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
     implementation 'org.mockito:mockito-core:3.3.3'
     testImplementation "androidx.room:room-testing:2.2.5"
-
-
 
     implementation 'com.squareup.moshi:moshi:1.9.2'
     implementation 'com.squareup.moshi:moshi-adapters:1.9.2'

@@ -26,7 +26,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class WalkThroughActivity extends FragmentActivity implements View.OnClickListener,  ViewPager.OnPageChangeListener{
+public class WalkThroughActivity extends AppCompatActivity implements View.OnClickListener,  ViewPager.OnPageChangeListener{
     @BindView(R.id.viewpager_walkthrough) ViewPager viewPager;
     @BindView(R.id.tab_circle) View circleIndicator1;
     @BindView(R.id.tab_circle2) View circleIndicator2;

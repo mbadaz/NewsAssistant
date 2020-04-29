@@ -91,28 +91,7 @@ public class DataRepositoryTests {
         CountDownLatch latch = new CountDownLatch(1);
         // When
         dataRepository.saveSources(sources);
-        dataRepository.fetchSourcesFromLocal().subscribeOn(Schedulers.io()).
-                subscribe(new Subscriber<Source>() {
-            @Override
-            public void onSubscribe(Subscription s) {
-                s.request(8L);
-            }
 
-            @Override
-            public void onNext(Source source) {
-                retrievedSources.add(source);
-            }
-
-            @Override
-            public void onError(Throwable t) {
-
-            }
-
-            @Override
-            public void onComplete() {
-                String string = "s";
-            }
-        });
 
         // Verify
         Assert.assertEquals(sources, retrievedSources);

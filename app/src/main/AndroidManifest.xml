@@ -14,10 +14,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.mambure.newsAssistant.newsActivity.NewsActivity"
-            android:theme="@style/WalkThroughTheme" />
-        <activity android:name="com.mambure.newsAssistant.wakthroughActivity.WalkThroughActivity"
-            android:theme="@style/WalkThroughTheme">
+            android:name="com.mambure.newsAssistant.newsActivity.NewsActivity" />
+        <activity android:name="com.mambure.newsAssistant.wakthroughActivity.WalkThroughActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

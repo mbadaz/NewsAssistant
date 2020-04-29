@@ -1,16 +1,24 @@
 package com.mambure.newsAssistant.wakthroughActivity;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,7 +35,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class WalkthroughSourcesFragment extends Fragment implements
-        SourcesAdapter.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+        SourcesAdapter.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener,
+        SearchView.OnQueryTextListener{
     private static final String TAG = WalkthroughSourcesFragment.class.getSimpleName();
     private WalkthroughActivityViewModel viewModel;
     @Inject
@@ -45,7 +54,10 @@ public class WalkthroughSourcesFragment extends Fragment implements
     @BindView(R.id.swipeRefresh)
     public SwipeRefreshLayout swipeRefreshLayout;
 
+    private EditText searchEditText;
+
     private SourcesAdapter sourcesAdapter;
+    private SearchView searchView;
 
     public WalkthroughSourcesFragment() {
         // Required empty public constructor
@@ -54,6 +66,7 @@ public class WalkthroughSourcesFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         sourcesAdapter = new SourcesAdapter(this);
     }
 
@@ -121,5 +134,33 @@ public class WalkthroughSourcesFragment extends Fragment implements
     public void onRefresh() {
         viewModel.fetchSources();
         txtMessage.setVisibility(View.GONE);
+    }
+
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.options_menu_walkhrough_activity, menu);
+        searchView = (SearchView) menu.findItem(R.id.app_bar_sources_search).getActionView();
+        searchView.setQueryHint(getResources().getString(R.string.sourceSearchViewHint));
+        searchView.setOnQueryTextListener(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getTitle().equals("Search")) {
+          searchView.setOnQueryTextListener(this);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        sourcesAdapter.getItemsFilter().filter(newText);
+        return false;
     }
 }
