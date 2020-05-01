@@ -7,9 +7,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
@@ -33,17 +31,13 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     @BindView(R.id.tab_circle3) View circleIndicator3;
     @BindView(R.id.txt_finish) TextView txtFinish;
     @BindView(R.id.txt_skip) TextView txtSkip;
-
-    private LiveData<String> saveComplete;
-
-    SqlScoutServer sqlScoutServer;
-
+    private View[] progressIndicatorViews = null;
     @Inject
     ViewModelsFactory viewModelsFactory;
     WalkthroughActivityViewModel viewModel;
     WalkThroughComponent component;
-
     private WalkThroughViewPagerAdapter adapter;
+    private LiveData<String> userDataSavingStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,11 +54,10 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
 
         setContentView(R.layout.activity_walk_through);
         ButterKnife.bind(this);
-        sqlScoutServer = SqlScoutServer.create(this, "dbserver" );
+        progressIndicatorViews = new View[]{circleIndicator1, circleIndicator2, circleIndicator3};
 
         txtFinish.setOnClickListener(this);
         txtSkip.setOnClickListener(this);
-
         adapter = new WalkThroughViewPagerAdapter(getSupportFragmentManager(), initializeFragments());
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(this);
@@ -78,25 +71,12 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
         return fragments;
     }
 
-    private void updatePositionIndicators(int position) {
-        switch (position) {
-            case 0:
-                circleIndicator1.setBackground(getResources().getDrawable(R.drawable.circle_accent,null));
-                circleIndicator2.setBackground(getResources().getDrawable(R.drawable.circle_blue, null));
-                circleIndicator3.setBackground(getResources().getDrawable(R.drawable.circle_blue, null));
-                break;
-            case 1:
-                circleIndicator2.setBackground(getResources().getDrawable(R.drawable.circle_accent, null));
-                circleIndicator3.setBackground(getResources().getDrawable(R.drawable.circle_blue, null));
-                circleIndicator1.setBackground(getResources().getDrawable(R.drawable.circle_blue, null));
-                txtFinish.setVisibility(View.INVISIBLE);
-                break;
-            case 2:
-                circleIndicator3.setBackground(getResources().getDrawable(R.drawable.circle_accent, null));
-                circleIndicator1.setBackground(getResources().getDrawable(R.drawable.circle_blue, null));
-                circleIndicator2.setBackground(getResources().getDrawable(R.drawable.circle_blue, null));
-                txtFinish.setVisibility(View.VISIBLE);
-                break;
+    private void updatePositionIndicatorsColor(int position) {
+        for (int x = 0; x < 3; x++){
+            if(x == position) progressIndicatorViews[x].
+                    setBackgroundColor(getResources().getColor(R.color.colorAccent));
+            else progressIndicatorViews[x].
+                    setBackgroundColor(getResources().getColor(R.color.colorPrimary));
         }
     }
 
@@ -120,9 +100,9 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void saveUserData() {
-        saveComplete = viewModel.savePreferredSources();
-        if (saveComplete != null) {
-            saveComplete.observe(this, s -> {
+       userDataSavingStatus = viewModel.savePreferredSources();
+        if (userDataSavingStatus != null) {
+            userDataSavingStatus.observe(this, s -> {
                 if (s.equals(Constants.RESULT_OK)) {
                     lauchNewsActivity();
                 }
@@ -138,7 +118,7 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onPageSelected(int position) {
-        updatePositionIndicators(position);
+        updatePositionIndicatorsColor(position);
     }
 
     @Override
@@ -147,7 +127,9 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     protected void onDestroy() {
-        sqlScoutServer.destroy();
+        if (userDataSavingStatus != null) {
+            userDataSavingStatus.removeObservers(this);
+        }
         super.onDestroy();
     }
 }
