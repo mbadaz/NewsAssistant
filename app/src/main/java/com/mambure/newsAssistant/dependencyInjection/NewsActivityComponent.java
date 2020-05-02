@@ -1,7 +1,7 @@
 package com.mambure.newsAssistant.dependencyInjection;
 
 import com.mambure.newsAssistant.newsActivity.NewsActivity;
-import com.mambure.newsAssistant.newsActivity.NewsFragment;
+import com.mambure.newsAssistant.newsActivity.NewsListFragment;
 
 import dagger.Subcomponent;
 @Subcomponent
@@ -14,5 +14,5 @@ public interface NewsActivityComponent {
     }
 
     void inject(NewsActivity activity);
-    void inject(NewsFragment fragment);
+    void inject(NewsListFragment fragment);
 }

@@ -14,7 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.mambure.newsAssistant.BaseFragment;
+import com.mambure.newsAssistant.BaseListFragment;
 import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.R;
 import com.mambure.newsAssistant.data.models.ArticlesResult;
@@ -25,7 +25,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class NewsFragment extends BaseFragment implements ArticlesAdapter.OnItemClickListener{
+public class NewsListFragment extends BaseListFragment implements ArticlesAdapter.OnItemClickListener{
     private NewsActivityViewModel mViewModel;
     @Inject
     public ViewModelsFactory viewModelsFactory;

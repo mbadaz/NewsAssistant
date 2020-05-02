@@ -1,9 +1,13 @@
 package com.mambure.newsAssistant;
 
 import android.content.Context;
+import android.view.View;
 
+import androidx.fragment.app.testing.FragmentScenario;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.assertion.ViewAssertions;
+import androidx.test.espresso.base.IdlingResourceRegistry;
 import androidx.test.espresso.contrib.ViewPagerActions;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -11,7 +15,10 @@ import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.mambure.newsAssistant.wakthroughActivity.WalkThroughActivity;
+import com.mambure.newsAssistant.wakthroughActivity.WalkthroughSourcesFragment;
 
+import org.hamcrest.Matcher;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,9 +26,13 @@ import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.*;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withParent;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.mambure.newsAssistant.CustomViewMatchers.*;
+import static org.hamcrest.Matchers.allOf;
 
 @RunWith(AndroidJUnit4ClassRunner.class)
 public class WalkthroughActivityTest {
@@ -30,10 +41,18 @@ public class WalkthroughActivityTest {
     @Rule
     public ActivityScenarioRule<WalkThroughActivity> activityScenarioRule =
             new ActivityScenarioRule<>(WalkThroughActivity.class);
+    private IdlingRegistry idlingRegistry;
 
     @Before
     public void initialize() {
         context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        idlingRegistry = IdlingRegistry.getInstance();
+        idlingRegistry.register(MyIdlingResource.getInstance());
+    }
+
+    @After
+    public void cleanUp() {
+        idlingRegistry.unregister(MyIdlingResource.getInstance());
     }
 
     @Test
@@ -81,6 +100,19 @@ public class WalkthroughActivityTest {
         onView(withId(R.id.txt_finish)).check(
                 ViewAssertions.matches(
                         withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
+    }
+
+    @Test
+    public void showErrorMessageTest() {
+        onView(withId(R.id.viewpager_walkthrough)).perform(ViewPagerActions.scrollRight());
+        onView(childMatcher(R.id.txtMessage, R.id.sources_selection_fragment)).
+                check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+    }
+
+    private Matcher<View> childMatcher(int childId, int parentId) {
+        return allOf(withId(childId),
+                withParent(withId(parentId)));
     }
 
 }

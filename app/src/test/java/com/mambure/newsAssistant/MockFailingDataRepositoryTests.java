@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DataRepositoryTests {
+public class MockFailingDataRepositoryTests {
     @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
     @Mock public NewsService newsService;
     @Mock public Context context;

@@ -22,6 +22,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.reactivex.CompletableObserver;
+import io.reactivex.Maybe;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -54,44 +55,37 @@ public class NewsActivityViewModel extends ViewModel {
     }
 
     void getArticles(String source) {
-
         if(isBusy) return;
-
-        if (source.equals(Constants.REMOTE)) {
-            compositeDisposable.add(dataManager.fetchArticlesFromRemote(params).
-                    subscribeOn(Schedulers.io()).subscribe(articlesResult -> {
-                        articleStream.postValue(articlesResult);
-                        isBusy = false;
-                        Log.d(TAG, "Fetch articles from remote result - " + articlesResult);
-                    }, throwable -> {
-                            isBusy = false;
-                            ArticlesResult result = new ArticlesResult();
-                            result.status = Constants.RESULT_OK;
-                            articleStream.postValue(result);
-                            Log.d(TAG, "Fetch articles from remote error");
-                            throwable.printStackTrace();
-                    }));
-        } else {
-            compositeDisposable.add(
-                    dataManager.fetchArticlesFromLocal().
-                            subscribeOn(Schedulers.io()).subscribe(articles -> {
-                        ArticlesResult result = new ArticlesResult();
-                        result.status = Constants.RESULT_OK;
-                        result.articles = articles;
-                        articleStream.postValue(result);
-                        isBusy = false;
-                        Log.d(TAG, "Fetch articles from local result - " + result);
-                    }, throwable -> {
-                            isBusy = false;
-                            ArticlesResult result = new ArticlesResult();
-                            result.status = Constants.RESULT_ERROR;
-                            articleStream.postValue(result);
-                            Log.d(TAG, "Fetch articles from local error");
-                            throwable.printStackTrace();
-                    })
-            );
-        }
+        if (source.equals(Constants.REMOTE)) compositeDisposable.add(fetchArticlesFromRemote());
+        else compositeDisposable.add(fetchArticlesFromLocal());
         isBusy = true;
+    }
+
+    private Disposable fetchArticlesFromLocal() {
+        return  dataManager.fetchArticlesFromLocal().
+                subscribeOn(Schedulers.io()).subscribe(articles -> {
+            ArticlesResult result = new ArticlesResult();
+            result.status = Constants.RESULT_OK;
+            result.articles = articles;
+            articleStream.postValue(result);
+            isBusy = false;
+            Log.d(TAG, "Fetch articles from local result - " + result);
+        }, throwable -> {
+            processArticleResultError();
+            Log.e(TAG, "Fetch articles from local error", throwable);
+        });
+    }
+
+    private Disposable fetchArticlesFromRemote() {
+       return dataManager.fetchArticlesFromRemote(params).
+                subscribeOn(Schedulers.io()).subscribe(articlesResult -> {
+            articleStream.postValue(articlesResult);
+            isBusy = false;
+            Log.d(TAG, "Fetch articles from remote result - " + articlesResult);
+        }, throwable -> {
+            processArticleResultError();
+            Log.e(TAG, "Fetch articles from remote error", throwable);
+        });
     }
 
     public void saveArticle(Article article) {
@@ -116,7 +110,7 @@ public class NewsActivityViewModel extends ViewModel {
             @Override
             public void onError(@NonNull Throwable e) {
                 liveData.postValue(Constants.RESULT_ERROR);
-                e.printStackTrace();
+                Log.e(TAG, "Delete article Error: ", e);;
             }
         });
         return liveData;
@@ -128,27 +122,38 @@ public class NewsActivityViewModel extends ViewModel {
 
     void getSources() {
         if(isBusy) return;
-
-        compositeDisposable.add(
-                dataManager.fetchSourcesFromLocal().
-                        subscribeOn(Schedulers.io()).subscribe(sources -> {
-                    preferredSources.addAll(sources);
-                    SourcesResult result = new SourcesResult();
-                    result.status = Constants.RESULT_OK;
-                    result.sources = sources;
-                    sourcesStream.postValue(result);
-                    isBusy = false;
-                    Log.d(TAG, "Fetch sources from local result: " + result);
-                }, throwable -> {
-                        isBusy = false;
-                        SourcesResult result = new SourcesResult();
-                        result.status = Constants.RESULT_ERROR;
-                        sourcesStream.postValue(result);
-                        Log.d(TAG, "Fetch sources from local error");
-                        throwable.printStackTrace();
-                })
-        );
+        compositeDisposable.add(fetchSourcesFromLocal());
         isBusy = true;
+    }
+
+    private Disposable fetchSourcesFromLocal() {
+        return dataManager.fetchSourcesFromLocal().
+                subscribeOn(Schedulers.io()).subscribe(sources -> {
+            preferredSources.addAll(sources);
+            SourcesResult result = new SourcesResult();
+            result.status = Constants.RESULT_OK;
+            result.sources = sources;
+            sourcesStream.postValue(result);
+            isBusy = false;
+            Log.d(TAG, "Fetch sources from local result: " + result);
+        }, throwable -> {
+            processSourceResultError(throwable);
+            Log.e(TAG, "Fetch sources from local error", throwable);
+        });
+    }
+
+    private void processArticleResultError() {
+        isBusy = false;
+        ArticlesResult result = new ArticlesResult();
+        result.status = Constants.RESULT_OK;
+        articleStream.postValue(result);
+    }
+
+    private void processSourceResultError(Throwable throwable) {
+        isBusy = false;
+        SourcesResult result = new SourcesResult();
+        result.status = Constants.RESULT_ERROR;
+        sourcesStream.postValue(result);
     }
 
     void cleanUp() {

@@ -1,12 +1,14 @@
 package com.mambure.newsAssistant.wakthroughActivity;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.mambure.newsAssistant.Constants;
+import com.mambure.newsAssistant.MyIdlingResource;
 import com.mambure.newsAssistant.data.DataManager;
 import com.mambure.newsAssistant.data.models.Source;
 import com.mambure.newsAssistant.data.models.SourcesResult;
@@ -25,6 +27,7 @@ import io.reactivex.schedulers.Schedulers;
 import static com.mambure.newsAssistant.Constants.SharedPrefsKeys.IS_FIRST_RUN;
 
 public class WalkthroughActivityViewModel extends ViewModel {
+    public static final String TAG = WalkThroughActivity.class.getSimpleName();
     private DataManager dataManager;
     private SharedPreferences sharedPreferences;
     private List<Source> preferredSources = new ArrayList<>();
@@ -45,29 +48,33 @@ public class WalkthroughActivityViewModel extends ViewModel {
     }
 
     void fetchSources() {
+        MyIdlingResource.getInstance().increment();
        compositeDisposable.add(
                dataManager.fetchSourcesFromRemote().
                        subscribeOn(Schedulers.io()).
                        subscribe(sourcesResult -> {
                            sourcesStream.postValue(sourcesResult);
+                           Log.d(TAG, "Result fetching sources from remote: " + sourcesResult);
+                           MyIdlingResource.getInstance().countDown();
+                       }, throwable -> {
+                           SourcesResult errorResult = new SourcesResult();
+                           errorResult.status = Constants.RESULT_ERROR;
+                           sourcesStream.postValue(errorResult);
+                           Log.e(TAG, "Error fetching sources from remote", throwable);
+                           MyIdlingResource.getInstance().countDown();
                        })
        );
     }
 
-    void addPreferedSource(Source source) {
-        preferredSources.add(source);
-    }
-
-    void removePreferredSource(Source source) {
-        preferredSources.remove(source);
-    }
-
     LiveData<String> savePreferredSources() {
+
         if (preferredSources.isEmpty()) {
             return null;
         }
 
+        MyIdlingResource.getInstance().increment();
         MutableLiveData<String> liveData = new MutableLiveData<>();
+
         dataManager.saveSources(preferredSources).
                 subscribeOn(Schedulers.io()).
                 subscribe(new CompletableObserver() {
@@ -79,14 +86,18 @@ public class WalkthroughActivityViewModel extends ViewModel {
                     @Override
                     public void onComplete() {
                         liveData.postValue(Constants.RESULT_OK);
-
+                        Log.d(TAG, "Preferred sources data saved: " + preferredSources);
+                        MyIdlingResource.getInstance().countDown();
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
                         liveData.postValue(Constants.RESULT_ERROR);
+                        Log.e(TAG, "Error saving preferred sources: ", e);
+                        MyIdlingResource.getInstance().countDown();
                     }
                 });
+
         return liveData;
     }
 
@@ -98,5 +109,9 @@ public class WalkthroughActivityViewModel extends ViewModel {
         sharedPreferences.edit().putBoolean(IS_FIRST_RUN, status).apply();
     }
 
-
+    void processClickedSourceItem(Source source) {
+        if(preferredSources.contains(source)) preferredSources.remove(source);
+        else preferredSources.add(source);
+        source.setChecked(!source.isChecked());
+    }
 }

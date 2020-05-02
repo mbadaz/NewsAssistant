@@ -2,15 +2,13 @@ package com.mambure.newsAssistant.newsActivity;
 
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.mambure.newsAssistant.BaseFragment;
+import com.mambure.newsAssistant.BaseListFragment;
 import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.MyApplication;
 import com.mambure.newsAssistant.R;
@@ -24,7 +22,6 @@ public class NewsActivity extends AppCompatActivity implements BottomNavigationV
 
     @BindView(R.id.bottom_navigation)
     BottomNavigationView bottomNavigationView;
-
     NewsActivityComponent component;
 
     @Override
@@ -37,7 +34,7 @@ public class NewsActivity extends AppCompatActivity implements BottomNavigationV
         bottomNavigationView.setSelectedItemId(R.id.menu_item_headlines);
     }
 
-    private void openFragement(BaseFragment fragment) {
+    private void openFragement(BaseListFragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.main_fragment_container, fragment);
         transaction.addToBackStack(fragment.getTag());
@@ -49,10 +46,10 @@ public class NewsActivity extends AppCompatActivity implements BottomNavigationV
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_headlines:
-                openFragement(NewsFragment.newInstance(Constants.REMOTE));
+                openFragement(NewsListFragment.newInstance(Constants.REMOTE));
                 break;
             case R.id.menu_item_saved:
-                openFragement(NewsFragment.newInstance(Constants.LOCAL));
+                openFragement(NewsListFragment.newInstance(Constants.LOCAL));
         }
         return false;
     }

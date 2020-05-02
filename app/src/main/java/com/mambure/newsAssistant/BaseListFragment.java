@@ -10,14 +10,14 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.mambure.newsAssistant.newsActivity.NewsFragment;
+import com.mambure.newsAssistant.newsActivity.NewsListFragment;
 
 import butterknife.BindView;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public abstract class BaseFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class BaseListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final String SOURCE = "Fragment Id";
     protected String source;
 
@@ -25,15 +25,15 @@ public abstract class BaseFragment extends Fragment implements SwipeRefreshLayou
     public ProgressBar progressBar;
 
     @BindView(R.id.txtMessage)
-    public TextView txtMessage;
+    public TextView errorMessageTextView;
 
     @BindView(R.id.swipeRefresh)
     public SwipeRefreshLayout swipeRefreshLayout;
 
-    public static BaseFragment newInstance(String arg) {
+    public static BaseListFragment newInstance(String arg) {
         Bundle bundle = new Bundle();
         bundle.putString(SOURCE, arg);
-        NewsFragment newsFragment = new NewsFragment();
+        NewsListFragment newsFragment = new NewsListFragment();
         newsFragment.setArguments(bundle);
         return newsFragment;
     }
@@ -47,10 +47,6 @@ public abstract class BaseFragment extends Fragment implements SwipeRefreshLayou
         }
     }
 
-    public void showProgressBar() {
-        progressBar.setVisibility(View.VISIBLE);
-    }
-
     public void hideProgessBar() {
         progressBar.setVisibility(View.GONE);
         swipeRefreshLayout.setRefreshing(false);
@@ -58,12 +54,19 @@ public abstract class BaseFragment extends Fragment implements SwipeRefreshLayou
 
     public void showStatusMessage(String message) {
         hideProgessBar();
-        txtMessage.setVisibility(View.VISIBLE);
-        txtMessage.setText(message);
+        errorMessageTextView.setVisibility(View.VISIBLE);
+        errorMessageTextView.setText(message);
     }
 
-    public void hideStatusMessage() {
-        txtMessage.setVisibility(View.GONE);
+    public void hideErrorMessage() {
+        errorMessageTextView.setVisibility(View.GONE);
     }
 
+    /**
+     * Called when a swipe gesture triggers a refresh.
+     */
+    @Override
+    public void onRefresh() {
+        errorMessageTextView.setVisibility(View.GONE);
+    }
 }

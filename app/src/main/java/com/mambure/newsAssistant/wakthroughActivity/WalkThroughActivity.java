@@ -48,13 +48,11 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
 
         if(!viewModel.isFirstRun()){
             lauchNewsActivity();
-            finish();
         }
 
         setContentView(R.layout.activity_walk_through);
         ButterKnife.bind(this);
         progressIndicatorViews = new View[]{circleIndicator1, circleIndicator2, circleIndicator3};
-
         txtFinish.setOnClickListener(this);
         txtSkip.setOnClickListener(this);
         adapter = new WalkThroughViewPagerAdapter(getSupportFragmentManager(), initializeFragments());
@@ -77,7 +75,6 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
                     setBackgroundColor(getResources().getColor(R.color.colorAccent));
             else progressIndicatorViews[x].
                     setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-
         }
     }
 
@@ -86,7 +83,6 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
         switch (v.getId()) {
             case R.id.txt_skip:
                 lauchNewsActivity();
-                finish();
                 break;
             case R.id.txt_finish:
                 saveUserData();
@@ -98,19 +94,14 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
         viewModel.setIsFirstRun(false);
         Intent intent = new Intent(this, NewsActivity.class);
         startActivity(intent);
+        finish();
     }
 
     private void saveUserData() {
        userDataSavingStatus = viewModel.savePreferredSources();
-        if (userDataSavingStatus != null) {
-            userDataSavingStatus.observe(this, s -> {
-                if (s.equals(Constants.RESULT_OK)) {
-                    lauchNewsActivity();
-                }
-            });
-            return;
-        }
-        lauchNewsActivity();
+        userDataSavingStatus.observe(this, s -> {
+            if (s.equals(Constants.RESULT_OK)) lauchNewsActivity();
+        });
     }
 
     @Override
@@ -128,9 +119,7 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     protected void onDestroy() {
-        if (userDataSavingStatus != null) {
-            userDataSavingStatus.removeObservers(this);
-        }
+        if (userDataSavingStatus != null) userDataSavingStatus.removeObservers(this);
         super.onDestroy();
     }
 }
