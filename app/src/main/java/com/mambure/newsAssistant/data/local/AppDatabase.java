@@ -8,5 +8,5 @@ import com.mambure.newsAssistant.data.models.Source;
 
 @Database(entities = {Article.class, Source.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
-    public abstract LocalRepositoryDAO localDatabaseDAO();
+    public abstract LocalDataRepository localDatabaseDAO();
 }

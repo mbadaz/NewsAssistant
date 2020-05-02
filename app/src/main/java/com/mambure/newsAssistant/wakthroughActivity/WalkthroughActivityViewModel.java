@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.mambure.newsAssistant.Constants;
-import com.mambure.newsAssistant.data.DataRepository;
+import com.mambure.newsAssistant.data.DataManager;
 import com.mambure.newsAssistant.data.models.Source;
 import com.mambure.newsAssistant.data.models.SourcesResult;
 
@@ -25,7 +25,7 @@ import io.reactivex.schedulers.Schedulers;
 import static com.mambure.newsAssistant.Constants.SharedPrefsKeys.IS_FIRST_RUN;
 
 public class WalkthroughActivityViewModel extends ViewModel {
-    private DataRepository dataRepository;
+    private DataManager dataManager;
     private SharedPreferences sharedPreferences;
     private List<Source> preferredSources = new ArrayList<>();
     private MutableLiveData<SourcesResult> sourcesStream = new MutableLiveData<>();
@@ -33,8 +33,8 @@ public class WalkthroughActivityViewModel extends ViewModel {
 
 
     @Inject
-    public WalkthroughActivityViewModel(DataRepository dataRepository, SharedPreferences sharedPreferences) {
-        this.dataRepository = dataRepository;
+    public WalkthroughActivityViewModel(DataManager dataManager, SharedPreferences sharedPreferences) {
+        this.dataManager = dataManager;
         this.sharedPreferences = sharedPreferences;
     }
 
@@ -46,7 +46,7 @@ public class WalkthroughActivityViewModel extends ViewModel {
 
     void fetchSources() {
        compositeDisposable.add(
-               dataRepository.fetchSourcesFromRemote().
+               dataManager.fetchSourcesFromRemote().
                        subscribeOn(Schedulers.io()).
                        subscribe(sourcesResult -> {
                            sourcesStream.postValue(sourcesResult);
@@ -68,7 +68,7 @@ public class WalkthroughActivityViewModel extends ViewModel {
         }
 
         MutableLiveData<String> liveData = new MutableLiveData<>();
-        dataRepository.saveSources(preferredSources).
+        dataManager.saveSources(preferredSources).
                 subscribeOn(Schedulers.io()).
                 subscribe(new CompletableObserver() {
                     @Override

@@ -30,13 +30,13 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"
             android:clickable="true"
-            android:text="FINISH"
+            android:focusable="true"
+            android:text="@string/txtFinish"
             android:textColor="@color/colorPrimary"
             android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="@+id/tab_circle2"
+            app:layout_constraintBottom_toBottomOf="@+id/tab_indicator2"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tab_circle2"
-            tools:visibility="visible" />
+            app:layout_constraintTop_toTopOf="@+id/tab_indicator2" />
 
         <TextView
             android:id="@+id/txt_skip"
@@ -44,40 +44,41 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
             android:clickable="true"
-            android:text="SKIP"
+            android:focusable="true"
+            android:text="@string/txtSkip"
             android:textColor="@color/colorPrimary"
-            app:layout_constraintBottom_toBottomOf="@+id/tab_circle2"
+            app:layout_constraintBottom_toBottomOf="@+id/tab_indicator2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tab_circle2" />
+            app:layout_constraintTop_toTopOf="@+id/tab_indicator2" />
 
         <View
-            android:id="@+id/tab_circle"
+            android:id="@+id/tab_indicator1"
             android:layout_width="10dp"
             android:layout_height="10dp"
             android:layout_marginEnd="16dp"
-            android:background="@drawable/circle_accent"
-            app:layout_constraintEnd_toStartOf="@+id/tab_circle2"
-            app:layout_constraintTop_toTopOf="@+id/tab_circle2" />
+            android:background="@color/colorAccent"
+            app:layout_constraintEnd_toStartOf="@+id/tab_indicator2"
+            app:layout_constraintTop_toTopOf="@+id/tab_indicator2" />
 
         <View
-            android:id="@+id/tab_circle2"
+            android:id="@+id/tab_indicator2"
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:background="@drawable/circle_blue"
+            android:background="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
-            android:id="@+id/tab_circle3"
+            android:id="@+id/tab_indicator3"
             android:layout_width="10dp"
             android:layout_height="10dp"
             android:layout_marginStart="16dp"
-            android:background="@drawable/circle_blue"
-            app:layout_constraintBottom_toBottomOf="@+id/tab_circle2"
-            app:layout_constraintStart_toEndOf="@+id/tab_circle2"
-            app:layout_constraintTop_toTopOf="@+id/tab_circle2" />
+            android:background="@color/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="@+id/tab_indicator2"
+            app:layout_constraintStart_toEndOf="@+id/tab_indicator2"
+            app:layout_constraintTop_toTopOf="@+id/tab_indicator2" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

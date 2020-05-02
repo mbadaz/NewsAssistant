@@ -6,7 +6,7 @@ import androidx.room.Room;
 
 import com.mambure.newsAssistant.data.DataRepository;
 import com.mambure.newsAssistant.data.local.AppDatabase;
-import com.mambure.newsAssistant.data.local.LocalRepositoryDAO;
+import com.mambure.newsAssistant.data.local.LocalDataRepository;
 import com.mambure.newsAssistant.data.models.ArticlesResult;
 import com.mambure.newsAssistant.data.models.Source;
 import com.mambure.newsAssistant.data.models.SourcesResult;
@@ -22,14 +22,10 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.MockitoRule;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-
-import io.reactivex.schedulers.Schedulers;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataRepositoryTests {
@@ -46,12 +42,12 @@ public class DataRepositoryTests {
         sourcesResult.sources = TestMockingUtils.generateMockSources();
         articlesResult.status = Constants.RESULT_OK;
         articlesResult.articles = TestMockingUtils.generateMockArticles();
-        LocalRepositoryDAO localRepositoryDAO = Room.inMemoryDatabaseBuilder(context, AppDatabase.class).
+        LocalDataRepository localDataRepository = Room.inMemoryDatabaseBuilder(context, AppDatabase.class).
                 build().localDatabaseDAO();
 
         MockitoAnnotations.initMocks(this);
         dataRepository = new DataRepository(
-                localRepositoryDAO, newsService
+                localDataRepository, newsService
         );
 
     }

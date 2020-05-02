@@ -3,10 +3,9 @@ package com.mambure.newsAssistant.dependencyInjection;
 import android.content.Context;
 
 import androidx.room.Room;
-import androidx.room.RoomDatabase;
 
 import com.mambure.newsAssistant.data.local.AppDatabase;
-import com.mambure.newsAssistant.data.local.LocalRepositoryDAO;
+import com.mambure.newsAssistant.data.local.LocalDataRepository;
 
 import javax.inject.Singleton;
 
@@ -18,7 +17,7 @@ public class RoomDatabaseModule {
 
     @Provides
     @Singleton
-    LocalRepositoryDAO providesLocalRepositoryDao(Context context) {
+    LocalDataRepository providesLocalRepositoryDao(Context context) {
         return Room.inMemoryDatabaseBuilder(
                 context, AppDatabase.class).build().localDatabaseDAO();
     }

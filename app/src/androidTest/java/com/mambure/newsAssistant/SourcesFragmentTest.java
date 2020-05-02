@@ -28,6 +28,7 @@ public class SourcesFragmentTest {
     public void onResponseErrorTest() throws InterruptedException {
         FragmentScenario.launchInContainer(WalkthroughSourcesFragment.class);
         Thread.sleep(4000);
-        onView(withText("Error occured!")).check(matches(isDisplayed()));
+        onView(withText("Error occurred!")).check(matches(isDisplayed()));
+
     }
 }

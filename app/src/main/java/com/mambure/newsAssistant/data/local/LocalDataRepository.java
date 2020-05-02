@@ -16,7 +16,7 @@ import io.reactivex.Single;
 
 
 @Dao
-public interface LocalRepositoryDAO {
+public interface LocalDataRepository {
     @Query("SELECT * FROM articles")
     Flowable<List<Article>> getAllArticles();
 

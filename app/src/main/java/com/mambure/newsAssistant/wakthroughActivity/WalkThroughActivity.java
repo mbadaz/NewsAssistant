@@ -11,7 +11,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
-import com.idescout.sql.SqlScoutServer;
 import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.MyApplication;
 import com.mambure.newsAssistant.R;
@@ -26,9 +25,9 @@ import butterknife.ButterKnife;
 
 public class WalkThroughActivity extends AppCompatActivity implements View.OnClickListener,  ViewPager.OnPageChangeListener{
     @BindView(R.id.viewpager_walkthrough) ViewPager viewPager;
-    @BindView(R.id.tab_circle) View circleIndicator1;
-    @BindView(R.id.tab_circle2) View circleIndicator2;
-    @BindView(R.id.tab_circle3) View circleIndicator3;
+    @BindView(R.id.tab_indicator1) View circleIndicator1;
+    @BindView(R.id.tab_indicator2) View circleIndicator2;
+    @BindView(R.id.tab_indicator3) View circleIndicator3;
     @BindView(R.id.txt_finish) TextView txtFinish;
     @BindView(R.id.txt_skip) TextView txtSkip;
     private View[] progressIndicatorViews = null;
@@ -72,11 +71,13 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void updatePositionIndicatorsColor(int position) {
+        txtFinish.setVisibility(position == 2 ? View.VISIBLE : View.INVISIBLE);
         for (int x = 0; x < 3; x++){
             if(x == position) progressIndicatorViews[x].
                     setBackgroundColor(getResources().getColor(R.color.colorAccent));
             else progressIndicatorViews[x].
                     setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+
         }
     }
 
