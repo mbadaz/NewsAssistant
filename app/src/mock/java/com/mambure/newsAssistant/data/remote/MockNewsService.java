@@ -7,10 +7,12 @@ import com.mambure.newsAssistant.data.models.SourcesResult;
 
 import java.util.Map;
 
+import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeObserver;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import kotlinx.coroutines.flow.Flow;
 
 public class MockNewsService implements NewsService {
     @Override
@@ -27,14 +29,14 @@ public class MockNewsService implements NewsService {
     }
 
     @Override
-    public Maybe<ArticlesResult> getArticles(Map<String, String> params) {
-        return new Maybe<ArticlesResult>() {
+    public Observable<ArticlesResult> getArticles(Map<String, String> params) {
+        return new Observable<ArticlesResult>() {
             @Override
-            protected void subscribeActual(MaybeObserver<? super ArticlesResult> observer) {
+            protected void subscribeActual(Observer<? super ArticlesResult> observer) {
                 ArticlesResult result = new ArticlesResult();
                 result.articles = MockingUtils.generateMockArticles();
                 result.status = Constants.RESULT_OK;
-                observer.onSuccess(result);
+                observer.onNext(result);
             }
         };
     }

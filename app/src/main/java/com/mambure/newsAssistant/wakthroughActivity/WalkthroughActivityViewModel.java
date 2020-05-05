@@ -15,11 +15,10 @@ import com.mambure.newsAssistant.data.models.SourcesResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -27,12 +26,15 @@ import io.reactivex.schedulers.Schedulers;
 import static com.mambure.newsAssistant.Constants.SharedPrefsKeys.IS_FIRST_RUN;
 
 public class WalkthroughActivityViewModel extends ViewModel {
-    public static final String TAG = WalkThroughActivity.class.getSimpleName();
+    private static final String TAG = WalkThroughActivity.class.getSimpleName();
     private DataManager dataManager;
     private SharedPreferences sharedPreferences;
     private List<Source> preferredSources = new ArrayList<>();
+    private List<Source> sourcesToFromLocal = new ArrayList<>();
+    private int numberOfRunningTasks;
     private MutableLiveData<SourcesResult> sourcesStream = new MutableLiveData<>();
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private MutableLiveData<String> savingStatusLiveData = new MutableLiveData<>();;
 
 
     @Inject
@@ -47,58 +49,108 @@ public class WalkthroughActivityViewModel extends ViewModel {
         return sourcesStream;
     }
 
-    void fetchSources() {
+    void loadSources() {
+        loadSavedSourcesFromLocal();
         MyIdlingResource.getInstance().increment();
-       compositeDisposable.add(
-               dataManager.fetchSourcesFromRemote().
-                       subscribeOn(Schedulers.io()).
-                       subscribe(sourcesResult -> {
-                           sourcesStream.postValue(sourcesResult);
-                           Log.d(TAG, "Result fetching sources from remote: " + sourcesResult);
-                           MyIdlingResource.getInstance().countDown();
-                       }, throwable -> {
-                           SourcesResult errorResult = new SourcesResult();
-                           errorResult.status = Constants.RESULT_ERROR;
-                           sourcesStream.postValue(errorResult);
-                           Log.e(TAG, "Error fetching sources from remote", throwable);
-                           MyIdlingResource.getInstance().countDown();
-                       })
-       );
+    }
+
+    private void fetchSourcesFromRemote() {
+        MyIdlingResource.getInstance().increment();
+        Disposable disposable = dataManager.fetchSourcesFromRemote().
+                        subscribeOn(Schedulers.io()).
+                        subscribe(sourcesResult -> {
+                            processSources(sourcesResult.sources);
+                            sourcesStream.postValue(sourcesResult);
+                            Log.d(TAG, "Result fetching sources from remote: " + sourcesResult);
+                            MyIdlingResource.getInstance().countDown();
+                        }, throwable -> {
+                            SourcesResult errorResult = new SourcesResult();
+                            errorResult.status = Constants.RESULT_ERROR;
+                            sourcesStream.postValue(errorResult);
+                            Log.e(TAG, "Error fetching sources from remote", throwable);
+                            MyIdlingResource.getInstance().countDown();
+                        });
+        compositeDisposable.add(disposable);
+
+    }
+
+    private void processSources(List<Source> sources) {
+        if(sourcesToFromLocal.isEmpty()) return;
+
+        for (Source source : sources) {
+            if (sourcesToFromLocal.contains(source)) {
+                source.setChecked(true);
+                preferredSources.add(source);
+            }
+        }
+    }
+
+    private void loadSavedSourcesFromLocal() {
+        Disposable disposable = dataManager.fetchSourcesFromLocal().
+                subscribeOn(Schedulers.io()).
+                subscribe(sources -> {
+                    sourcesToFromLocal.addAll(sources);
+                    fetchSourcesFromRemote();
+                }, throwable -> {
+                    Log.e(TAG, "Error fetching sources from local: ", throwable);
+                });
+        compositeDisposable.add(disposable);
     }
 
     LiveData<String> savePreferredSources() {
-
-        if (preferredSources.isEmpty()) {
-            return null;
-        }
-
+        if (preferredSources.isEmpty()) return null;
         MyIdlingResource.getInstance().increment();
-        MutableLiveData<String> liveData = new MutableLiveData<>();
 
-        dataManager.saveSources(preferredSources).
+        List<Source> sourcesToSave = preferredSources.stream().
+                filter(source -> !sourcesToFromLocal.contains(source)).collect(Collectors.toList());
+
+        Disposable disposable = dataManager.saveSources(sourcesToSave).
                 subscribeOn(Schedulers.io()).
-                subscribe(new CompletableObserver() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-                        compositeDisposable.add(d);
-                    }
+                subscribe(() -> {
+                    if(numberOfRunningTasks != 0) numberOfRunningTasks--;
+                    if (numberOfRunningTasks == 0) savingStatusLiveData.postValue(Constants.RESULT_OK);
+                    Log.d(TAG, "Preferred sources data saved: " + sourcesToSave);
+                    MyIdlingResource.getInstance().countDown();
+        }, throwable -> {
+                savingStatusLiveData.postValue(Constants.RESULT_ERROR);
+                Log.e(TAG, "Error saving preferred sources: ", throwable);
+                MyIdlingResource.getInstance().countDown();
+        });
 
-                    @Override
-                    public void onComplete() {
-                        liveData.postValue(Constants.RESULT_OK);
-                        Log.d(TAG, "Preferred sources data saved: " + preferredSources);
-                        MyIdlingResource.getInstance().countDown();
-                    }
+        numberOfRunningTasks++;
+        deleteSources();
+        compositeDisposable.add(disposable);
+        return savingStatusLiveData;
+    }
 
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        liveData.postValue(Constants.RESULT_ERROR);
-                        Log.e(TAG, "Error saving preferred sources: ", e);
-                        MyIdlingResource.getInstance().countDown();
-                    }
-                });
+    void processClickedSourceItem(Source source) {
+        if(preferredSources.contains(source)){
+            preferredSources.remove(source);
+            source.setChecked(false);
+        }
+        else {
+            preferredSources.add(source);
+            source.setChecked(true);
+        }
+    }
 
-        return liveData;
+    private void deleteSources() {
+        List<Source> sourcesToDelete = sourcesToFromLocal.stream().
+                filter(s -> !preferredSources.contains(s)).collect(Collectors.toList());
+
+        if (!sourcesToDelete.isEmpty()){
+            Disposable disposable = dataManager.deleteSources(sourcesToDelete).
+                    subscribeOn(Schedulers.io()).
+                    subscribe(() -> {
+                        if(numberOfRunningTasks != 0) numberOfRunningTasks--;
+                        if (numberOfRunningTasks == 0) savingStatusLiveData.postValue(Constants.RESULT_OK);
+                        Log.d(TAG, "Sources deleted: " + sourcesToDelete.size());
+                    }, throwable -> {
+                        Log.e(TAG, "Error deleting sources", throwable);
+                    });
+            compositeDisposable.add(disposable);
+            numberOfRunningTasks++;
+        }
     }
 
     boolean isFirstRun() {
@@ -109,9 +161,9 @@ public class WalkthroughActivityViewModel extends ViewModel {
         sharedPreferences.edit().putBoolean(IS_FIRST_RUN, status).apply();
     }
 
-    void processClickedSourceItem(Source source) {
-        if(preferredSources.contains(source)) preferredSources.remove(source);
-        else preferredSources.add(source);
-        source.setChecked(!source.isChecked());
+    void cleanUp() {
+        compositeDisposable.clear();
+        dataManager.cleanUp();
     }
+
 }

@@ -6,6 +6,7 @@ import com.mambure.newsAssistant.data.models.SourcesResult;
 
 import java.util.Map;
 
+import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import retrofit2.Call;
@@ -21,6 +22,6 @@ public interface NewsService {
 
     @Headers(API_KEY)
     @GET(Constants.HEADLINES_API_ENDPOINT)
-    Maybe<ArticlesResult> getArticles(@QueryMap Map<String, String> params);
+    Observable<ArticlesResult> getArticles(@QueryMap Map<String, String> params);
 
 }

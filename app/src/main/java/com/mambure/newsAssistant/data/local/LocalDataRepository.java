@@ -12,6 +12,7 @@ import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 
 
@@ -27,12 +28,12 @@ public interface LocalDataRepository {
     Completable deleteArticle(Article article);
 
     @Query("SELECT * FROM sources")
-    Flowable<List<Source>> getAllSources();
+    Maybe<List<Source>> getAllSources();
 
     @Insert
     Completable insertSources(List<Source> sources);
 
     @Delete
-    Completable deleteSource(Source source);
+    Completable deleteSources(List<Source> sources);
 
 }

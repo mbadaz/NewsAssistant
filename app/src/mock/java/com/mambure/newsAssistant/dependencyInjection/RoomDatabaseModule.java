@@ -17,7 +17,7 @@ public class RoomDatabaseModule {
 
     @Provides
     @Singleton
-    LocalDataRepository providesLocalRepositoryDao(Context context) {
+    public static LocalDataRepository providesLocalRepositoryDao(Context context) {
         return Room.inMemoryDatabaseBuilder(
                 context, AppDatabase.class).build().localDatabaseDAO();
     }

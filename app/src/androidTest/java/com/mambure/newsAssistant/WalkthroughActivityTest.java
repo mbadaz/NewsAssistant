@@ -3,11 +3,8 @@ package com.mambure.newsAssistant;
 import android.content.Context;
 import android.view.View;
 
-import androidx.fragment.app.testing.FragmentScenario;
-import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.assertion.ViewAssertions;
-import androidx.test.espresso.base.IdlingResourceRegistry;
 import androidx.test.espresso.contrib.ViewPagerActions;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -15,7 +12,6 @@ import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.mambure.newsAssistant.wakthroughActivity.WalkThroughActivity;
-import com.mambure.newsAssistant.wakthroughActivity.WalkthroughSourcesFragment;
 
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -25,13 +21,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.assertion.ViewAssertions.*;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static com.mambure.newsAssistant.CustomViewMatchers.*;
+import static com.mambure.newsAssistant.CustomViewMatchers.hasBackGroundColor;
 import static org.hamcrest.Matchers.allOf;
 
 @RunWith(AndroidJUnit4ClassRunner.class)

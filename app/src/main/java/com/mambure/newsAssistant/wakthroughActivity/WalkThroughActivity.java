@@ -24,6 +24,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class WalkThroughActivity extends AppCompatActivity implements View.OnClickListener,  ViewPager.OnPageChangeListener{
+    public static final String LOADING_PAGE_POSITION = "page to load on start";
+    public static final int SOURCES_PAGE_POSITION = 1;
     @BindView(R.id.viewpager_walkthrough) ViewPager viewPager;
     @BindView(R.id.tab_indicator1) View circleIndicator1;
     @BindView(R.id.tab_indicator2) View circleIndicator2;
@@ -37,27 +39,34 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     WalkThroughComponent component;
     private WalkThroughViewPagerAdapter adapter;
     private LiveData<String> userDataSavingStatus;
+    private int viewPagerInitialPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         component = ((MyApplication) getApplication()).getComponent().walkThroughActivityComponent().create();
         component.inject(this);
         viewModel = new ViewModelProvider(this, viewModelsFactory).get(WalkthroughActivityViewModel.class);
 
-        if(!viewModel.isFirstRun()){
+        Intent intent = getIntent();
+        viewPagerInitialPosition = intent.getIntExtra(LOADING_PAGE_POSITION, 0);
+
+        if(!viewModel.isFirstRun() && viewPagerInitialPosition == 0){
             lauchNewsActivity();
         }
+
 
         setContentView(R.layout.activity_walk_through);
         ButterKnife.bind(this);
         progressIndicatorViews = new View[]{circleIndicator1, circleIndicator2, circleIndicator3};
         txtFinish.setOnClickListener(this);
+        if(viewPagerInitialPosition != 0) txtFinish.setVisibility(View.VISIBLE);
         txtSkip.setOnClickListener(this);
         adapter = new WalkThroughViewPagerAdapter(getSupportFragmentManager(), initializeFragments());
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(this);
+
+        viewPager.setCurrentItem(viewPagerInitialPosition);
     }
 
     private Fragment[] initializeFragments() {
@@ -69,12 +78,14 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void updatePositionIndicatorsColor(int position) {
-        txtFinish.setVisibility(position == 2 ? View.VISIBLE : View.INVISIBLE);
+        if(viewPagerInitialPosition != 1){
+            txtFinish.setVisibility(position == 2 ? View.VISIBLE : View.INVISIBLE);
+        }
         for (int x = 0; x < 3; x++){
             if(x == position) progressIndicatorViews[x].
-                    setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                    setBackgroundColor(getResources().getColor(R.color.colorAccent, null));
             else progressIndicatorViews[x].
-                    setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                    setBackgroundColor(getResources().getColor(R.color.colorPrimary, null));
         }
     }
 
@@ -93,14 +104,16 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     private void lauchNewsActivity() {
         viewModel.setIsFirstRun(false);
         Intent intent = new Intent(this, NewsActivity.class);
-        startActivity(intent);
+        if(viewPagerInitialPosition == 0) startActivity(intent);
         finish();
     }
 
     private void saveUserData() {
        userDataSavingStatus = viewModel.savePreferredSources();
         userDataSavingStatus.observe(this, s -> {
-            if (s.equals(Constants.RESULT_OK)) lauchNewsActivity();
+            if (s.equals(Constants.RESULT_OK)){
+                lauchNewsActivity();
+            }
         });
     }
 
@@ -118,8 +131,15 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onStop() {
         if (userDataSavingStatus != null) userDataSavingStatus.removeObservers(this);
+        viewModel.cleanUp();
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+
         super.onDestroy();
     }
 }

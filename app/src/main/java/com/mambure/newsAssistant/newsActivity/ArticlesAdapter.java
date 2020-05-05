@@ -21,6 +21,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,6 +38,11 @@ public class ArticlesAdapter extends
         list = new ArrayList<>();
     }
 
+    void clearData() {
+        list.clear();
+        notifyDataSetChanged();
+    }
+
     public void addItems(List<Article> items) {
         if (items == null) {
             return;
@@ -45,7 +51,8 @@ public class ArticlesAdapter extends
             list = items;
             notifyDataSetChanged();
         } else {
-            list.addAll(items);
+            list.addAll(items.stream().
+                    filter(source -> !list.contains(source)).collect(Collectors.toList()));
             notifyItemRangeInserted(list.size(), items.size());
         }
         Log.d(TAG, "Added " + items.size() + " to the adapter");
@@ -103,7 +110,10 @@ public class ArticlesAdapter extends
     private String formatTime(String time) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MMM-dd HH:mm");
-            Instant instant = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time));
+
+            Instant instant = time.contains("Z") ?
+                    Instant.from(DateTimeFormatter.ISO_INSTANT.parse(time)) :
+                    Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(time));
             LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
             return localDateTime.format(dateTimeFormatter);
         }

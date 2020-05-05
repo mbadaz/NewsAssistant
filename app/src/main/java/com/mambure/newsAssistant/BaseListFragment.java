@@ -47,12 +47,16 @@ public class BaseListFragment extends Fragment implements SwipeRefreshLayout.OnR
         }
     }
 
-    public void hideProgessBar() {
+    protected void hideProgessBar() {
         progressBar.setVisibility(View.GONE);
         swipeRefreshLayout.setRefreshing(false);
     }
 
-    public void showStatusMessage(String message) {
+    protected void showProgressBar() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    protected void showStatusMessage(String message) {
         hideProgessBar();
         errorMessageTextView.setVisibility(View.VISIBLE);
         errorMessageTextView.setText(message);

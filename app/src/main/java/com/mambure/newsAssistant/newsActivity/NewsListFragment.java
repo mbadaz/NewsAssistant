@@ -32,11 +32,10 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
     private ArticlesAdapter adapter;
     @BindView(R.id.rv_articles_list) public RecyclerView recyclerView;
     private LiveData<ArticlesResult> articlesStream;
-    private LiveData<Boolean> isBusyStatus;
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         ((NewsActivity) requireActivity()).component.inject(this);
         mViewModel = new ViewModelProvider(requireActivity(), viewModelsFactory).
                 get(NewsActivityViewModel.class);
@@ -63,21 +62,24 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
     @Override
     public void onStart() {
         super.onStart();
+        showProgressBar();
+        hideErrorMessage();
+        mViewModel.setDataSource(source);
         articlesStream = mViewModel.getArticlesStream();
         articlesStream.observe(this, articlesResult -> {
             if (articlesResult.status.equals(Constants.RESULT_OK)) {
-                if(articlesResult.articles != null && !articlesResult.articles.isEmpty()){
-                    adapter.addItems(articlesResult.articles);
-                    hideProgessBar();
-
+                adapter.addItems(articlesResult.articles);
+                if(!articlesResult.articles.isEmpty()){
+                    hideErrorMessage();
                 }else {
+                    showStatusMessage("No articles to show at the moment.");
                 }
             } else {
                 showStatusMessage(getResources().getString(R.string.requestErrorMessage));
             }
-
+            hideProgessBar();
         });
-        mViewModel.getArticles(source);
+        mViewModel.loadData();
     }
 
     @Override
@@ -87,11 +89,10 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
 
     @Override
     public void onStop() {
-        super.onStop();
         mViewModel.cleanUp();
         if(articlesStream != null) articlesStream.removeObservers(this);
-        if (isBusyStatus != null)isBusyStatus.removeObservers(this);
-
+        adapter.clearData();
+        super.onStop();
     }
 
     /**
@@ -99,6 +100,7 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
      */
     @Override
     public void onRefresh() {
-        mViewModel.getArticles(source);
+        hideErrorMessage();
+        mViewModel.getArticles();
     }
 }

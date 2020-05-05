@@ -19,21 +19,21 @@ import io.reactivex.Observable;
 public interface DataManager {
 
 
-    public Maybe<ArticlesResult> fetchArticlesFromRemote(Map<String, String> params);
+    Observable<ArticlesResult> fetchArticlesFromRemote(Map<String, String> params, List<Source> preferredSources);
 
-    public Flowable<List<Article>> fetchArticlesFromLocal();
+    Flowable<List<Article>> fetchArticlesFromLocal();
 
-    public void saveArticle(Article article);
+    void saveArticle(Article article);
 
-    public Completable deleteArticle(Article article);
+    Completable deleteArticle(Article article);
 
-    public Flowable<List<Source>> fetchSourcesFromLocal();
+    Maybe<List<Source>> fetchSourcesFromLocal();
 
-    public Observable<SourcesResult> fetchSourcesFromRemote();
+    Observable<SourcesResult> fetchSourcesFromRemote();
 
-    public Completable saveSources(List<Source> sources);
+    Completable saveSources(List<Source> sources);
 
-    public Completable deleteSource(Source source);
+    Completable deleteSources(List<Source> sources);
 
-    public void cleanUp();
+    void cleanUp();
 }

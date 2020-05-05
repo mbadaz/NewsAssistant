@@ -1,8 +1,5 @@
 package com.mambure.newsAssistant.data;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-
 import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.data.local.LocalDataRepository;
 import com.mambure.newsAssistant.data.models.Article;
@@ -31,26 +28,16 @@ import io.reactivex.schedulers.Schedulers;
 public class DataRepository implements DataManager {
     private NewsService newsRepository;
     private LocalDataRepository localDataRepository;
-    private List<Source> preferredSources = new ArrayList<>();
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Inject
     public DataRepository(LocalDataRepository localDataRepository, NewsService newsService) {
         this.newsRepository = newsService;
         this.localDataRepository = localDataRepository;
-        initializeData();
-    }
-
-    private void initializeData() {
-       compositeDisposable.add(
-               localDataRepository.getAllSources().
-                       subscribeOn(Schedulers.io()).
-                       subscribe(sources -> preferredSources.addAll(sources))
-       );
     }
 
     @Override
-    public Maybe<ArticlesResult> fetchArticlesFromRemote(Map<String, String> params) {
+    public Observable<ArticlesResult> fetchArticlesFromRemote(Map<String, String> params, List<Source> preferredSources) {
         final Map<String, String> params2 = new HashMap<>(params);
         params2.put(Constants.SOURCES, ParsingUtils.createStringList(preferredSources));
         return newsRepository.getArticles(params2);
@@ -72,7 +59,7 @@ public class DataRepository implements DataManager {
     }
 
     @Override
-    public Flowable<List<Source>> fetchSourcesFromLocal() {
+    public Maybe<List<Source>> fetchSourcesFromLocal() {
        return localDataRepository.getAllSources();
     }
 
@@ -87,8 +74,8 @@ public class DataRepository implements DataManager {
     }
 
     @Override
-    public Completable deleteSource(Source source) {
-        return localDataRepository.deleteSource(source);
+    public Completable deleteSources(List<Source> sources) {
+        return localDataRepository.deleteSources(sources);
     }
 
     @Override

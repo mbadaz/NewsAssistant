@@ -10,4 +10,6 @@
     <string name="news_sources_fragment_title">News Sources</string>
     <string name="txtFinish">FINISH</string>
     <string name="txtSkip">SKIP</string>
+    <string name="menu_preferred_sources">Preferred Sources</string>
+    <string name="menu_settings">Settings</string>
 </resources>

@@ -80,8 +80,8 @@ public class WalkthroughSourcesFragment extends BaseListFragment implements
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
         viewModel.getSourcesStream().observe(this, sourcesResult -> {
             if (sourcesResult.status.equals("ok")) {
                 sourcesAdapter.addData(sourcesResult.sources);
@@ -93,7 +93,7 @@ public class WalkthroughSourcesFragment extends BaseListFragment implements
             progressBar.setVisibility(View.GONE);
             swipeRefreshLayout.setRefreshing(false);
         });
-        viewModel.fetchSources();
+        viewModel.loadSources();
     }
 
     @Override
@@ -112,7 +112,7 @@ public class WalkthroughSourcesFragment extends BaseListFragment implements
      */
     @Override
     public void onRefresh() {
-        viewModel.fetchSources();
+        viewModel.loadSources();
         super.onRefresh();
     }
 

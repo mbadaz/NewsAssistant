@@ -4,7 +4,7 @@ android {
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.mambure.newsAssistant"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -74,6 +74,7 @@ dependencies {
     implementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
     testImplementation 'org.mockito:mockito-core:3.3.3'
     testImplementation "androidx.room:room-testing:2.2.5"
+    testImplementation 'androidx.arch.core:core-testing:2.1.0'
 
     implementation 'com.squareup.moshi:moshi:1.9.2'
     implementation 'com.squareup.moshi:moshi-adapters:1.9.2'

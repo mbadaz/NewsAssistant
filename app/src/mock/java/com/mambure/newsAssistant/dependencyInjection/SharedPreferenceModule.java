@@ -18,6 +18,7 @@ public class SharedPreferenceModule {
     @Singleton
     SharedPreferences providesSharedPreferences() {
         return new SharedPreferences() {
+            boolean isFirstRun = true;
             @Override
             public Map<String, ?> getAll() {
                 return null;

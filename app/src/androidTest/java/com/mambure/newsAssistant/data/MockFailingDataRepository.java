@@ -56,7 +56,7 @@ public class MockFailingDataRepository implements DataManager {
     }
 
     @Override
-    public Completable deleteSource(Source source) {
+    public Completable deleteSources(Source source) {
         return null;
     }
 
