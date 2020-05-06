@@ -15,7 +15,6 @@ import com.mambure.newsAssistant.data.models.Source;
 import com.mambure.newsAssistant.data.models.SourcesResult;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +22,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.reactivex.CompletableObserver;
+import io.reactivex.MaybeObserver;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -39,23 +39,20 @@ public class NewsActivityViewModel extends ViewModel {
     private MutableLiveData<SourcesResult> sourcesStream = new MutableLiveData<>();
     private MutableLiveData<ArticlesResult> articleStream = new MutableLiveData<>();
     private Boolean isBusy = false;
-    private static ArticlesResult EMPTY_ARTICLE_RESULT;
-
-    static {
-        EMPTY_ARTICLE_RESULT = new ArticlesResult();
-        EMPTY_ARTICLE_RESULT.articles = Collections.emptyList();
-        EMPTY_ARTICLE_RESULT.status = Constants.RESULT_OK;
-    }
+    private Article currentArticleToSave;
 
     @Inject
     public NewsActivityViewModel(DataManager dataManager, SharedPreferences sharedPreferences) {
         this.dataManager = dataManager;
         this.sharedPreferences = sharedPreferences;
-        articleStream = new MutableLiveData<>(EMPTY_ARTICLE_RESULT);
     }
 
     void setDataSource(String id) {
         dataSource = id;
+    }
+
+    public void setCurrentArticleToSave(Article currentArticleToSave) {
+        this.currentArticleToSave = currentArticleToSave;
     }
 
     void loadData() {
@@ -110,8 +107,48 @@ public class NewsActivityViewModel extends ViewModel {
         });
     }
 
-    public void saveArticle(Article article) {
-        dataManager.saveArticle(article);
+    LiveData<Boolean> saveArticle() {
+        MutableLiveData<Boolean> savingStatusLiveData = new MutableLiveData<>();
+
+        dataManager.getArticleByTitle(currentArticleToSave.title).
+                subscribeOn(Schedulers.io()).
+                subscribe(new MaybeObserver<Article>() {
+                    Disposable searchingDisposable;
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        searchingDisposable = d;
+                    }
+
+                    @Override
+                    public void onSuccess(Article article) {
+                        Log.d(TAG, "Found article in database: " + article);
+                        savingStatusLiveData.postValue(true);
+                        searchingDisposable.dispose();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        savingStatusLiveData.postValue(false);
+                        Log.e(TAG, "Error searching Article: " + currentArticleToSave, e);
+                        searchingDisposable.dispose();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Disposable saveDisposable = dataManager.saveArticle(currentArticleToSave).
+                                subscribeOn(Schedulers.io()).
+                                subscribe(() -> {
+                                    savingStatusLiveData.postValue(true);
+                                }, throwable -> {
+                                    savingStatusLiveData.postValue(false);
+                                    Log.e(TAG, "Error saving Article: " + currentArticleToSave, throwable);
+                                });
+                        compositeDisposable.add(saveDisposable);
+                        searchingDisposable.dispose();
+                    }
+                });
+
+        return savingStatusLiveData;
     }
 
     public LiveData<String> deleteArticle(Article article) {
@@ -160,7 +197,7 @@ public class NewsActivityViewModel extends ViewModel {
     private void processArticleResultError() {
         isBusy = false;
         ArticlesResult result = new ArticlesResult();
-        result.status = Constants.RESULT_OK;
+        result.status = Constants.RESULT_ERROR;
         articleStream.postValue(result);
     }
 
@@ -175,7 +212,7 @@ public class NewsActivityViewModel extends ViewModel {
         isBusy = false;
         preferredSources.clear();
         compositeDisposable.clear();
-        articleStream.setValue(EMPTY_ARTICLE_RESULT);
+        articleStream.setValue(null);
         dataManager.cleanUp();
     }
 }

@@ -15,6 +15,8 @@ import com.bumptech.glide.Glide;
 import com.mambure.newsAssistant.R;
 import com.mambure.newsAssistant.data.models.Article;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -30,16 +32,16 @@ public class ArticlesAdapter extends
         RecyclerView.Adapter<ArticlesAdapter.ViewHolder> {
 
     private static final String TAG = ArticlesAdapter.class.getSimpleName();
-    private static List<Article> list;
+    private static List<Article> articles;
     private OnItemClickListener onItemClickListener;
 
     public ArticlesAdapter(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
-        list = new ArrayList<>();
+        articles = new ArrayList<>();
     }
 
     void clearData() {
-        list.clear();
+        articles.clear();
         notifyDataSetChanged();
     }
 
@@ -47,16 +49,15 @@ public class ArticlesAdapter extends
         if (items == null) {
             return;
         }
-        if (list.isEmpty()) {
-            list = items;
+        if (articles.isEmpty()) {
+            articles = items;
             notifyDataSetChanged();
         } else {
-            list.addAll(items.stream().
-                    filter(source -> !list.contains(source)).collect(Collectors.toList()));
-            notifyItemRangeInserted(list.size(), items.size());
+            articles.addAll(items.stream().
+                    filter(source -> !articles.contains(source)).collect(Collectors.toList()));
+            notifyItemRangeInserted(articles.size(), items.size());
         }
         Log.d(TAG, "Added " + items.size() + " to the adapter");
-
     }
 
 
@@ -67,6 +68,7 @@ public class ArticlesAdapter extends
         @BindView(R.id.txt_source) TextView source;
         @BindView(R.id.txt_date) TextView date;
         @BindView(R.id.img_article) ImageView image;
+        @BindView(R.id.article_menu) ImageView menu;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -75,15 +77,19 @@ public class ArticlesAdapter extends
 
         void bind(final Article model,
                   final OnItemClickListener listener) {
-            itemView.setOnClickListener(v -> listener.onItemClick(getLayoutPosition()));
+            itemView.setOnClickListener(v -> listener.onItemClick(v, articles.get(getLayoutPosition())));
+            menu.setOnClickListener(v -> listener.onItemClick(v, articles.get(getLayoutPosition())));
             title.setText(model.title);
             description.setText(model.description);
             source.setText(model.source.name);
             date.setText(formatTime(model.publishedAt));
-            Glide.with(itemView).load(model.urlToImage).centerCrop().override(100).into(image);
+            Glide.with(itemView).load(model.urlToImage).
+                    placeholder(R.drawable.ic_placeholder_image_100dp).
+                    centerCrop().override(100).into(image);
         }
     }
 
+    @NotNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
@@ -94,20 +100,21 @@ public class ArticlesAdapter extends
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Article item = list.get(position);
+        Article item = articles.get(position);
         holder.bind(item, onItemClickListener);
     }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return articles.size();
     }
 
     public interface OnItemClickListener {
-        void onItemClick(int position);
+        void onItemClick(View view, Article item);
     }
 
     private String formatTime(String time) {
+        if (time == null || time.isEmpty()) return "";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MMM-dd HH:mm");
 
@@ -117,7 +124,6 @@ public class ArticlesAdapter extends
             LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
             return localDateTime.format(dateTimeFormatter);
         }
-
         return "";
     }
 }

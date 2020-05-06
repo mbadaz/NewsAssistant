@@ -65,9 +65,9 @@ public class RoomDatabaseTests {
         CountDownLatch countDownLatch = new CountDownLatch(6);
 
         // When
-        localDataRepository.insertArticle(articles.get(0));
+        localDataRepository.saveArticle(articles.get(0));
         for (Article article : articles) {
-                localDataRepository.insertArticle(article).
+                localDataRepository.saveArticle(article).
                         subscribe(aLong -> countDownLatch.countDown());
             }
 

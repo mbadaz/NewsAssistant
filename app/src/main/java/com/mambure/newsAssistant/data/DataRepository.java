@@ -9,7 +9,6 @@ import com.mambure.newsAssistant.data.models.SourcesResult;
 import com.mambure.newsAssistant.data.remote.NewsService;
 import com.mambure.newsAssistant.utils.ParsingUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,6 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
 
 @Singleton
 public class DataRepository implements DataManager {
@@ -49,8 +47,13 @@ public class DataRepository implements DataManager {
     }
 
     @Override
-    public void saveArticle(Article article) {
-        localDataRepository.insertArticle(article);
+    public Completable saveArticle(Article article) {
+        return localDataRepository.saveArticle(article);
+    }
+
+    @Override
+    public Maybe<Article> getArticleByTitle(String title) {
+        return localDataRepository.getArticleByTitle(title);
     }
 
     @Override

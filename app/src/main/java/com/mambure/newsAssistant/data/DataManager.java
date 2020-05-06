@@ -23,7 +23,9 @@ public interface DataManager {
 
     Flowable<List<Article>> fetchArticlesFromLocal();
 
-    void saveArticle(Article article);
+    Completable saveArticle(Article article);
+
+    Maybe<Article> getArticleByTitle(String title);
 
     Completable deleteArticle(Article article);
 

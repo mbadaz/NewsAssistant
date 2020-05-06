@@ -6,6 +6,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverter;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -14,7 +15,7 @@ import java.util.Objects;
 public class Article {
     @PrimaryKey(autoGenerate = true)
     public int id;
-    @Ignore
+    @ColumnInfo
     public Source source;
 
     @ColumnInfo public String author;
@@ -26,9 +27,9 @@ public class Article {
 
     @Override
     public boolean equals(@Nullable Object obj) {
-        return obj instanceof Article &&
-                ((Article) obj).title.equals(title) &&
-                ((Article) obj).description.equals(description);
+        return obj instanceof Article && title != null &&
+                title.equals(((Article) obj).title) && description != null &&
+                description.equals(((Article) obj).description);
     }
 
     @NonNull

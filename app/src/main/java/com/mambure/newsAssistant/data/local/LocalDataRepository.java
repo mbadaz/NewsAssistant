@@ -13,6 +13,7 @@ import java.util.List;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 
 
@@ -21,8 +22,11 @@ public interface LocalDataRepository {
     @Query("SELECT * FROM articles")
     Flowable<List<Article>> getAllArticles();
 
+    @Query("SELECT * FROM articles WHERE title=:articleTitle")
+    Maybe<Article> getArticleByTitle(String articleTitle);
+
     @Insert
-    Single<Long> insertArticle(Article articles);
+    Completable saveArticle(Article articles);
 
     @Delete
     Completable deleteArticle(Article article);
