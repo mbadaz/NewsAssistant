@@ -14,7 +14,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 
-public class MockFailingDataRepository implements DataManager {
+public class MockFailingDataRepository implements Repository {
     @Override
     public Maybe<ArticlesResult> fetchArticlesFromRemote(Map<String, String> params) {
         return null;
@@ -31,7 +31,7 @@ public class MockFailingDataRepository implements DataManager {
     }
 
     @Override
-    public Completable deleteArticle(Article article) {
+    public Completable deleteSavedArticle(Article article) {
         return null;
     }
 

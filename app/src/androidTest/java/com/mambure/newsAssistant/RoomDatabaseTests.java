@@ -41,8 +41,8 @@ public class RoomDatabaseTests {
         CountDownLatch latch = new CountDownLatch(2);
 
         // When
-       localDataRepository.insertSources(sources).subscribe(latch::countDown);
-       localDataRepository.getAllSources().subscribe(sources1 -> {
+       localDataRepository.saveSources(sources).subscribe(latch::countDown);
+       localDataRepository.getSources().subscribe(sources1 -> {
             retrievedSources.addAll(sources1);
             latch.countDown();
         });
@@ -71,7 +71,7 @@ public class RoomDatabaseTests {
                         subscribe(aLong -> countDownLatch.countDown());
             }
 
-        localDataRepository.getAllArticles().subscribe(articles1 -> {
+        localDataRepository.getArticles().subscribe(articles1 -> {
             retrievedArticles.addAll(articles1);
             countDownLatch.countDown();
         });

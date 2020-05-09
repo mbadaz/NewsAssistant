@@ -1,6 +1,6 @@
 package com.mambure.newsAssistant.dependencyInjection;
 
-import com.mambure.newsAssistant.data.DataManager;
+import com.mambure.newsAssistant.data.Repository;
 import com.mambure.newsAssistant.data.DataRepository;
 import com.mambure.newsAssistant.data.local.LocalDataRepository;
 import com.mambure.newsAssistant.data.remote.NewsService;
@@ -15,7 +15,7 @@ class DataManagerModule {
 
     @Provides
     @Singleton
-    public DataManager providesDataManager(LocalDataRepository localDataRepository, NewsService newsService) {
+    public Repository providesDataManager(LocalDataRepository localDataRepository, NewsService newsService) {
         return new DataRepository(localDataRepository, newsService);
     }
 }

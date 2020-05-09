@@ -1,5 +1,7 @@
 package com.mambure.newsAssistant.data;
 
+import android.util.Log;
+
 import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.data.local.LocalDataRepository;
 import com.mambure.newsAssistant.data.models.Article;
@@ -7,26 +9,34 @@ import com.mambure.newsAssistant.data.models.ArticlesResult;
 import com.mambure.newsAssistant.data.models.Source;
 import com.mambure.newsAssistant.data.models.SourcesResult;
 import com.mambure.newsAssistant.data.remote.NewsService;
-import com.mambure.newsAssistant.utils.ParsingUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeObserver;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 @Singleton
-public class DataRepository implements DataManager {
+public class DataRepository implements Repository {
+    private static final String TAG = DataRepository.class.getSimpleName();
     private NewsService newsRepository;
     private LocalDataRepository localDataRepository;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private Set<Source> preferredSources = new HashSet<>();
+    private Observable<ArticlesResult> articlesResultObservable;
 
     @Inject
     public DataRepository(LocalDataRepository localDataRepository, NewsService newsService) {
@@ -35,15 +45,52 @@ public class DataRepository implements DataManager {
     }
 
     @Override
-    public Observable<ArticlesResult> fetchArticlesFromRemote(Map<String, String> params, List<Source> preferredSources) {
-        final Map<String, String> params2 = new HashMap<>(params);
-        params2.put(Constants.SOURCES, ParsingUtils.createStringList(preferredSources));
+    public Observable<ArticlesResult> getNewArticles(Map<String, String> params) {
+        if (preferredSources.isEmpty()) {
+            List<Source> result = localDataRepository.getSources().subscribeOn(Schedulers.io()).blockingGet();
+            preferredSources.addAll(result);
+//            localDataRepository.getSources().subscribe(new MaybeObserver<List<Source>>() {
+//                Disposable disposable;
+//                @Override
+//                public void onSubscribe(Disposable d) {
+//                    disposable = d;
+//                }
+//
+//                @Override
+//                public void onSuccess(List<Source> sources) {
+//                    preferredSources=sources;
+//                    disposable.dispose();
+//                    DataRepository.this.notifyAll();
+//                }
+//
+//                @Override
+//                public void onError(Throwable e) {
+//                    Log.e(TAG, "Error getting sources from database0", e);
+//                    disposable.dispose();
+//                    DataRepository.this.notifyAll();
+//                }
+//
+//                @Override
+//                public void onComplete() {
+//                    Log.d(TAG, "No sources in database");
+//                    disposable.dispose();
+//                    DataRepository.this.notifyAll();
+//                }
+//            });
+        }
+//        try {
+//            wait(3);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+        Map<String, Object> params2 = new HashMap<>(params);
+        params2.put(Constants.SOURCES, preferredSources);
         return newsRepository.getArticles(params2);
     }
 
     @Override
-    public Flowable<List<Article>> fetchArticlesFromLocal() {
-        return localDataRepository.getAllArticles();
+    public Maybe<List<Article>> getSavedArticles() {
+        return localDataRepository.getArticles();
     }
 
     @Override
@@ -52,37 +99,38 @@ public class DataRepository implements DataManager {
     }
 
     @Override
-    public Maybe<Article> getArticleByTitle(String title) {
+    public Observable<SourcesResult> getSources() {
+        return newsRepository.getSources();
+    }
+
+    @Override
+    public Maybe<Article> findSavedArticle(String title) {
         return localDataRepository.getArticleByTitle(title);
     }
 
     @Override
-    public Completable deleteArticle(Article article) {
+    public Completable deleteSavedArticle(Article article) {
        return localDataRepository.deleteArticle(article);
     }
 
     @Override
-    public Maybe<List<Source>> fetchSourcesFromLocal() {
-       return localDataRepository.getAllSources();
-    }
-
-    @Override
-    public Observable<SourcesResult> fetchSourcesFromRemote() {
-       return newsRepository.getSources();
+    public Maybe<List<Source>> getSavedSources() {
+       return localDataRepository.getSources();
     }
 
     @Override
     public Completable saveSources(List<Source> sources) {
-        return localDataRepository.insertSources(sources);
+        return localDataRepository.saveSources(sources);
     }
 
     @Override
-    public Completable deleteSources(List<Source> sources) {
+    public Completable deletePreferredSources(List<Source> sources) {
         return localDataRepository.deleteSources(sources);
     }
 
     @Override
     public void cleanUp() {
+        preferredSources.clear();
         compositeDisposable.clear();
     }
 }

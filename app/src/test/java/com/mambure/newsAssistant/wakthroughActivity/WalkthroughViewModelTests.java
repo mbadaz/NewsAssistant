@@ -8,7 +8,7 @@ import androidx.lifecycle.LiveData;
 import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.LiveDataTestingUtils;
 import com.mambure.newsAssistant.TestMockingUtils;
-import com.mambure.newsAssistant.data.DataManager;
+import com.mambure.newsAssistant.data.Repository;
 import com.mambure.newsAssistant.data.models.Source;
 import com.mambure.newsAssistant.data.models.SourcesResult;
 
@@ -23,18 +23,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.reactivestreams.Subscriber;
 
 import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
-import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeObserver;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyList;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,7 +40,7 @@ public class WalkthroughViewModelTests {
 
     WalkthroughActivityViewModel viewModel;
     @Mock
-    DataManager dataManager;
+    Repository repository;
     @Mock
     SharedPreferences sharedPreferences;
     @Captor
@@ -54,21 +52,21 @@ public class WalkthroughViewModelTests {
     @Before
     public void initializeViewModel() {
         MockitoAnnotations.initMocks(this);
-        viewModel = new WalkthroughActivityViewModel(dataManager, sharedPreferences);
+        viewModel = new WalkthroughActivityViewModel(repository, sharedPreferences);
     }
 
     @Test
     public void sourcesFetchAndInitializeTest() {
         // GIVEN
         List<Source> sources = TestMockingUtils.generateMockSources();
-        Mockito.when(dataManager.fetchSourcesFromLocal()).thenReturn(new Flowable<List<Source>>() {
+        Mockito.when(repository.getSavedSources()).thenReturn(new Maybe<List<Source>>() {
             @Override
-            protected void subscribeActual(Subscriber<? super List<Source>> s) {
-                s.onNext(sources.subList(1, 4));
+            protected void subscribeActual(MaybeObserver<? super List<Source>> s) {
+                s.onSuccess(sources.subList(1, 4));
             }
         });
 
-        Mockito.when(dataManager.fetchSourcesFromRemote()).thenReturn(new Observable<SourcesResult>() {
+        Mockito.when(repository.getSources()).thenReturn(new Observable<SourcesResult>() {
             @Override
             protected void subscribeActual(Observer<? super SourcesResult> observer) {
                 SourcesResult sourcesResult = new SourcesResult();
@@ -94,14 +92,14 @@ public class WalkthroughViewModelTests {
         List<Source> sourcesFromLocal = TestMockingUtils.generateMockSources().subList(0,3);
         List<Source> sourcesFromRemote = TestMockingUtils.generateMockSources();
 
-        Mockito.when(dataManager.fetchSourcesFromLocal()).thenReturn(new Flowable<List<Source>>() {
+        Mockito.when(repository.getSavedSources()).thenReturn(new Maybe<List<Source>>() {
             @Override
-            protected void subscribeActual(Subscriber<? super List<Source>> s) {
-                s.onNext(sourcesFromLocal);
+            protected void subscribeActual(MaybeObserver<? super List<Source>> s) {
+                s.onSuccess(sourcesFromLocal);
             }
         });
 
-        Mockito.when(dataManager.fetchSourcesFromRemote()).thenReturn(new Observable<SourcesResult>() {
+        Mockito.when(repository.getSources()).thenReturn(new Observable<SourcesResult>() {
             @Override
             protected void subscribeActual(Observer<? super SourcesResult> observer) {
                 SourcesResult sourcesResult = new SourcesResult();
@@ -111,14 +109,14 @@ public class WalkthroughViewModelTests {
             }
         });
 
-        Mockito.when(dataManager.deleteSources(anyList())).thenReturn(new Completable() {
+        Mockito.when(repository.deletePreferredSources(anyList())).thenReturn(new Completable() {
             @Override
             protected void subscribeActual(CompletableObserver observer) {
                 observer.onComplete();
             }
         });
 
-        Mockito.when(dataManager.saveSources(anyList())).thenReturn(new Completable() {
+        Mockito.when(repository.saveSources(anyList())).thenReturn(new Completable() {
             @Override
             protected void subscribeActual(CompletableObserver observer) {
                 observer.onComplete();
@@ -132,7 +130,7 @@ public class WalkthroughViewModelTests {
         viewModel.savePreferredSources();
 
         // VERIFY Sources to be deleted from local database
-        Mockito.verify(dataManager).deleteSources(sourcesArgumentCaptor.capture());
+        Mockito.verify(repository).deletePreferredSources(sourcesArgumentCaptor.capture());
 
         Assert.assertEquals(2, sourcesArgumentCaptor.getValue().size());
 

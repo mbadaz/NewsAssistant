@@ -90,7 +90,7 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
                 hideProgessBar();
             }
         });
-        mViewModel.loadData();
+        mViewModel.getArticles();
     }
 
     @Override

@@ -19,7 +19,9 @@ public class RoomDatabaseModule {
     @Singleton
     LocalDataRepository providesLocalRepositoryDao(Context context) {
         return Room.databaseBuilder(
-                context, AppDatabase.class, "App-database.db").build().localDatabaseDAO();
+                context, AppDatabase.class, "App-database.db").
+                fallbackToDestructiveMigration().
+                build().localDatabaseDAO();
     }
 
 }

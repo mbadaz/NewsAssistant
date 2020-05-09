@@ -8,7 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.mambure.newsAssistant.Constants;
-import com.mambure.newsAssistant.data.DataManager;
+import com.mambure.newsAssistant.data.Repository;
 import com.mambure.newsAssistant.data.models.Article;
 import com.mambure.newsAssistant.data.models.ArticlesResult;
 import com.mambure.newsAssistant.data.models.Source;
@@ -31,19 +31,18 @@ import io.reactivex.schedulers.Schedulers;
 public class NewsActivityViewModel extends ViewModel {
     private static final String TAG = NewsActivityViewModel.class.getSimpleName();
     private String dataSource = Constants.REMOTE;
-    private DataManager dataManager;
+    private Repository repository;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     private SharedPreferences sharedPreferences;
     private Map<String, String> params = new HashMap<>();
-    private List<Source> preferredSources = new ArrayList<>();
     private MutableLiveData<SourcesResult> sourcesStream = new MutableLiveData<>();
     private MutableLiveData<ArticlesResult> articleStream = new MutableLiveData<>();
     private Boolean isBusy = false;
     private Article currentArticleToSave;
 
     @Inject
-    public NewsActivityViewModel(DataManager dataManager, SharedPreferences sharedPreferences) {
-        this.dataManager = dataManager;
+    public NewsActivityViewModel(Repository repository, SharedPreferences sharedPreferences) {
+        this.repository = repository;
         this.sharedPreferences = sharedPreferences;
     }
 
@@ -51,18 +50,8 @@ public class NewsActivityViewModel extends ViewModel {
         dataSource = id;
     }
 
-    public void setCurrentArticleToSave(Article currentArticleToSave) {
+    void setCurrentArticleToSave(Article currentArticleToSave) {
         this.currentArticleToSave = currentArticleToSave;
-    }
-
-    void loadData() {
-        if(isBusy) return;
-        if (dataSource.equals(Constants.REMOTE)) {
-            compositeDisposable.add(fetchSourcesFromLocal());
-        }else {
-            compositeDisposable.add(fetchArticlesFromLocal());
-        }
-        isBusy = true;
     }
 
     LiveData<ArticlesResult> getArticlesStream() {
@@ -77,7 +66,7 @@ public class NewsActivityViewModel extends ViewModel {
 
     private Disposable fetchArticlesFromLocal() {
         isBusy = true;
-        return  dataManager.fetchArticlesFromLocal().
+        return  repository.getSavedArticles().
                 subscribeOn(Schedulers.io()).
                 subscribe(articles -> {
             ArticlesResult result = new ArticlesResult();
@@ -95,7 +84,7 @@ public class NewsActivityViewModel extends ViewModel {
 
     private Disposable fetchArticlesFromRemote() {
         isBusy = true;
-       return dataManager.fetchArticlesFromRemote(params, preferredSources).
+       return repository.getNewArticles(params).
                 subscribeOn(Schedulers.io()).subscribe(articlesResult -> {
             articleStream.postValue(articlesResult);
             isBusy = false;
@@ -110,7 +99,7 @@ public class NewsActivityViewModel extends ViewModel {
     LiveData<Boolean> saveArticle() {
         MutableLiveData<Boolean> savingStatusLiveData = new MutableLiveData<>();
 
-        dataManager.getArticleByTitle(currentArticleToSave.title).
+        repository.findSavedArticle(currentArticleToSave.title).
                 subscribeOn(Schedulers.io()).
                 subscribe(new MaybeObserver<Article>() {
                     Disposable searchingDisposable;
@@ -135,7 +124,7 @@ public class NewsActivityViewModel extends ViewModel {
 
                     @Override
                     public void onComplete() {
-                        Disposable saveDisposable = dataManager.saveArticle(currentArticleToSave).
+                        Disposable saveDisposable = repository.saveArticle(currentArticleToSave).
                                 subscribeOn(Schedulers.io()).
                                 subscribe(() -> {
                                     savingStatusLiveData.postValue(true);
@@ -153,7 +142,7 @@ public class NewsActivityViewModel extends ViewModel {
 
     public LiveData<String> deleteArticle(Article article) {
         MutableLiveData<String> liveData = new MutableLiveData<>();
-        dataManager.deleteArticle(article).
+        repository.deleteSavedArticle(article).
                 subscribeOn(Schedulers.io()).subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
@@ -175,25 +164,6 @@ public class NewsActivityViewModel extends ViewModel {
         return liveData;
     }
 
-    private Disposable fetchSourcesFromLocal() {
-        isBusy = true;
-        return dataManager.fetchSourcesFromLocal().
-                subscribeOn(Schedulers.io()).subscribe(sources -> {
-            preferredSources.addAll(sources);
-            SourcesResult result = new SourcesResult();
-            result.status = Constants.RESULT_OK;
-            result.sources = sources;
-            sourcesStream.postValue(result);
-            isBusy = false;
-            getArticles();
-            Log.d(TAG, "Fetch sources from local result: " + result);
-        }, throwable -> {
-            processSourceResultError();
-            Log.e(TAG, "Fetch sources from local error: ", throwable);
-            isBusy = false;
-        });
-    }
-
     private void processArticleResultError() {
         isBusy = false;
         ArticlesResult result = new ArticlesResult();
@@ -210,9 +180,8 @@ public class NewsActivityViewModel extends ViewModel {
 
     void cleanUp() {
         isBusy = false;
-        preferredSources.clear();
         compositeDisposable.clear();
         articleStream.setValue(null);
-        dataManager.cleanUp();
+        repository.cleanUp();
     }
 }

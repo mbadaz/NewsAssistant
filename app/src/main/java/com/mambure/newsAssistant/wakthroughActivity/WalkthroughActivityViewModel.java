@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.MyIdlingResource;
-import com.mambure.newsAssistant.data.DataManager;
+import com.mambure.newsAssistant.data.Repository;
 import com.mambure.newsAssistant.data.models.Source;
 import com.mambure.newsAssistant.data.models.SourcesResult;
 
@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import io.reactivex.MaybeObserver;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -27,10 +28,10 @@ import static com.mambure.newsAssistant.Constants.SharedPrefsKeys.IS_FIRST_RUN;
 
 public class WalkthroughActivityViewModel extends ViewModel {
     private static final String TAG = WalkThroughActivity.class.getSimpleName();
-    private DataManager dataManager;
+    private Repository repository;
     private SharedPreferences sharedPreferences;
     private List<Source> preferredSources = new ArrayList<>();
-    private List<Source> sourcesToFromLocal = new ArrayList<>();
+    private List<Source> savedSources = new ArrayList<>();
     private int numberOfRunningTasks;
     private MutableLiveData<SourcesResult> sourcesStream = new MutableLiveData<>();
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -38,8 +39,8 @@ public class WalkthroughActivityViewModel extends ViewModel {
 
 
     @Inject
-    public WalkthroughActivityViewModel(DataManager dataManager, SharedPreferences sharedPreferences) {
-        this.dataManager = dataManager;
+    public WalkthroughActivityViewModel(Repository repository, SharedPreferences sharedPreferences) {
+        this.repository = repository;
         this.sharedPreferences = sharedPreferences;
     }
 
@@ -50,13 +51,13 @@ public class WalkthroughActivityViewModel extends ViewModel {
     }
 
     void loadSources() {
-        loadSavedSourcesFromLocal();
+        loadSavedSources();
         MyIdlingResource.getInstance().increment();
     }
 
     private void fetchSourcesFromRemote() {
         MyIdlingResource.getInstance().increment();
-        Disposable disposable = dataManager.fetchSourcesFromRemote().
+        Disposable disposable = repository.getSources().
                         subscribeOn(Schedulers.io()).
                         subscribe(sourcesResult -> {
                             processSources(sourcesResult.sources);
@@ -75,26 +76,47 @@ public class WalkthroughActivityViewModel extends ViewModel {
     }
 
     private void processSources(List<Source> sources) {
-        if(sourcesToFromLocal.isEmpty()) return;
+        if(savedSources.isEmpty()) return;
 
         for (Source source : sources) {
-            if (sourcesToFromLocal.contains(source)) {
+            if (savedSources.contains(source)) {
                 source.setChecked(true);
                 preferredSources.add(source);
             }
         }
     }
 
-    private void loadSavedSourcesFromLocal() {
-        Disposable disposable = dataManager.fetchSourcesFromLocal().
+    private void loadSavedSources() {
+      repository.getSavedSources().
                 subscribeOn(Schedulers.io()).
-                subscribe(sources -> {
-                    sourcesToFromLocal.addAll(sources);
-                    fetchSourcesFromRemote();
-                }, throwable -> {
-                    Log.e(TAG, "Error fetching sources from local: ", throwable);
+                subscribe(new MaybeObserver<List<Source>>() {
+                    private Disposable disposable;
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        disposable = d;
+                    }
+
+                    @Override
+                    public void onSuccess(List<Source> sources) {
+                        savedSources = sources;
+                        fetchSourcesFromRemote();
+                        disposable.dispose();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "Error loading sources from local: ", e);
+                        disposable.dispose();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        fetchSourcesFromRemote();
+                        Log.d(TAG, "No saved sources");
+                        disposable.dispose();
+                    }
                 });
-        compositeDisposable.add(disposable);
     }
 
     LiveData<String> savePreferredSources() {
@@ -102,9 +124,9 @@ public class WalkthroughActivityViewModel extends ViewModel {
         MyIdlingResource.getInstance().increment();
 
         List<Source> sourcesToSave = preferredSources.stream().
-                filter(source -> !sourcesToFromLocal.contains(source)).collect(Collectors.toList());
+                filter(source -> !savedSources.contains(source)).collect(Collectors.toList());
 
-        Disposable disposable = dataManager.saveSources(sourcesToSave).
+        Disposable disposable = repository.saveSources(sourcesToSave).
                 subscribeOn(Schedulers.io()).
                 subscribe(() -> {
                     if(numberOfRunningTasks != 0) numberOfRunningTasks--;
@@ -135,11 +157,11 @@ public class WalkthroughActivityViewModel extends ViewModel {
     }
 
     private void deleteSources() {
-        List<Source> sourcesToDelete = sourcesToFromLocal.stream().
+        List<Source> sourcesToDelete = savedSources.stream().
                 filter(s -> !preferredSources.contains(s)).collect(Collectors.toList());
 
         if (!sourcesToDelete.isEmpty()){
-            Disposable disposable = dataManager.deleteSources(sourcesToDelete).
+            Disposable disposable = repository.deletePreferredSources(sourcesToDelete).
                     subscribeOn(Schedulers.io()).
                     subscribe(() -> {
                         if(numberOfRunningTasks != 0) numberOfRunningTasks--;
@@ -163,7 +185,7 @@ public class WalkthroughActivityViewModel extends ViewModel {
 
     void cleanUp() {
         compositeDisposable.clear();
-        dataManager.cleanUp();
+        repository.cleanUp();
     }
 
 }
