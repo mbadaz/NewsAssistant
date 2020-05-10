@@ -49,40 +49,8 @@ public class DataRepository implements Repository {
         if (preferredSources.isEmpty()) {
             List<Source> result = localDataRepository.getSources().subscribeOn(Schedulers.io()).blockingGet();
             preferredSources.addAll(result);
-//            localDataRepository.getSources().subscribe(new MaybeObserver<List<Source>>() {
-//                Disposable disposable;
-//                @Override
-//                public void onSubscribe(Disposable d) {
-//                    disposable = d;
-//                }
-//
-//                @Override
-//                public void onSuccess(List<Source> sources) {
-//                    preferredSources=sources;
-//                    disposable.dispose();
-//                    DataRepository.this.notifyAll();
-//                }
-//
-//                @Override
-//                public void onError(Throwable e) {
-//                    Log.e(TAG, "Error getting sources from database0", e);
-//                    disposable.dispose();
-//                    DataRepository.this.notifyAll();
-//                }
-//
-//                @Override
-//                public void onComplete() {
-//                    Log.d(TAG, "No sources in database");
-//                    disposable.dispose();
-//                    DataRepository.this.notifyAll();
-//                }
-//            });
         }
-//        try {
-//            wait(3);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+
         Map<String, Object> params2 = new HashMap<>(params);
         params2.put(Constants.SOURCES, preferredSources);
         return newsRepository.getArticles(params2);

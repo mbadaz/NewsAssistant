@@ -34,6 +34,7 @@ public class ArticlesAdapter extends
     private static final String TAG = ArticlesAdapter.class.getSimpleName();
     private static List<Article> articles;
     private OnItemClickListener onItemClickListener;
+    private int currentItemPosition;
 
     public ArticlesAdapter(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
@@ -60,6 +61,15 @@ public class ArticlesAdapter extends
         Log.d(TAG, "Added " + items.size() + " to the adapter");
     }
 
+    void removeItem(Article article) {
+        int position = articles.indexOf(article);
+        if(articles.remove(article)) notifyItemRemoved(position);
+    }
+
+    void addItem(Article article) {
+        articles.add(currentItemPosition, article);
+        notifyItemInserted(currentItemPosition);
+    }
 
     class ViewHolder extends RecyclerView.ViewHolder {
         // Todo Butterknife bindings
@@ -78,7 +88,10 @@ public class ArticlesAdapter extends
         void bind(final Article model,
                   final OnItemClickListener listener) {
             itemView.setOnClickListener(v -> listener.onItemClick(v, articles.get(getLayoutPosition())));
-            menu.setOnClickListener(v -> listener.onItemClick(v, articles.get(getLayoutPosition())));
+            menu.setOnClickListener(v -> {
+                currentItemPosition = getLayoutPosition();
+                listener.onItemClick(v, articles.get(getLayoutPosition()));
+            });
             title.setText(model.title);
             description.setText(model.description);
             source.setText(model.source.name);

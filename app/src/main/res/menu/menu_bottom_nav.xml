@@ -9,7 +9,7 @@
         app:showAsAction="always|withText" />
     <item
         android:id="@+id/menu_item_saved"
-        android:icon="@drawable/ic_archive_grey_1"
+        android:icon="@drawable/ic_save_24dp"
         android:title="Saved"
         app:showAsAction="always|withText" />
 </menu>

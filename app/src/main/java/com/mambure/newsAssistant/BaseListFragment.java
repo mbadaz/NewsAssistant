@@ -19,7 +19,7 @@ import butterknife.BindView;
  */
 public class BaseListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final String SOURCE = "Fragment Id";
-    protected String source;
+    protected String fragmentId;
 
     @BindView(R.id.progressBar)
     public ProgressBar progressBar;
@@ -43,7 +43,7 @@ public class BaseListFragment extends Fragment implements SwipeRefreshLayout.OnR
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
         if (bundle != null) {
-            source = bundle.getString(SOURCE);
+            fragmentId = bundle.getString(SOURCE);
         }
     }
 

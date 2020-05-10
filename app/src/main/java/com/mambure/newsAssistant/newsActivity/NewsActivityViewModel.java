@@ -11,12 +11,9 @@ import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.data.Repository;
 import com.mambure.newsAssistant.data.models.Article;
 import com.mambure.newsAssistant.data.models.ArticlesResult;
-import com.mambure.newsAssistant.data.models.Source;
 import com.mambure.newsAssistant.data.models.SourcesResult;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -38,7 +35,7 @@ public class NewsActivityViewModel extends ViewModel {
     private MutableLiveData<SourcesResult> sourcesStream = new MutableLiveData<>();
     private MutableLiveData<ArticlesResult> articleStream = new MutableLiveData<>();
     private Boolean isBusy = false;
-    private Article currentArticleToSave;
+    private Article currentArticleToProcess;
 
     @Inject
     public NewsActivityViewModel(Repository repository, SharedPreferences sharedPreferences) {
@@ -50,8 +47,12 @@ public class NewsActivityViewModel extends ViewModel {
         dataSource = id;
     }
 
-    void setCurrentArticleToSave(Article currentArticleToSave) {
-        this.currentArticleToSave = currentArticleToSave;
+    void setCurrentArticleToProcess(Article currentArticleToProcess) {
+        this.currentArticleToProcess = currentArticleToProcess;
+    }
+
+    Article getCurrentArticle() {
+        return currentArticleToProcess;
     }
 
     LiveData<ArticlesResult> getArticlesStream() {
@@ -99,7 +100,7 @@ public class NewsActivityViewModel extends ViewModel {
     LiveData<Boolean> saveArticle() {
         MutableLiveData<Boolean> savingStatusLiveData = new MutableLiveData<>();
 
-        repository.findSavedArticle(currentArticleToSave.title).
+        repository.findSavedArticle(currentArticleToProcess.title).
                 subscribeOn(Schedulers.io()).
                 subscribe(new MaybeObserver<Article>() {
                     Disposable searchingDisposable;
@@ -118,19 +119,19 @@ public class NewsActivityViewModel extends ViewModel {
                     @Override
                     public void onError(Throwable e) {
                         savingStatusLiveData.postValue(false);
-                        Log.e(TAG, "Error searching Article: " + currentArticleToSave, e);
+                        Log.e(TAG, "Error searching Article: " + currentArticleToProcess, e);
                         searchingDisposable.dispose();
                     }
 
                     @Override
                     public void onComplete() {
-                        Disposable saveDisposable = repository.saveArticle(currentArticleToSave).
+                        Disposable saveDisposable = repository.saveArticle(currentArticleToProcess).
                                 subscribeOn(Schedulers.io()).
                                 subscribe(() -> {
                                     savingStatusLiveData.postValue(true);
                                 }, throwable -> {
                                     savingStatusLiveData.postValue(false);
-                                    Log.e(TAG, "Error saving Article: " + currentArticleToSave, throwable);
+                                    Log.e(TAG, "Error saving Article: " + currentArticleToProcess, throwable);
                                 });
                         compositeDisposable.add(saveDisposable);
                         searchingDisposable.dispose();
@@ -140,9 +141,9 @@ public class NewsActivityViewModel extends ViewModel {
         return savingStatusLiveData;
     }
 
-    public LiveData<String> deleteArticle(Article article) {
-        MutableLiveData<String> liveData = new MutableLiveData<>();
-        repository.deleteSavedArticle(article).
+    LiveData<Boolean> deleteArticle() {
+        MutableLiveData<Boolean> liveData = new MutableLiveData<>();
+        repository.deleteSavedArticle(currentArticleToProcess).
                 subscribeOn(Schedulers.io()).subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
@@ -151,13 +152,13 @@ public class NewsActivityViewModel extends ViewModel {
 
             @Override
             public void onComplete() {
-                liveData.postValue(Constants.RESULT_ERROR);
+                liveData.postValue(true);
                 Log.d(TAG, "Deleted article completed successfully");
             }
 
             @Override
             public void onError(@NonNull Throwable e) {
-                liveData.postValue(Constants.RESULT_ERROR);
+                liveData.postValue(false);
                 Log.e(TAG, "Delete article Error: ", e);;
             }
         });

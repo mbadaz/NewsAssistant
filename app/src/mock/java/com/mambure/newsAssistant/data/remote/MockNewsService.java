@@ -29,7 +29,7 @@ public class MockNewsService implements NewsService {
     }
 
     @Override
-    public Observable<ArticlesResult> getArticles(Map<String, String> params) {
+    public Observable<ArticlesResult> getArticles(Map<String, Object> params) {
         return new Observable<ArticlesResult>() {
             @Override
             protected void subscribeActual(Observer<? super ArticlesResult> observer) {

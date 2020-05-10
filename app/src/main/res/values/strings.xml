@@ -12,4 +12,13 @@
     <string name="txtSkip">SKIP</string>
     <string name="menu_preferred_sources">Preferred Sources</string>
     <string name="menu_settings">Settings</string>
+    <string name="popup_menu_save">SAVE</string>
+    <string name="popup_menu_delete">DELETE</string>
+    <string name="snackbar_deleting">Deleting article...</string>
+    <string name="snackbar_articleDeleted">Article deleted.</string>
+    <string name="snackbar_action_undo">UNDO</string>
+    <string name="snackbar_error_deleting">Error deleting article!</string>
+    <string name="snackbar_articleSaving">Saving article...</string>
+    <string name="snackbar_articleSaved">ARTICLE SAVED</string>
+    <string name="snackbar_error_saving">Error saving article</string>
 </resources>

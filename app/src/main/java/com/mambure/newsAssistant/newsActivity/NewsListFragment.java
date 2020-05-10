@@ -5,7 +5,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
-import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.mambure.newsAssistant.BaseListFragment;
@@ -37,9 +35,9 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
     public ViewModelsFactory viewModelsFactory;
     private ArticlesAdapter adapter;
     @BindView(R.id.rv_articles_list) public RecyclerView recyclerView;
+    private Snackbar snackbar;
     private LiveData<ArticlesResult> articlesStream;
-    private LiveData<Boolean> saveArticleStatusLiveData;
-    private Article currentArticleToProcess;
+    private LiveData<Boolean> articleActionStatusLiveData;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,7 +70,7 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
         super.onStart();
         showProgressBar();
         hideErrorMessage();
-        mViewModel.setDataSource(source);
+        mViewModel.setDataSource(fragmentId);
         articlesStream = mViewModel.getArticlesStream();
         articlesStream.observe(this, articlesResult -> {
             if(articlesResult == null) return;
@@ -97,14 +95,14 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
     public void onStop() {
         mViewModel.cleanUp();
         if(articlesStream != null) articlesStream.removeObservers(this);
-        if(saveArticleStatusLiveData != null) saveArticleStatusLiveData.removeObservers(this);
+        if(articleActionStatusLiveData != null) articleActionStatusLiveData.removeObservers(this);
         adapter.clearData();
         super.onStop();
     }
 
     @Override
     public void onItemClick(View view, Article article) {
-        mViewModel.setCurrentArticleToSave(article);
+        mViewModel.setCurrentArticleToProcess(article);
 
         switch (view.getId()){
             case R.id.article_list_item:
@@ -118,7 +116,9 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
 
     private void openPopupMenu(View view) {
         PopupMenu popupMenu = new PopupMenu(getContext(), view);
-        popupMenu.inflate(R.menu.article_menu_popup);
+        popupMenu.inflate(R.menu.article_popup_menu);
+        if(fragmentId.equals(Constants.REMOTE)) popupMenu.getMenu().removeItem(R.id.popup_menu_delete);
+        else popupMenu.getMenu().removeItem(R.id.popup_menu_save);
         popupMenu.setOnMenuItemClickListener(this);
         popupMenu.show();
 
@@ -133,15 +133,41 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_save:
-               saveArticleStatusLiveData = mViewModel.saveArticle();
-               saveArticleStatusLiveData.observe(this, isSuccessful -> {
-                   if(isSuccessful){
-                       Toast.makeText(getContext(), "Article saved!", Toast.LENGTH_SHORT).show();
+            case R.id.popup_menu_save:
+               articleActionStatusLiveData = mViewModel.saveArticle();
+               articleActionStatusLiveData.observe(this, isSuccessful -> {
+                   if (isSuccessful) {
+                       snackbar = Snackbar.make(recyclerView, R.string.snackbar_articleSaved, Snackbar.LENGTH_SHORT);
+                       snackbar.setAction(R.string.snackbar_action_undo, v -> {
+                           mViewModel.deleteArticle();
+                           snackbar.dismiss();
+                       });
+                       snackbar.show();
                    }else {
-                       Toast.makeText(getContext(), "Error saving article!", Toast.LENGTH_SHORT).show();
+                       snackbar = Snackbar.make(recyclerView, R.string.snackbar_error_saving, Snackbar.LENGTH_SHORT);
+                       snackbar.show();
                    }
                });
+               break;
+            case R.id.popup_menu_delete:
+                articleActionStatusLiveData = mViewModel.deleteArticle();
+                articleActionStatusLiveData.observe(this, isSuccessful ->{
+                    if (isSuccessful) {
+                        adapter.removeItem(mViewModel.getCurrentArticle());
+                        snackbar = Snackbar.make(recyclerView, R.string.snackbar_articleDeleted, Snackbar.LENGTH_SHORT);
+                        snackbar.setAction(R.string.snackbar_action_undo, v ->{
+                             articleActionStatusLiveData = mViewModel.saveArticle();
+                             articleActionStatusLiveData.observe(this, isSuccessful2 -> {
+                                 adapter.addItem(mViewModel.getCurrentArticle());
+                             });
+                            snackbar.dismiss();
+                        });
+                        snackbar.show();
+                    } else {
+                        snackbar = Snackbar.make(recyclerView, R.string.snackbar_error_deleting, Snackbar.LENGTH_SHORT);
+                        snackbar.show();
+                    }
+                });
         }
         return false;
     }
