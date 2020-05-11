@@ -27,6 +27,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class NewsActivityViewModel extends ViewModel {
     private static final String TAG = NewsActivityViewModel.class.getSimpleName();
+    private boolean hasData = false;
     private String dataSource = Constants.REMOTE;
     private Repository repository;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -41,6 +42,14 @@ public class NewsActivityViewModel extends ViewModel {
     public NewsActivityViewModel(Repository repository, SharedPreferences sharedPreferences) {
         this.repository = repository;
         this.sharedPreferences = sharedPreferences;
+    }
+
+    public boolean hasData() {
+        return hasData;
+    }
+
+    public void setHasData(boolean hasData) {
+        this.hasData = hasData;
     }
 
     void setDataSource(String id) {
@@ -182,7 +191,8 @@ public class NewsActivityViewModel extends ViewModel {
     void cleanUp() {
         isBusy = false;
         compositeDisposable.clear();
-        articleStream.setValue(null);
+//        articleStream.setValue(null);
+        hasData = false;
         repository.cleanUp();
     }
 }

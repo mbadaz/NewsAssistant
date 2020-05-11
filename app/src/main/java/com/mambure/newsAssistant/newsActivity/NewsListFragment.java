@@ -1,24 +1,27 @@
 package com.mambure.newsAssistant.newsActivity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.snackbar.Snackbar;
 import com.mambure.newsAssistant.BaseListFragment;
 import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.R;
+import com.mambure.newsAssistant.customTabs.CustomTabActivityHelper;
 import com.mambure.newsAssistant.data.models.Article;
 import com.mambure.newsAssistant.data.models.ArticlesResult;
 import com.mambure.newsAssistant.dependencyInjection.ViewModelsFactory;
@@ -45,6 +48,7 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
         ((NewsActivity) requireActivity()).component.inject(this);
         mViewModel = new ViewModelProvider(requireActivity(), viewModelsFactory).
                 get(NewsActivityViewModel.class);
+        mViewModel.setDataSource(fragmentId);
     }
 
     @Override
@@ -70,7 +74,7 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
         super.onStart();
         showProgressBar();
         hideErrorMessage();
-        mViewModel.setDataSource(fragmentId);
+
         articlesStream = mViewModel.getArticlesStream();
         articlesStream.observe(this, articlesResult -> {
             if(articlesResult == null) return;
@@ -79,6 +83,7 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
                     adapter.addItems(articlesResult.articles);
                     hideErrorMessage();
                     hideProgessBar();
+                    mViewModel.setHasData(true);
                 }else {
                     hideProgessBar();
                     showStatusMessage("No articles to show at the moment.");
@@ -88,7 +93,10 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
                 hideProgessBar();
             }
         });
-        mViewModel.getArticles();
+
+        if (!mViewModel.hasData()) {
+            mViewModel.getArticles();
+        }
     }
 
     @Override
@@ -103,15 +111,29 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
     @Override
     public void onItemClick(View view, Article article) {
         mViewModel.setCurrentArticleToProcess(article);
-
-        switch (view.getId()){
+        int id = view.getId();
+        switch (id){
             case R.id.article_list_item:
-                // TODO: open article
+                openArticle(article.url);
                 break;
             case R.id.article_menu:
                 openPopupMenu(view);
                 break;
         }
+    }
+
+    private void openArticle(String url) {
+        CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder(customTabActivityHelper.getSession()).
+                setToolbarColor(getResources().getColor(R.color.colorPrimary, null)).
+                addDefaultShareMenuItem().
+                build();
+
+        CustomTabActivityHelper.openCustomTab(requireActivity(), customTabsIntent, Uri.parse(url),
+                (activity, uri) -> {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(intent);
+                });
+
     }
 
     private void openPopupMenu(View view) {

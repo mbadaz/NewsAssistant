@@ -15,18 +15,22 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.MyApplication;
 import com.mambure.newsAssistant.R;
+import com.mambure.newsAssistant.customTabs.CustomTabActivityHelper;
 import com.mambure.newsAssistant.dependencyInjection.NewsActivityComponent;
 import com.mambure.newsAssistant.wakthroughActivity.WalkThroughActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class NewsActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+public class NewsActivity extends AppCompatActivity implements
+        BottomNavigationView.OnNavigationItemSelectedListener, CustomTabActivityHelper.ConnectionCallback
+            {
     private static final String TAG = NewsActivity.class.getSimpleName();
 
     @BindView(R.id.bottom_navigation)
     BottomNavigationView bottomNavigationView;
     NewsActivityComponent component;
+    private CustomTabActivityHelper customTabActivityHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,9 @@ public class NewsActivity extends AppCompatActivity implements BottomNavigationV
         setContentView(R.layout.activity_main);
         component = ((MyApplication) getApplication()).getComponent().newsActivityComponent().create();
         ButterKnife.bind(this);
+
+        customTabActivityHelper = new CustomTabActivityHelper();
+
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
         bottomNavigationView.setSelectedItemId(R.id.menu_item_headlines);
     }
@@ -81,5 +88,43 @@ public class NewsActivity extends AppCompatActivity implements BottomNavigationV
                 startActivity(intent);
         }
         return false;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        customTabActivityHelper.bindCustomTabsService(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        customTabActivityHelper.unbindCustomTabsService(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        customTabActivityHelper.setConnectionCallback(null);
+    }
+
+    /**
+     * Called when the service is connected.
+     */
+    @Override
+    public void onCustomTabsConnected() {
+
+    }
+
+    /**
+     * Called when the service is disconnected.
+     */
+    @Override
+    public void onCustomTabsDisconnected() {
+
+    }
+
+    public CustomTabActivityHelper getCustomTabActivityHelper() {
+        return customTabActivityHelper;
     }
 }

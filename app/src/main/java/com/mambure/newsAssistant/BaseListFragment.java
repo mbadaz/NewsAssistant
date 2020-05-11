@@ -10,7 +10,9 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.mambure.newsAssistant.customTabs.CustomTabActivityHelper;
 import com.mambure.newsAssistant.newsActivity.NewsListFragment;
+import com.mambure.newsAssistant.newsActivity.NewsActivity;
 
 import butterknife.BindView;
 
@@ -21,14 +23,13 @@ public class BaseListFragment extends Fragment implements SwipeRefreshLayout.OnR
     private static final String SOURCE = "Fragment Id";
     protected String fragmentId;
 
-    @BindView(R.id.progressBar)
-    public ProgressBar progressBar;
-
     @BindView(R.id.txtMessage)
     public TextView errorMessageTextView;
 
     @BindView(R.id.swipeRefresh)
     public SwipeRefreshLayout swipeRefreshLayout;
+
+    protected CustomTabActivityHelper customTabActivityHelper;
 
     public static BaseListFragment newInstance(String arg) {
         Bundle bundle = new Bundle();
@@ -45,15 +46,15 @@ public class BaseListFragment extends Fragment implements SwipeRefreshLayout.OnR
         if (bundle != null) {
             fragmentId = bundle.getString(SOURCE);
         }
+        customTabActivityHelper = ((NewsActivity)requireActivity()).getCustomTabActivityHelper();
     }
 
     protected void hideProgessBar() {
-        progressBar.setVisibility(View.GONE);
         swipeRefreshLayout.setRefreshing(false);
     }
 
     protected void showProgressBar() {
-        progressBar.setVisibility(View.VISIBLE);
+       swipeRefreshLayout.setRefreshing(true);
     }
 
     protected void showStatusMessage(String message) {
