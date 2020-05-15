@@ -119,6 +119,10 @@ public class WalkthroughActivityViewModel extends ViewModel {
                 });
     }
 
+    boolean hasSourcesToSave() {
+        return !preferredSources.isEmpty();
+    }
+
     LiveData<String> savePreferredSources() {
         if (preferredSources.isEmpty()) return null;
         MyIdlingResource.getInstance().increment();

@@ -4,14 +4,14 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.mambure.newsAssistant.customTabs.CustomTabActivityHelper;
-import com.mambure.newsAssistant.newsActivity.NewsListFragment;
+import com.mambure.newsAssistant.newsActivity.SavedArticleListFragment;
 import com.mambure.newsAssistant.newsActivity.NewsActivity;
 
 import butterknife.BindView;
@@ -20,7 +20,7 @@ import butterknife.BindView;
  * A simple {@link Fragment} subclass.
  */
 public class BaseListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
-    private static final String SOURCE = "Fragment Id";
+    protected static final String SOURCE = "Fragment Id";
     protected String fragmentId;
 
     @BindView(R.id.txtMessage)
@@ -31,13 +31,6 @@ public class BaseListFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     protected CustomTabActivityHelper customTabActivityHelper;
 
-    public static BaseListFragment newInstance(String arg) {
-        Bundle bundle = new Bundle();
-        bundle.putString(SOURCE, arg);
-        NewsListFragment newsFragment = new NewsListFragment();
-        newsFragment.setArguments(bundle);
-        return newsFragment;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,7 +39,8 @@ public class BaseListFragment extends Fragment implements SwipeRefreshLayout.OnR
         if (bundle != null) {
             fragmentId = bundle.getString(SOURCE);
         }
-        customTabActivityHelper = ((NewsActivity)requireActivity()).getCustomTabActivityHelper();
+        FragmentActivity activity = requireActivity();
+        if(activity instanceof NewsActivity) customTabActivityHelper = ((NewsActivity) activity).getCustomTabActivityHelper();
     }
 
     protected void hideProgessBar() {

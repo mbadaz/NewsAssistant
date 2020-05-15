@@ -1,7 +1,5 @@
 package com.mambure.newsAssistant.data;
 
-import android.util.Log;
-
 import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.data.local.LocalDataRepository;
 import com.mambure.newsAssistant.data.models.Article;
@@ -9,23 +7,20 @@ import com.mambure.newsAssistant.data.models.ArticlesResult;
 import com.mambure.newsAssistant.data.models.Source;
 import com.mambure.newsAssistant.data.models.SourcesResult;
 import com.mambure.newsAssistant.data.remote.NewsService;
+import com.mambure.newsAssistant.utils.ParsingUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.MaybeObserver;
 import io.reactivex.Observable;
-import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
@@ -34,9 +29,8 @@ public class DataRepository implements Repository {
     private static final String TAG = DataRepository.class.getSimpleName();
     private NewsService newsRepository;
     private LocalDataRepository localDataRepository;
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
-    private Set<Source> preferredSources = new HashSet<>();
-    private Observable<ArticlesResult> articlesResultObservable;
+    private List<Source> preferredSources = new ArrayList<>();
+    private Maybe<ArticlesResult> articleObservable;
 
     @Inject
     public DataRepository(LocalDataRepository localDataRepository, NewsService newsService) {
@@ -45,15 +39,29 @@ public class DataRepository implements Repository {
     }
 
     @Override
-    public Observable<ArticlesResult> getNewArticles(Map<String, String> params) {
+    public Maybe<ArticlesResult> getArticles(Map<String, String> params, boolean update) {
+
         if (preferredSources.isEmpty()) {
-            List<Source> result = localDataRepository.getSources().subscribeOn(Schedulers.io()).blockingGet();
-            preferredSources.addAll(result);
+            loadPreferredSources();
         }
 
-        Map<String, Object> params2 = new HashMap<>(params);
-        params2.put(Constants.SOURCES, preferredSources);
-        return newsRepository.getArticles(params2);
+        Map<String, String> extendedParams = new HashMap<>(params);
+        extendedParams.put(Constants.SOURCES, ParsingUtils.createStringList(preferredSources));
+
+        if (articleObservable == null) {
+            articleObservable = newsRepository.getArticles(extendedParams).subscribeOn(Schedulers.io());
+            return articleObservable;
+        }
+
+        if (update) {
+            articleObservable = newsRepository.getArticles(extendedParams).subscribeOn(Schedulers.io());
+        }
+
+        return articleObservable;
+    }
+
+    private void loadPreferredSources() {
+        preferredSources = localDataRepository.getSources().subscribeOn(Schedulers.io()).blockingGet();
     }
 
     @Override
@@ -97,8 +105,14 @@ public class DataRepository implements Repository {
     }
 
     @Override
+    public void refresh() {
+        Map<String, String> requestParams = new HashMap<>();
+        requestParams.put(Constants.SOURCES, ParsingUtils.createStringList(preferredSources));
+        articleObservable = newsRepository.getArticles(requestParams);
+    }
+
+    @Override
     public void cleanUp() {
         preferredSources.clear();
-        compositeDisposable.clear();
     }
 }

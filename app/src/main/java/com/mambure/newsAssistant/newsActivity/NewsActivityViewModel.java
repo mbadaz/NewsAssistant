@@ -13,6 +13,7 @@ import com.mambure.newsAssistant.data.models.Article;
 import com.mambure.newsAssistant.data.models.ArticlesResult;
 import com.mambure.newsAssistant.data.models.SourcesResult;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,13 +29,13 @@ import io.reactivex.schedulers.Schedulers;
 public class NewsActivityViewModel extends ViewModel {
     private static final String TAG = NewsActivityViewModel.class.getSimpleName();
     private boolean hasData = false;
-    private String dataSource = Constants.REMOTE;
     private Repository repository;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     private SharedPreferences sharedPreferences;
     private Map<String, String> params = new HashMap<>();
     private MutableLiveData<SourcesResult> sourcesStream = new MutableLiveData<>();
-    private MutableLiveData<ArticlesResult> articleStream = new MutableLiveData<>();
+    private MutableLiveData<ArticlesResult> newArticleStream = new MutableLiveData<>();
+    private MutableLiveData<ArticlesResult> savedArticleStream = new MutableLiveData<>();
     private Boolean isBusy = false;
     private Article currentArticleToProcess;
 
@@ -42,18 +43,6 @@ public class NewsActivityViewModel extends ViewModel {
     public NewsActivityViewModel(Repository repository, SharedPreferences sharedPreferences) {
         this.repository = repository;
         this.sharedPreferences = sharedPreferences;
-    }
-
-    public boolean hasData() {
-        return hasData;
-    }
-
-    public void setHasData(boolean hasData) {
-        this.hasData = hasData;
-    }
-
-    void setDataSource(String id) {
-        dataSource = id;
     }
 
     void setCurrentArticleToProcess(Article currentArticleToProcess) {
@@ -64,13 +53,17 @@ public class NewsActivityViewModel extends ViewModel {
         return currentArticleToProcess;
     }
 
-    LiveData<ArticlesResult> getArticlesStream() {
-        return articleStream;
+    LiveData<ArticlesResult> getSavedArticlesStream() {
+       return savedArticleStream;
     }
 
-    void getArticles() {
+    LiveData<ArticlesResult> getNewArticlesStream() {
+       return newArticleStream;
+    }
+
+    void getArticles(String id, boolean update) {
         if(isBusy) return;
-        if (dataSource.equals(Constants.REMOTE)) compositeDisposable.add(fetchArticlesFromRemote());
+        if (id.equals(Constants.REMOTE)) fetchArticlesFromRemote(update);
         else compositeDisposable.add(fetchArticlesFromLocal());
     }
 
@@ -82,7 +75,7 @@ public class NewsActivityViewModel extends ViewModel {
             ArticlesResult result = new ArticlesResult();
             result.status = Constants.RESULT_OK;
             result.articles = articles;
-            articleStream.postValue(result);
+            savedArticleStream.postValue(result);
             isBusy = false;
             Log.d(TAG, "Fetch articles from local result - " + result);
         }, throwable -> {
@@ -92,18 +85,42 @@ public class NewsActivityViewModel extends ViewModel {
         });
     }
 
-    private Disposable fetchArticlesFromRemote() {
+    private void fetchArticlesFromRemote(boolean update) {
         isBusy = true;
-       return repository.getNewArticles(params).
-                subscribeOn(Schedulers.io()).subscribe(articlesResult -> {
-            articleStream.postValue(articlesResult);
-            isBusy = false;
-            Log.d(TAG, "Fetch articles from remote result - " + articlesResult);
-        }, throwable -> {
-            processArticleResultError();
-            Log.e(TAG, "Fetch articles from remote error: ", throwable);
-            isBusy = false;
-        });
+       repository.getArticles(params, update).
+                subscribe(new MaybeObserver<ArticlesResult>() {
+            private Disposable disposable;
+           @Override
+           public void onSubscribe(Disposable d) {
+               disposable = d;
+           }
+
+           @Override
+           public void onSuccess(ArticlesResult result) {
+               newArticleStream.postValue(result);
+               isBusy = false;
+//               disposable.dispose();
+           }
+
+           @Override
+           public void onError(Throwable e) {
+               Log.e(TAG, "Fetch articles from remote error: ", e);
+               processArticleResultError();
+               isBusy = false;
+               disposable.dispose();
+           }
+
+           @Override
+           public void onComplete() {
+               ArticlesResult result = new ArticlesResult();
+               result.status = Constants.RESULT_OK;
+               result.articles = Collections.emptyList();
+               newArticleStream.postValue(result);
+               Log.d(TAG, "Empty response fetching data");
+               isBusy = false;
+               disposable.dispose();
+           }
+       });
     }
 
     LiveData<Boolean> saveArticle() {
@@ -120,7 +137,7 @@ public class NewsActivityViewModel extends ViewModel {
 
                     @Override
                     public void onSuccess(Article article) {
-                        Log.d(TAG, "Found article in database: " + article);
+                        Log.d(TAG, "Skipping saving, article already saved: " + article);
                         savingStatusLiveData.postValue(true);
                         searchingDisposable.dispose();
                     }
@@ -178,7 +195,7 @@ public class NewsActivityViewModel extends ViewModel {
         isBusy = false;
         ArticlesResult result = new ArticlesResult();
         result.status = Constants.RESULT_ERROR;
-        articleStream.postValue(result);
+        newArticleStream.postValue(result);
     }
 
     private void processSourceResultError() {
@@ -188,11 +205,13 @@ public class NewsActivityViewModel extends ViewModel {
         sourcesStream.postValue(result);
     }
 
+    void refreshArticles() {
+        repository.refresh();
+    }
+
     void cleanUp() {
         isBusy = false;
         compositeDisposable.clear();
-//        articleStream.setValue(null);
-        hasData = false;
         repository.cleanUp();
     }
 }

@@ -12,7 +12,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.MyApplication;
 import com.mambure.newsAssistant.R;
 import com.mambure.newsAssistant.customTabs.CustomTabActivityHelper;
@@ -21,6 +20,8 @@ import com.mambure.newsAssistant.wakthroughActivity.WalkThroughActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.mambure.newsAssistant.Constants.*;
 
 public class NewsActivity extends AppCompatActivity implements
         BottomNavigationView.OnNavigationItemSelectedListener, CustomTabActivityHelper.ConnectionCallback
@@ -47,27 +48,54 @@ public class NewsActivity extends AppCompatActivity implements
 
     private Fragment getFragment(String id) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        Fragment fragment = fragmentManager.findFragmentByTag(id);
-        if(fragment == null) {
-           return NewsListFragment.newInstance(id);
-        }
-        return fragment;
+        return fragmentManager.findFragmentByTag(id);
     }
 
-    private void showFragment(Fragment fragment, String id) {
+    private void showFragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.main_fragment_container, fragment, id);
+        transaction.show(fragment);
         transaction.commit();
+    }
+
+    private void hideFragment(Fragment fragment) {
+        if(fragment == null) return;
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.hide(fragment);
+        transaction.commit();
+    }
+
+    private boolean addFragment(String id) {
+        Fragment fragment = getFragment(id);
+        if (fragment == null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            if (id.equals(REMOTE)){
+                transaction.add(R.id.main_fragment_container, NewsArticleListFragment.newInstance(id), id);
+            }
+            else {
+                transaction.add(R.id.main_fragment_container, SavedArticleListFragment.newInstance(id), id);
+            }
+            transaction.commit();
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_headlines:
-                showFragment(getFragment(Constants.REMOTE), Constants.REMOTE);
+                if (!addFragment(REMOTE)) {
+                    showFragment(getFragment(REMOTE));
+                }
+                hideFragment(getFragment(LOCAL));
                 break;
             case R.id.menu_item_saved:
-                showFragment(getFragment(Constants.LOCAL), Constants.LOCAL);
+                if (!addFragment(LOCAL)) {
+                    showFragment(getFragment(LOCAL));
+                }
+                hideFragment(getFragment(REMOTE));
+                break;
         }
         return false;
     }

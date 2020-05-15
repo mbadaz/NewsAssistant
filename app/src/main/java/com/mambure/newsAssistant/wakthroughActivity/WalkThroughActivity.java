@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -109,12 +110,16 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void saveUserData() {
-       userDataSavingStatus = viewModel.savePreferredSources();
-        userDataSavingStatus.observe(this, s -> {
-            if (s.equals(Constants.RESULT_OK)){
-                lauchNewsActivity();
-            }
-        });
+        if (viewModel.hasSourcesToSave()) {
+            userDataSavingStatus = viewModel.savePreferredSources();
+            userDataSavingStatus.observe(this, s -> {
+                if (s.equals(Constants.RESULT_OK)){
+                    lauchNewsActivity();
+                }
+            });
+        } else {
+            Toast.makeText(this, "Please select at least one source", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -139,7 +144,6 @@ public class WalkThroughActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     protected void onDestroy() {
-
         super.onDestroy();
     }
 }

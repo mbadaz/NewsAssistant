@@ -31,16 +31,24 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class NewsListFragment extends BaseListFragment implements ArticlesAdapter.OnItemClickListener,
+public class NewsArticleListFragment extends BaseListFragment implements ArticlesAdapter.OnItemClickListener,
     PopupMenu.OnMenuItemClickListener{
     private NewsActivityViewModel mViewModel;
     @Inject
     public ViewModelsFactory viewModelsFactory;
     private ArticlesAdapter adapter;
-    @BindView(R.id.rv_articles_list) public RecyclerView recyclerView;
+    @BindView(R.id.rv_new_articles_list) public RecyclerView recyclerView;
     private Snackbar snackbar;
     private LiveData<ArticlesResult> articlesStream;
     private LiveData<Boolean> articleActionStatusLiveData;
+
+    public static BaseListFragment newInstance(String arg) {
+        Bundle bundle = new Bundle();
+        bundle.putString(SOURCE, arg);
+        NewsArticleListFragment newsFragment = new NewsArticleListFragment();
+        newsFragment.setArguments(bundle);
+        return newsFragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,13 +56,12 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
         ((NewsActivity) requireActivity()).component.inject(this);
         mViewModel = new ViewModelProvider(requireActivity(), viewModelsFactory).
                 get(NewsActivityViewModel.class);
-        mViewModel.setDataSource(fragmentId);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_article_list,
+        View view = inflater.inflate(R.layout.fragment_new_article_list,
                 container, false);
         ButterKnife.bind(this, view);
         return view;
@@ -75,7 +82,7 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
         showProgressBar();
         hideErrorMessage();
 
-        articlesStream = mViewModel.getArticlesStream();
+        articlesStream = mViewModel.getNewArticlesStream();
         articlesStream.observe(this, articlesResult -> {
             if(articlesResult == null) return;
             if (articlesResult.status.equals(Constants.RESULT_OK)) {
@@ -83,7 +90,6 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
                     adapter.addItems(articlesResult.articles);
                     hideErrorMessage();
                     hideProgessBar();
-                    mViewModel.setHasData(true);
                 }else {
                     hideProgessBar();
                     showStatusMessage("No articles to show at the moment.");
@@ -93,10 +99,7 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
                 hideProgessBar();
             }
         });
-
-        if (!mViewModel.hasData()) {
-            mViewModel.getArticles();
-        }
+            mViewModel.getArticles(fragmentId, true);
     }
 
     @Override
@@ -148,8 +151,8 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
 
     @Override
     public void onRefresh() {
-        hideErrorMessage();
-        mViewModel.getArticles();
+        mViewModel.getArticles(fragmentId,true);
+        super.onRefresh();
     }
 
     @Override
@@ -192,5 +195,15 @@ public class NewsListFragment extends BaseListFragment implements ArticlesAdapte
                 });
         }
         return false;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 }

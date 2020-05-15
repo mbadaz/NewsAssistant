@@ -19,7 +19,7 @@ import io.reactivex.Observable;
 
 public interface Repository{
 
-    Observable<ArticlesResult> getNewArticles(Map<String, String> params);
+    Maybe<ArticlesResult> getArticles(Map<String, String> params, boolean update);
 
     Maybe<List<Article>> getSavedArticles();
 
@@ -36,6 +36,8 @@ public interface Repository{
     Maybe<List<Source>> getSavedSources();
 
     Observable<SourcesResult> getSources();
+
+    void refresh();
 
     void cleanUp();
 

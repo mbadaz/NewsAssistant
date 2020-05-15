@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 public class ExampleInstrumentedTest {
     @Test
     public void useAppContext() {
-        // NewsListFragment of the app under test.
+        // SavedArticleListFragment of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
         assertEquals("com.mbadasoft.newsassistant", appContext.getPackageName());
