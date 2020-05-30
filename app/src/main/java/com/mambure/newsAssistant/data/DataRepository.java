@@ -18,10 +18,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 @Singleton
@@ -65,7 +64,7 @@ public class DataRepository implements Repository {
     }
 
     @Override
-    public Maybe<List<Article>> getSavedArticles() {
+    public Observable<List<Article>> getSavedArticles() {
         return localDataRepository.getArticles();
     }
 
@@ -102,13 +101,6 @@ public class DataRepository implements Repository {
     @Override
     public Completable deletePreferredSources(List<Source> sources) {
         return localDataRepository.deleteSources(sources);
-    }
-
-    @Override
-    public void refresh() {
-        Map<String, String> requestParams = new HashMap<>();
-        requestParams.put(Constants.SOURCES, ParsingUtils.createStringList(preferredSources));
-        articleObservable = newsRepository.getArticles(requestParams);
     }
 
     @Override

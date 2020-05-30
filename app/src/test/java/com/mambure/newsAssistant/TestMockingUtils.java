@@ -2,6 +2,7 @@ package com.mambure.newsAssistant;
 
 import com.mambure.newsAssistant.data.models.Article;
 import com.mambure.newsAssistant.data.models.Source;
+import com.mambure.newsAssistant.data.models.SourcesResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,5 +41,12 @@ public class TestMockingUtils {
         source.language = "language " + x;
         source.name = "name " + x;
         return source;
+    }
+
+    public static SourcesResult generateMockSourceResult() {
+        SourcesResult sourcesResult = new SourcesResult();
+        sourcesResult.sources = generateMockSources();
+        sourcesResult.status = Constants.RESULT_OK;
+        return sourcesResult;
     }
 }

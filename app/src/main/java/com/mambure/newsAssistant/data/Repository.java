@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 
@@ -21,7 +22,7 @@ public interface Repository{
 
     Maybe<ArticlesResult> getArticles(Map<String, String> params, boolean update);
 
-    Maybe<List<Article>> getSavedArticles();
+    Observable<List<Article>> getSavedArticles();
 
     Completable saveArticle(Article article);
 
@@ -36,8 +37,6 @@ public interface Repository{
     Maybe<List<Source>> getSavedSources();
 
     Observable<SourcesResult> getSources();
-
-    void refresh();
 
     void cleanUp();
 

@@ -15,19 +15,25 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 
 public class MockFailingDataRepository implements Repository {
+
     @Override
-    public Maybe<ArticlesResult> fetchArticlesFromRemote(Map<String, String> params) {
+    public Maybe<ArticlesResult> getArticles(Map<String, String> params, boolean update) {
+        return Maybe.error(new Throwable("No data"));
+    }
+
+    @Override
+    public Maybe<List<Article>> getSavedArticles() {
         return null;
     }
 
     @Override
-    public Flowable<List<Article>> fetchArticlesFromLocal() {
+    public Completable saveArticle(Article article) {
         return null;
     }
 
     @Override
-    public void saveArticle(Article article) {
-
+    public Maybe<Article> findSavedArticle(String title) {
+        return null;
     }
 
     @Override
@@ -36,27 +42,22 @@ public class MockFailingDataRepository implements Repository {
     }
 
     @Override
-    public Flowable<List<Source>> fetchSourcesFromLocal() {
-        return null;
-    }
-
-    @Override
-    public Observable<SourcesResult> fetchSourcesFromRemote() {
-        return new Observable<SourcesResult>() {
-            @Override
-            protected void subscribeActual(Observer<? super SourcesResult> observer) {
-                observer.onError(new Exception());
-            }
-        };
-    }
-
-    @Override
     public Completable saveSources(List<Source> sources) {
         return null;
     }
 
     @Override
-    public Completable deleteSources(Source source) {
+    public Completable deletePreferredSources(List<Source> sources) {
+        return null;
+    }
+
+    @Override
+    public Maybe<List<Source>> getSavedSources() {
+        return null;
+    }
+
+    @Override
+    public Observable<SourcesResult> getSources() {
         return null;
     }
 

@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.mambure.newsAssistant.Constants;
 import com.mambure.newsAssistant.MyApplication;
 import com.mambure.newsAssistant.R;
 import com.mambure.newsAssistant.customTabs.CustomTabActivityHelper;
@@ -46,38 +47,22 @@ public class NewsActivity extends AppCompatActivity implements
         bottomNavigationView.setSelectedItemId(R.id.menu_item_headlines);
     }
 
-    private Fragment getFragment(String id) {
+    private Fragment getFragment(FragmentId id) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        return fragmentManager.findFragmentByTag(id);
+        return fragmentManager.findFragmentByTag(id.toString());
     }
 
-    private void showFragment(Fragment fragment) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.show(fragment);
-        transaction.commit();
-    }
-
-    private void hideFragment(Fragment fragment) {
-        if(fragment == null) return;
-
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.hide(fragment);
-        transaction.commit();
-    }
-
-    private boolean addFragment(String id) {
+    private boolean addFragment(FragmentId id) {
         Fragment fragment = getFragment(id);
         if (fragment == null) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            if (id.equals(REMOTE)){
-                transaction.add(R.id.main_fragment_container, NewsArticleListFragment.newInstance(id), id);
-            }
-            else {
-                transaction.add(R.id.main_fragment_container, SavedArticleListFragment.newInstance(id), id);
-            }
-            transaction.commit();
-            return true;
+            fragment = ArticleListFragment.newInstance(id.toString());
         }
+
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        transaction.replace(R.id.main_fragment_container, fragment, id.toString());
+        transaction.commit();
+
         return false;
     }
 
@@ -85,16 +70,10 @@ public class NewsActivity extends AppCompatActivity implements
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_headlines:
-                if (!addFragment(REMOTE)) {
-                    showFragment(getFragment(REMOTE));
-                }
-                hideFragment(getFragment(LOCAL));
+                addFragment(FragmentId.NEW_ARTICLES);
                 break;
             case R.id.menu_item_saved:
-                if (!addFragment(LOCAL)) {
-                    showFragment(getFragment(LOCAL));
-                }
-                hideFragment(getFragment(REMOTE));
+                addFragment(FragmentId.SAVED_ARTICLES);
                 break;
         }
         return false;
@@ -116,6 +95,10 @@ public class NewsActivity extends AppCompatActivity implements
                 startActivity(intent);
         }
         return false;
+    }
+
+    public CustomTabActivityHelper getCustomTabActivityHelper() {
+        return customTabActivityHelper;
     }
 
     @Override
@@ -152,7 +135,4 @@ public class NewsActivity extends AppCompatActivity implements
 
     }
 
-    public CustomTabActivityHelper getCustomTabActivityHelper() {
-        return customTabActivityHelper;
-    }
 }

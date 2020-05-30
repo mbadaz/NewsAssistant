@@ -68,7 +68,7 @@ public class RoomDatabaseTests {
         localDataRepository.saveArticle(articles.get(0));
         for (Article article : articles) {
                 localDataRepository.saveArticle(article).
-                        subscribe(aLong -> countDownLatch.countDown());
+                        subscribe(countDownLatch::countDown);
             }
 
         localDataRepository.getArticles().subscribe(articles1 -> {

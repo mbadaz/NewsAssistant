@@ -16,4 +16,15 @@ public class Constants {
         public static final String IS_FIRST_RUN = "is first run";
     }
 
+    public enum FragmentId {
+        NEW_ARTICLES,
+        SAVED_ARTICLES
+    }
+
+    public enum Result {
+        OK,
+        NO_DATA,
+        ERROR
+    }
+
 }

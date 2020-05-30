@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
@@ -100,7 +101,7 @@ public class WalkthroughActivityTest {
     public void showErrorMessageTest() {
         onView(withId(R.id.viewpager_walkthrough)).perform(ViewPagerActions.scrollRight());
         onView(childMatcher(R.id.txtMessage, R.id.sources_selection_fragment)).
-                check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+                check(matches(isDisplayed()));
 
     }
 

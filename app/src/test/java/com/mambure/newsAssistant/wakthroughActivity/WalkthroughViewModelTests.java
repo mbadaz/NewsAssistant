@@ -12,6 +12,8 @@ import com.mambure.newsAssistant.data.Repository;
 import com.mambure.newsAssistant.data.models.Source;
 import com.mambure.newsAssistant.data.models.SourcesResult;
 
+import org.assertj.core.api.Assertions;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -19,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -38,13 +41,10 @@ import static org.mockito.ArgumentMatchers.anyList;
 @RunWith(MockitoJUnitRunner.class)
 public class WalkthroughViewModelTests {
 
-    WalkthroughActivityViewModel viewModel;
     @Mock
     Repository repository;
-    @Mock
-    SharedPreferences sharedPreferences;
-    @Captor
-    ArgumentCaptor<List<Source>> sourcesArgumentCaptor;
+    @InjectMocks
+    WalkthroughActivityViewModel viewModel;
 
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
@@ -52,29 +52,60 @@ public class WalkthroughViewModelTests {
     @Before
     public void initializeViewModel() {
         MockitoAnnotations.initMocks(this);
-        viewModel = new WalkthroughActivityViewModel(repository, sharedPreferences);
+    }
+
+    @After
+    public void cleanUp() {
+        viewModel = null;
+//        sourcesListArgumentCaptor = null;
+    }
+
+    @Test
+    public void changePreferredSources() {
+        // GIVEN
+        List<Source> sourcesFromLocal = TestMockingUtils.generateMockSources().subList(0,4);
+        SourcesResult sourcesResultFromRemote = TestMockingUtils.generateMockSourceResult();
+        ArgumentCaptor<List<Source>> sourcesToSaveArgCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<Source>> sourcesToDeleteArgCaptor = ArgumentCaptor.forClass(List.class);
+        Maybe<List<Source>> maybe = Maybe.just(sourcesFromLocal);
+
+        // WHEN
+        Mockito.when(repository.getSavedSources()).
+                thenReturn(maybe);
+        Mockito.when(repository.getSources())
+                .thenReturn(Observable.just(sourcesResultFromRemote));
+        Mockito.when(repository.deletePreferredSources(anyList()))
+                .thenReturn(Mockito.mock(Completable.class));
+        Mockito.when(repository.saveSources(anyList()))
+                .thenReturn(Mockito.mock(Completable.class));
+
+        viewModel.loadSources();
+        maybe.test().awaitTerminalEvent();
+        viewModel.processClickedSourceItem(sourcesResultFromRemote.sources.get(0));
+        viewModel.processClickedSourceItem(sourcesResultFromRemote.sources.get(1));
+        viewModel.processClickedSourceItem(sourcesResultFromRemote.sources.get(4));
+        viewModel.savePreferredSources();
+
+        // VERIFY Sources to be deleted and Sources to be Saved
+        Mockito.verify(repository).deletePreferredSources(sourcesToDeleteArgCaptor.capture());
+        Mockito.verify(repository).saveSources(sourcesToSaveArgCaptor.capture());
+        List<Source> sourcesToDelete = sourcesToDeleteArgCaptor.getValue();
+        List<Source> sourcesToSave = sourcesToSaveArgCaptor.getValue();
+
+        Assertions.assertThat(sourcesToDelete)
+                .contains(sourcesResultFromRemote.sources.get(0),
+                        sourcesResultFromRemote.sources.get(1));
+
+        Assertions.assertThat(sourcesToSave)
+                .contains(sourcesResultFromRemote.sources.get(4));
     }
 
     @Test
     public void sourcesFetchAndInitializeTest() {
         // GIVEN
         List<Source> sources = TestMockingUtils.generateMockSources();
-        Mockito.when(repository.getSavedSources()).thenReturn(new Maybe<List<Source>>() {
-            @Override
-            protected void subscribeActual(MaybeObserver<? super List<Source>> s) {
-                s.onSuccess(sources.subList(1, 4));
-            }
-        });
-
-        Mockito.when(repository.getSources()).thenReturn(new Observable<SourcesResult>() {
-            @Override
-            protected void subscribeActual(Observer<? super SourcesResult> observer) {
-                SourcesResult sourcesResult = new SourcesResult();
-                sourcesResult.sources = sources;
-                sourcesResult.status = Constants.RESULT_OK;
-                observer.onNext(sourcesResult);
-            }
-        });
+        Mockito.when(repository.getSavedSources()).thenReturn(Maybe.just(sources.subList(0,3)));
+        Mockito.when(repository.getSources()).thenReturn(Observable.just(TestMockingUtils.generateMockSourceResult()));
 
         // PEFORM
         viewModel.loadSources();
@@ -86,53 +117,4 @@ public class WalkthroughViewModelTests {
         Assert.assertEquals(3,checkedCount);
     }
 
-    @Test
-    public void changePreferredSources() {
-        // GIVEN
-        List<Source> sourcesFromLocal = TestMockingUtils.generateMockSources().subList(0,3);
-        List<Source> sourcesFromRemote = TestMockingUtils.generateMockSources();
-
-        Mockito.when(repository.getSavedSources()).thenReturn(new Maybe<List<Source>>() {
-            @Override
-            protected void subscribeActual(MaybeObserver<? super List<Source>> s) {
-                s.onSuccess(sourcesFromLocal);
-            }
-        });
-
-        Mockito.when(repository.getSources()).thenReturn(new Observable<SourcesResult>() {
-            @Override
-            protected void subscribeActual(Observer<? super SourcesResult> observer) {
-                SourcesResult sourcesResult = new SourcesResult();
-                sourcesResult.sources = sourcesFromRemote;
-                sourcesResult.status = Constants.RESULT_OK;
-                observer.onNext(sourcesResult);
-            }
-        });
-
-        Mockito.when(repository.deletePreferredSources(anyList())).thenReturn(new Completable() {
-            @Override
-            protected void subscribeActual(CompletableObserver observer) {
-                observer.onComplete();
-            }
-        });
-
-        Mockito.when(repository.saveSources(anyList())).thenReturn(new Completable() {
-            @Override
-            protected void subscribeActual(CompletableObserver observer) {
-                observer.onComplete();
-            }
-        });
-
-        // PERFORM Deselect sources
-        viewModel.loadSources();
-        viewModel.processClickedSourceItem(sourcesFromRemote.get(0));
-        viewModel.processClickedSourceItem(sourcesFromRemote.get(1));
-        viewModel.savePreferredSources();
-
-        // VERIFY Sources to be deleted from local database
-        Mockito.verify(repository).deletePreferredSources(sourcesArgumentCaptor.capture());
-
-        Assert.assertEquals(2, sourcesArgumentCaptor.getValue().size());
-
-    }
 }

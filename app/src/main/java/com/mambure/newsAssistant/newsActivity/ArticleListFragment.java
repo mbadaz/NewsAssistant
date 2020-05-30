@@ -31,7 +31,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class NewsArticleListFragment extends BaseListFragment implements ArticlesAdapter.OnItemClickListener,
+public class ArticleListFragment extends BaseListFragment implements ArticlesAdapter.OnItemClickListener,
     PopupMenu.OnMenuItemClickListener{
     private NewsActivityViewModel mViewModel;
     @Inject
@@ -41,14 +41,6 @@ public class NewsArticleListFragment extends BaseListFragment implements Article
     private Snackbar snackbar;
     private LiveData<ArticlesResult> articlesStream;
     private LiveData<Boolean> articleActionStatusLiveData;
-
-    public static BaseListFragment newInstance(String arg) {
-        Bundle bundle = new Bundle();
-        bundle.putString(SOURCE, arg);
-        NewsArticleListFragment newsFragment = new NewsArticleListFragment();
-        newsFragment.setArguments(bundle);
-        return newsFragment;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,7 +53,7 @@ public class NewsArticleListFragment extends BaseListFragment implements Article
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_new_article_list,
+        View view = inflater.inflate(R.layout.fragment_article_list,
                 container, false);
         ButterKnife.bind(this, view);
         return view;
@@ -80,26 +72,23 @@ public class NewsArticleListFragment extends BaseListFragment implements Article
     public void onStart() {
         super.onStart();
         showProgressBar();
-        hideErrorMessage();
+        hideStatusMessage();
 
-        articlesStream = mViewModel.getNewArticlesStream();
+        articlesStream = mViewModel.getArticlesStream(fragmentId);
         articlesStream.observe(this, articlesResult -> {
-            if(articlesResult == null) return;
-            if (articlesResult.status.equals(Constants.RESULT_OK)) {
-                if(!articlesResult.articles.isEmpty()){
-                    adapter.addItems(articlesResult.articles);
-                    hideErrorMessage();
-                    hideProgessBar();
-                }else {
-                    hideProgessBar();
-                    showStatusMessage("No articles to show at the moment.");
-                }
-            } else {
+            if (articlesResult.result == Constants.Result.OK) {
+                adapter.addItems(articlesResult.articles);
+                hideProgessBar();
+                hideStatusMessage();
+            } else if (articlesResult.result == Constants.Result.ERROR) {
                 showStatusMessage(getResources().getString(R.string.requestErrorMessage));
+                hideProgessBar();
+            } else if (articlesResult.result == Constants.Result.NO_DATA) {
+                showStatusMessage(getResources().getString(R.string.requestNoData));
                 hideProgessBar();
             }
         });
-            mViewModel.getArticles(fragmentId, true);
+            mViewModel.getArticles(fragmentId);
     }
 
     @Override
@@ -142,16 +131,15 @@ public class NewsArticleListFragment extends BaseListFragment implements Article
     private void openPopupMenu(View view) {
         PopupMenu popupMenu = new PopupMenu(getContext(), view);
         popupMenu.inflate(R.menu.article_popup_menu);
-        if(fragmentId.equals(Constants.REMOTE)) popupMenu.getMenu().removeItem(R.id.popup_menu_delete);
+        if(fragmentId == Constants.FragmentId.NEW_ARTICLES) popupMenu.getMenu().removeItem(R.id.popup_menu_delete);
         else popupMenu.getMenu().removeItem(R.id.popup_menu_save);
         popupMenu.setOnMenuItemClickListener(this);
         popupMenu.show();
-
     }
 
     @Override
     public void onRefresh() {
-        mViewModel.getArticles(fragmentId,true);
+        mViewModel.refresh(fragmentId);
         super.onRefresh();
     }
 
@@ -163,15 +151,10 @@ public class NewsArticleListFragment extends BaseListFragment implements Article
                articleActionStatusLiveData.observe(this, isSuccessful -> {
                    if (isSuccessful) {
                        snackbar = Snackbar.make(recyclerView, R.string.snackbar_articleSaved, Snackbar.LENGTH_SHORT);
-                       snackbar.setAction(R.string.snackbar_action_undo, v -> {
-                           mViewModel.deleteArticle();
-                           snackbar.dismiss();
-                       });
-                       snackbar.show();
                    }else {
                        snackbar = Snackbar.make(recyclerView, R.string.snackbar_error_saving, Snackbar.LENGTH_SHORT);
-                       snackbar.show();
                    }
+                   snackbar.show();
                });
                break;
             case R.id.popup_menu_delete:
@@ -187,11 +170,10 @@ public class NewsArticleListFragment extends BaseListFragment implements Article
                              });
                             snackbar.dismiss();
                         });
-                        snackbar.show();
                     } else {
                         snackbar = Snackbar.make(recyclerView, R.string.snackbar_error_deleting, Snackbar.LENGTH_SHORT);
-                        snackbar.show();
                     }
+                    snackbar.show();
                 });
         }
         return false;

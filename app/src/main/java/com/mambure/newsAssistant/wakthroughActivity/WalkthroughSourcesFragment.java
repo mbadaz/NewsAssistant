@@ -20,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.mambure.newsAssistant.BaseListFragment;
+import com.mambure.newsAssistant.Constants;
+import com.mambure.newsAssistant.Constants.Result;
 import com.mambure.newsAssistant.R;
 import com.mambure.newsAssistant.data.models.Source;
 import com.mambure.newsAssistant.dependencyInjection.ViewModelsFactory;
@@ -38,8 +40,6 @@ public class WalkthroughSourcesFragment extends BaseListFragment implements
     public ViewModelsFactory viewModelsFactory;
     @BindView(R.id.rv_walkthrough)
     public RecyclerView recyclerView;
-    @BindView(R.id.progressBar)
-    public ProgressBar progressBar;
     @BindView(R.id.swipeRefresh)
     public SwipeRefreshLayout swipeRefreshLayout;
     private SourcesAdapter sourcesAdapter;
@@ -82,16 +82,20 @@ public class WalkthroughSourcesFragment extends BaseListFragment implements
     @Override
     public void onResume() {
         super.onResume();
+        showProgressBar();
         viewModel.getSourcesStream().observe(this, sourcesResult -> {
-            if (sourcesResult.status.equals("ok")) {
+            if (sourcesResult.result == Result.OK) {
                 sourcesAdapter.addData(sourcesResult.sources);
                 Log.d(TAG, "Added: " + sourcesResult.sources.size() + " sources");
-            }else {
-                errorMessageTextView.setVisibility(View.VISIBLE);
-                errorMessageTextView.setText(getResources().getString(R.string.requestErrorMessage));
+                hideProgessBar();
+                hideStatusMessage();
+            }else if (sourcesResult.result == Result.ERROR) {
+                showStatusMessage(getResources().getString(R.string.requestErrorMessage));
+                hideProgessBar();
+            } else if(sourcesResult.result == Result.NO_DATA) {
+                showStatusMessage(getResources().getString(R.string.requestNoData));
+                hideProgessBar();
             }
-            progressBar.setVisibility(View.GONE);
-            swipeRefreshLayout.setRefreshing(false);
         });
         viewModel.loadSources();
     }

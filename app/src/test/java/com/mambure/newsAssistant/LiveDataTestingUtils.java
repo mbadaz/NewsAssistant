@@ -22,7 +22,7 @@ public class LiveDataTestingUtils {
 
         liveData.observeForever(observer);
         try {
-            latch.await(2, TimeUnit.SECONDS);
+            latch.await(4, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

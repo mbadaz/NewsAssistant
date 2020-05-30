@@ -11,13 +11,15 @@ import com.mambure.newsAssistant.data.models.Source;
 import java.util.List;
 
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 
 
 @Dao
 public interface LocalDataRepository {
     @Query("SELECT * FROM articles")
-    Maybe<List<Article>> getArticles();
+    Observable<List<Article>> getArticles();
 
     @Query("SELECT * FROM articles WHERE title=:articleTitle")
     Maybe<Article> getArticleByTitle(String articleTitle);
